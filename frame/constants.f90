@@ -102,9 +102,11 @@ module constants
     integer, parameter  :: VERSION_MAJOR    = 1
     integer, parameter  :: VERSION_MINOR    = 0
     integer, parameter  :: VERSION_RELEASE  = 0
-    character(len=MAX_WORD_LEN), parameter  :: COPYRIGHT  = 'Copyright (c) 2013-2016 Xi''an Jiaotong University'
-    character(len=MAX_WORD_LEN), parameter  :: LABORATORY = 'Nuclear Engineering Computational Physics lib. (NECP)'
-    character(len=MAX_WORD_LEN), parameter  :: CODENAME   = 'FRNK'
+    character(len=MAX_WORD_LEN), parameter  :: COPYRIGHT  = 'Copyright (c) 2017 Institute of Modern Physics,CAS'
+    character(len=MAX_WORD_LEN), parameter  :: LABORATORY = 'Group of Reactor multi-physics Coupling(RMPC)'
+    character(len=MAX_WORD_LEN), parameter  :: CODENAME   = 'IMPC-transient'
+	character(len=MAX_WORD_LEN), parameter  :: IMP        = 'The Ready,Motivating,Persistent and Collaborative Team'
+
     
     ! --------------------------------------------------------------------------
     ! file unit management

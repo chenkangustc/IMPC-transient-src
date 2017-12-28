@@ -50,9 +50,9 @@ contains
 !             &  '                                  D A I S Y                                  ' ,    &
 !             &  '                                =============                                '
         write(unit=unit_, fmt="(/, *(1x, A, /), /)")                                          &
-            &  '                                =============                                ' ,    &
-            &  '                                   F R N K                                   ' ,    &
-            &  '                                =============                                '
+             &  '                               ===================                               ' ,    &
+             &  '                                  IMPC-transient                                  ' ,    &
+             &  '                               ===================                                '
         
         ! print the copyright and basic information
 !        write(unit=unit_, fmt="(1x, 12x, '   ______________________________________________________')")
@@ -62,6 +62,7 @@ contains
         write(unit=unit_, fmt="(1x, 12x, 3x, A, A, I1, '.', I1, I1)") TRIM(CODENAME), ': ver ', VERSION_MAJOR, VERSION_MINOR, VERSION_RELEASE
         write(unit=unit_, fmt="(1x, 12x, 3x, A)") TRIM(COPYRIGHT)
         write(unit=unit_, fmt="(1x, 12x, 3x, A)") TRIM(LABORATORY)
+		write(unit=unit_, fmt="(1x, 12x, 3x, A)") TRIM(IMP)
         write(unit=unit_, fmt="(1x, 12x, '   ------------------------------------------------------')")
     
         ! print the case title
