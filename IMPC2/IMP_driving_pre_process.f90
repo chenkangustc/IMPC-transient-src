@@ -100,6 +100,9 @@ contains
       allocate(assm%thermal%Temperature(M-1,N))
       allocate(assm%thermal%Pressure(M-1))
       allocate(assm%thermal%Velocity(Ny-1))
+	  allocate(assm%thermal%Tfg(Ny))
+	  allocate(assm%thermal%Tgs(Ny))
+	  allocate(assm%thermal%Tsc(Ny))
       
       allocate(assm%mesh%r(0:M,0:N))
       allocate(assm%mesh%z(0:M,0:N))
@@ -122,6 +125,9 @@ contains
       if(allocated(assm%thermal%temperature))  deallocate(assm%thermal%temperature)
       if(allocated(assm%thermal%pressure))  deallocate(assm%thermal%pressure)
       if(allocated(assm%thermal%Velocity))  deallocate(assm%thermal%Velocity)
+	  if(allocated(assm%thermal%Tfg))  deallocate(assm%thermal%Tfg)
+	  if(allocated(assm%thermal%Tgs))  deallocate(assm%thermal%Tgs)
+	  if(allocated(assm%thermal%Tsc))  deallocate(assm%thermal%Tsc)
       
       if(allocated(assm%mesh%r))  deallocate(assm%mesh%r)
       if(allocated(assm%mesh%z))  deallocate(assm%mesh%z)

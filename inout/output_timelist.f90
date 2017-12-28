@@ -17,7 +17,8 @@ module output_timelist
     
     use th_global,              only : hot_channel
     use contain_header,         only : TimeListParameter
-        
+    
+	use imp_assm_global
     implicit none 
     private
     public  :: Print_header_timelist, Print_timelist
@@ -59,9 +60,13 @@ contains
         real(KREAL), intent(in)   :: ctime
         integer, intent(in)       :: unit_
     
-        integer  :: ip
+        integer  :: ip		
         real(KREAL)  :: relative_power
         real(KREAL)  :: reactivity_dollar
+		
+	    !local
+		integer i,j
+		real(KREAL)  ::max_T_inner,max_T_outer
         
         call time_program%update (silent=.TRUE.)
         
@@ -71,15 +76,23 @@ contains
         else
             reactivity_dollar = 0.0D0 
         end if 
-        
+        !calculate the max inner and outer Temperature
+		max_T_inner=0.0
+		max_T_outer=0.0
+		do i=1,ns%state%zone,1
+			do j=1,assm1(i)%mesh%Ny,1
+				if(max_T_inner<assm1(i)%thermal%Tfg(j)) max_T_inner=assm1(i)%thermal%Tfg(j)
+				if(max_T_outer<assm1(i)%thermal%Tfg(j)) max_T_outer=assm1(i)%thermal%Tfg(j)
+			enddo
+		enddo
         write(unit=unit_, fmt="(1X, (I6, TR1, ES14.5, TR1), 3(ES13.6, TR2), 3(F7.4, TR1, I3, TR2), *(F7.2, TR2))")   &
             &   tidx, ctime,                                                                                       &
             &   reactivity_dollar, timelist%beta*1.0E5, relative_power,                                                         &
             &   timelist%fxy_nodal, timelist%idx_nodal, timelist%fxy_FA, timelist%idx_FA,                                   &
             &   timelist%fz, timelist%idx_z,                                                                    &
             &   timelist%Tm_max, timelist%Tm_outlet, timelist%Tm_avg, timelist%Tf_max, timelist%Tf_avg,         &
-            &   MAXVAL(hot_channel%tclad_inner), MAXVAL(hot_channel%tclad_surf)
-        
+            &   max_T_inner, max_T_outer 
+			!&   MAXVAL(hot_channel%tclad_inner), MAXVAL(hot_channel%tclad_surf)
         ! to screen
         write(unit=OUTPUT_UNIT, fmt="(1x, 2(A, ES12.5), (A, ES10.3, A))") 't =',  ctime, ' sec., Power =', relative_power, '%;   t-elapsed =', time_program%total, ' sec.'
         

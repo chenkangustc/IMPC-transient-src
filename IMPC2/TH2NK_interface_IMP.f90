@@ -39,9 +39,11 @@
         REAL(KREAL)  :: last_, current_
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)  :: TAoutlet_total,A_total!used to calculate the core average outlet temperature
+		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
         real(KREAL), allocatable  :: power(:, :)
         real(KREAL), allocatable  :: fq_core(:, :)
 		
+		integer  :: nf,ng,ns,nRadial,ny
         integer  :: nr, na, npin,M,N
         !integer  :: ir, ia, ipin, itype
         !integer  :: i_allocate
@@ -115,6 +117,23 @@
 		do j=1,assm1(i)%mesh%Ny,1
 			if(Tfuel(i,j)>max_Tfuel) 		max_Tfuel=Tfuel(i,j)
 			if(Tcoolant(i,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(i,j)
+		enddo
+	 enddo
+	 !calculate the surface temperature
+
+	 do i=1,nr,1
+	 	Nf=assm1(i)%mesh%Nf
+		Ng=assm1(i)%mesh%Ng
+		Ns=assm1(i)%mesh%Ns
+		Ny=assm1(i)%mesh%Ny
+		Nradial=Nf+Ng+Ns+1
+		xf=assm1(i)%geom%pellet
+		xg=assm1(i)%geom%bond
+		xs=assm1(i)%geom%cladth
+		do j=1,assm1(i)%mesh%Ny,1
+			assm1(i)%thermal%Tfg(j)=(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(i)%thermal%temperature(j,Nf+1))/(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
+			assm1(i)%thermal%Tgs(j)=(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(i)%thermal%temperature(j,Nf+Ng)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf+Ng+1))/(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
+			assm1(i)%thermal%Tsc(j)=(assm1(i)%property%htc(j)*assm1(i)%thermal%temperature(j,Nradial)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(i)%thermal%temperature(j,Nradial-1))/(assm1(i)%property%htc(j)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
 		enddo
 	 enddo
 	  ! open(6,file='.\output\Tfuel.txt')

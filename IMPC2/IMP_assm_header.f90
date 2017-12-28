@@ -86,6 +86,9 @@ module imp_assm_header
         real(KREAL),allocatable::Temperature(:,:) !pvt
         real(KREAL),allocatable::pressure(:)
         real(KREAL),allocatable::velocity(:)
+		real(KREAL),allocatable::Tfg(:)
+		real(KREAL),allocatable::Tgs(:)
+		real(KREAL),allocatable::Tsc(:)
       contains
        procedure,public::init=>init_thermal
       end type thermal
@@ -314,6 +317,9 @@ module imp_assm_header
 		do i=1,size(this%Pressure),1
 		   this%Pressure(i)=Pressure-5000.0*(i-1)
 		enddo
+		this%Tfg=0.0
+		this%Tgs=0.0
+		this%Tsc=0.0
      end subroutine init_thermal
      
      subroutine set_AssmInit(this,Ti,Pi,Ui,Tin,Pout,Uin)
