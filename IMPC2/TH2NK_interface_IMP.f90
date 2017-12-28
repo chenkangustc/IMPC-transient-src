@@ -68,7 +68,7 @@
 	 do i=1,nr,1!zone
 	   do j=1,assm1(i)%mesh%ny,1!dy
           do k=1,N,1
-           print*,'assembly=',assembly(i,j+assm1(i)%mesh%layer_bottom),'height=',assm1(i)%geom%height(j)
+           !print*,'assembly=',assembly(i,j+assm1(i)%mesh%layer_bottom),'height=',assm1(i)%geom%height(j)
            if(k<=assm1(i)%mesh%Nf) power(j,k)=assembly(i,j+assm1(i)%mesh%layer_bottom)/(assm1(i)%geom%N_fuelpin*assm1(i)%geom%height(j)*3.14159*assm1(i)%geom%pellet**2)
           enddo
        enddo
@@ -81,7 +81,7 @@
 	   do j=1,assm1(i)%mesh%Ny,1
 	   Tfuel(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,1)
 	   Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
-       print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
+       !print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
 	   Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
 	   enddo
 	 enddo
