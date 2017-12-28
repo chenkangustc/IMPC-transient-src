@@ -37,8 +37,11 @@
     
         !local
         REAL(KREAL)  :: last_, current_
+		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
+		real(KREAL)  :: TAoutlet_total,A_total!used to calculate the core average outlet temperature
         real(KREAL), allocatable  :: power(:, :)
         real(KREAL), allocatable  :: fq_core(:, :)
+		
         integer  :: nr, na, npin,M,N
         !integer  :: ir, ia, ipin, itype
         !integer  :: i_allocate
@@ -77,22 +80,51 @@
         else
             call driving_imp_steady(assm1(i),power,fq_core)
         end if
- 
+		
+	   dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
 	   do j=1,assm1(i)%mesh%Ny,1
-	   Tfuel(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,1)
-	   Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
-       !print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
-	   Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
+	    volumn=0.0
+		TVtotal=0.0
+	    do k=1,assm1(i)%mesh%Nf,1 !rod average		
+			if (k==1) then
+				TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*(k*dr)**2*assm1(i)%geom%height(j)
+				volumn=volumn+3.14*(k*dr)**2*assm1(i)%geom%height(j)
+			else
+				TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
+				volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
+			endif
+		enddo
+		Tfuel(i,j+assm1(i)%mesh%layer_bottom)=TVtotal/volumn
+		Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
+		!print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
+		Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
 	   enddo
 	 enddo
-	  open(6,file='.\output\Tfuel.txt')
-      write(6,*) Tfuel
-      !write(2,*) assm1%pow%power
-      close(6)  
-	  open(7,file='.\output\Tcoolant.txt')
-      write(7,*) Tcoolant
-      !write(2,*) assm1%pow%power
-      close(7) 
+	 !calculate the average toutlet
+	 TAoutlet_total=0.0
+	 A_total=0.0
+     do i=1,nr,1
+		TAoutlet_total=TAoutlet_total+assm1(i)%th_boundary%T%outlet*assm1(i)%hydrau%aflow
+		A_total=A_total+assm1(i)%hydrau%aflow
+	 enddo
+	 toutlet=TAoutlet_total/A_total
+	 max_Tcoolant=0.0
+	 max_Tfuel=0.0
+	  !calculate max_Tcoolant max_Tfuel
+	 do i=1,nr,1
+		do j=1,assm1(i)%mesh%Ny,1
+			if(Tfuel(i,j)>max_Tfuel) 		max_Tfuel=Tfuel(i,j)
+			if(Tcoolant(i,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(i,j)
+		enddo
+	 enddo
+	  ! open(6,file='.\output\Tfuel.txt')
+      ! write(6,*) Tfuel
+      ! !write(2,*) assm1%pow%power
+      ! close(6)  
+	  ! open(7,file='.\output\Tcoolant.txt')
+      ! write(7,*) Tcoolant
+      ! !write(2,*) assm1%pow%power
+      ! close(7) 
 	  
 	  if (allocated(power))       deallocate(power)
       if (allocated(fq_core))     deallocate(fq_core)

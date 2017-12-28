@@ -89,6 +89,7 @@ contains
         
         do ia = 1, na
             do ir = 1, nr
+			!use (T(z)+T(z-1))/2.0 because FDM
                 Tfuel(ir, ia) = (avg_channel%tfuel_avg(ia, ir) + avg_channel%tfuel_avg(ia-1, ir)) / 2.0
                 Tcoolant(ir, ia) = (avg_channel%tcoolant(ia, ir) + avg_channel%tcoolant(ia-1, ir)) / 2.0
                 Rhocoolant(ir, ia) = (avg_channel%rhocoolant(ia, ir) + avg_channel%rhocoolant(ia-1, ir)) / 2.0
