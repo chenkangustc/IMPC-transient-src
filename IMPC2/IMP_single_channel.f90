@@ -7,8 +7,24 @@ module imp_single_channel
      private
      public::driving_imp_steady
      public::driving_imp_Transient
+	 public::driving_imp_flowAlloc
     contains
-    subroutine driving_imp_steady(assm,power,fq_core)
+	subroutine driving_imp_flowAlloc(assm,flowrate)
+		type(sys_assembly),allocatable::assm(:)
+		real(KREAL),allocatable::flowrate(:)
+		!local
+		real(KREAL)::fuelArea!flow area of pin
+		integer zone,n_pin
+		integer i
+		zone=size(assm)
+		do  i=1,zone,1
+			n_pin=assm(i)%geom%n_pin
+			fuelArea=assm(i)%hydrau%aflow
+			assm(i)%thermal%velocity=flowrate(i)/(n_pin*fuelArea)
+		enddo
+	end subroutine driving_imp_flowAlloc
+	
+subroutine driving_imp_steady(assm,power,fq_core)
     type(sys_assembly),intent(in out)::assm
     real(KREAL),intent(in)::power(:,:)
     real(KREAL),intent(in)::fq_core(:,:)
@@ -83,7 +99,7 @@ subroutine driving_imp_Transient(assm,power,fq_core,ltime,ctime)
     rhoi=assm%property%rho
     rhofi=assm%property%rho(:,N)
     ap=0.0
-    call assm%th_boundary%update(ctime)
+    !call assm%th_boundary%update(ctime)
     call assm%pow%set(power,fq_core)
     j=0
     drho=1.0

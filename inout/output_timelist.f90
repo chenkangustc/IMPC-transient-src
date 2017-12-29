@@ -81,8 +81,8 @@ contains
 		max_T_outer=0.0
 		do i=1,ns%state%zone,1
 			do j=1,assm1(i)%mesh%Ny,1
-				if(max_T_inner<assm1(i)%thermal%Tfg(j)) max_T_inner=assm1(i)%thermal%Tfg(j)
-				if(max_T_outer<assm1(i)%thermal%Tfg(j)) max_T_outer=assm1(i)%thermal%Tfg(j)
+				if(max_T_inner<assm1(i)%thermal%Tgs(j)) max_T_inner=assm1(i)%thermal%Tgs(j)
+				if(max_T_outer<assm1(i)%thermal%Tsc(j)) max_T_outer=assm1(i)%thermal%Tsc(j)
 			enddo
 		enddo
         write(unit=unit_, fmt="(1X, (I6, TR1, ES14.5, TR1), 3(ES13.6, TR2), 3(F7.4, TR1, I3, TR2), *(F7.2, TR2))")   &

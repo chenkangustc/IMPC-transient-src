@@ -11,6 +11,8 @@
 !***************************************************************************************
     module TH2NK_interface_IMP
 	 use constants
+	 use th_global
+	 
      use imp_re_input_global
      use imp_assm_global
      use imp_driving_pre_process
@@ -69,8 +71,17 @@
  
 	 !do k=1,assm1%mesh%n_zone,1
 	 !assm zone=1 ×é¼þ1
-	 !
-	 do i=1,nr,1!zone
+   !as the transient calculate is after steady calculate,so the initial condition is useless
+   !the most important is the boundary condition include inlet temperature/inlet velocity and outlet pressre
+   !convert the core boundary to the assembly boundary
+	 !allocate the flowrate
+	 call driving_imp_flowAlloc(assm1,design%assembly_flow)
+	 !set the inlet temperature
+	 do i=1,nr,1
+		assm1(i)%th_boundary%T%inlet=design%tcoolin
+	 enddo
+	 
+	 do i=1,nr,1!zone start
 	   do j=1,assm1(i)%mesh%ny,1!dy
           do k=1,N,1
            !print*,'assembly=',assembly(i,j+assm1(i)%mesh%layer_bottom),'height=',assm1(i)%geom%height(j)
@@ -101,7 +112,7 @@
 		!print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
 		Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
 	   enddo
-	 enddo
+	 enddo!zone end
 	 !calculate the average toutlet
 	 TAoutlet_total=0.0
 	 A_total=0.0
