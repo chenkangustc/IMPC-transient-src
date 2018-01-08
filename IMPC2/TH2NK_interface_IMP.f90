@@ -117,8 +117,9 @@
 	 TAoutlet_total=0.0
 	 A_total=0.0
      do i=1,nr,1
-		TAoutlet_total=TAoutlet_total+assm1(i)%th_boundary%T%outlet*assm1(i)%hydrau%aflow
-		A_total=A_total+assm1(i)%hydrau%aflow
+		!volumn average
+		TAoutlet_total=TAoutlet_total+assm1(i)%th_boundary%T%outlet*assm1(i)%hydrau%aflow*assm1(i)%th_boundary%u%outlet
+		A_total=A_total+assm1(i)%hydrau%aflow*assm1(i)%th_boundary%u%outlet
 	 enddo
 	 toutlet=TAoutlet_total/A_total
 	 max_Tcoolant=0.0

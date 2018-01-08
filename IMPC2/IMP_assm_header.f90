@@ -5,6 +5,7 @@ module imp_assm_header
     implicit none
     type,public::AssmGeom
       
+	  !real(KREAL):: rod            !元件半径
       real(KREAL):: pellet         !芯块半径
       real(KREAL):: Bond           !元件气隙厚度
       real(KREAL):: Cladth         !元件外壳厚度
@@ -149,18 +150,19 @@ module imp_assm_header
      
      !private::cal_grid
     contains
-    subroutine set_assmgeom(this,pellet,Bond,Cladth,pitch,Height,pd,N_fuelpin)
+    subroutine set_assmgeom(this,rod,Bond,Cladth,pitch,Height,pd,N_fuelpin,N_pin)
        implicit none
        class(assmgeom),intent(in out)::this
-       real(KREAL),intent(in)::pellet          !元件半径
+       real(KREAL),intent(in)::rod      !元件半径
        real(KREAL),intent(in)::Bond         !元件气隙厚度
-       real(KREAL),intent(in)::Cladth     !元件外壳厚度
+       real(KREAL),intent(in)::Cladth     	!元件外壳厚度
        !real(KREAL)::,intent(in)::AssmCladth !组件外壳厚度
        real(KREAL),intent(in)::pitch     !组件外对边距（包含包壳厚度）
        real(KREAL),intent(in)::Height(:)         !组件高度（活性区）
        real(KREAL),intent(in)::pd
        integer,intent(in)::N_fuelpin       !元件的个数
-       this%pellet=pellet
+	   integer,intent(in)::N_pin
+       this%rod=rod
        this%Bond=Bond
        this%Cladth=Cladth
        !this%AssmCladth=AssmCladth
@@ -169,6 +171,7 @@ module imp_assm_header
        !this%Height=Height
        this%pd=pd
        this%N_fuelpin=N_fuelpin
+	   this%N_pin=N_pin
        call this%print()
      end subroutine set_assmgeom
      
@@ -176,8 +179,8 @@ module imp_assm_header
       implicit none
       class(assmgeom),intent(in out)::this
       write(*,*)'set geom as below:'
-      write(*,100) this%pellet,this%Bond,this%Cladth,this%pitch,this%Height(1),this%pd,this%N_fuelpin
-      100 format(1x,'pellet=',F8.4,3x,'Bond=',F8.4,3x,'Cladth=',F8.4,3x,1x,'pitch=',F7.3,3x,'Height=',F7.3,3x,'pd=',F7.3,3x,'N_fuelpin=',I3/)
+      write(*,100) this%rod,this%Bond,this%Cladth,this%pitch,this%Height(1),this%pd,this%N_fuelpin
+      100 format(1x,'rod=',F8.4,3x,'Bond=',F8.4,3x,'Cladth=',F8.4,3x,1x,'pitch=',F7.3,3x,'Height=',F7.3,3x,'pd=',F7.3,3x,'N_fuelpin=',I3/)
      end subroutine print_assmgeom
      
      subroutine print_assmmesh(this)

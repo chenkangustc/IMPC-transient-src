@@ -32,6 +32,8 @@ module input_plain
     
     use global
     use th_global
+	
+	use imp_re_input_global
     
     use string 
     use files_dirs
@@ -2453,6 +2455,13 @@ contains
                     geom_assm(i_type)%cladth = dummy_real(3)
                     geom_assm(i_type)%bond = dummy_real(4)
                     geom_assm(i_type)%hole = dummy_real(5)
+					
+					reInputdata%npin = dummy_int(2)
+                    reInputdata%nFuelPin = dummy_int(3)
+                    reInputdata%pd = dummy_real(1)
+                    reInputdata%xf = dummy_real(2)*0.01D0
+                    reInputdata%xs = dummy_real(3)*0.01D0
+                    reInputdata%xg = dummy_real(4)*0.01D0
                     
                     geom_assm(i_type)%is_hexagonal = is_hexagonal
                     call geom_assm(i_type)%set (nth)

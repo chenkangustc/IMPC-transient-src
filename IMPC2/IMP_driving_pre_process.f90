@@ -51,6 +51,8 @@ contains
 		!初始化
 		call init_assembly(assm1(i))
 	 enddo
+	  print*,assm1(1)%geom%rod,assm1(1)%geom%pellet,assm1(1)%geom%bond,assm1(1)%geom%cladth,assm1(1)%geom%pitch,assm1(1)%geom%n_pin,assm1(1)%geom%n_fuelpin
+
      !    timer1%init(ttotal,Nt,ctime,ltime)
      !ltime=0.0
      !ctime=0.0
@@ -73,6 +75,7 @@ contains
       !assm%pow%power=0.0
       !assm%pow%fq_core=0.0
       !网格
+	  assm%geom%pellet=assm%geom%rod-assm%geom%cladth-assm%geom%bond
       call cal_grid(assm)
       call assm%hydrau%cal(assm%geom%pellet,assm%geom%pd)
      endsubroutine init_assembly
@@ -155,8 +158,8 @@ contains
 	  !real,intent(in)::height(:)
       write(*,*)'set assmebly as below:'
       !设置几何参数
-	  print*,geom%height
-      call assm%geom%set(reInputdata%xf,reInputdata%xg,reInputdata%xs,reInputdata%acf,Height,reInputdata%pd,reInputdata%npin)
+	  !print*,geom%height
+      call assm%geom%set(reInputdata%xf,reInputdata%xg,reInputdata%xs,reInputdata%acf,Height,reInputdata%pd,reInputdata%nFuelPin,reInputdata%npin)
       print*,'assm height(1)=',assm%geom%height(1)
 	  !设置网格参数
       call assm%mesh%set(reInputdata%nf,reInputdata%ng,reInputdata%ns,zone,layer_core,layer_bottom,layer_top)

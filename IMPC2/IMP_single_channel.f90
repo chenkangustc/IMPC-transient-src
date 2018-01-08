@@ -20,7 +20,7 @@ module imp_single_channel
 		do  i=1,zone,1
 			n_pin=assm(i)%geom%n_pin
 			fuelArea=assm(i)%hydrau%aflow
-			assm(i)%thermal%velocity=flowrate(i)/(n_pin*fuelArea)
+			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea)
 		enddo
 	end subroutine driving_imp_flowAlloc
 	
