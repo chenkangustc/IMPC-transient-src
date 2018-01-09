@@ -43,9 +43,13 @@ program DAISY
 	!use imp_assm_global
 	use imp_driving_pre_process
 	!use imp_driving_output
+    !test
+    use testNK2TH
     
     implicit none
-    
+	!local
+	integer tNK2TH
+    tNK2TH=0
     ! --------------------------------------------------------------------------
 !    call Driving_th_check_model ()
     
@@ -54,7 +58,11 @@ program DAISY
     call Driving_th_pre_process ()
 	
 	call Sys_pre_process()
-    
+	
+	! --------------------------------------------------------------------------
+	if (tNK2TH==1) then 
+        call driving_testNK2TH()   
+    endif
     ! --------------------------------------------------------------------------
     ! perturbation calculation
     if (nt%flag%is_perturb)  then

@@ -65,10 +65,12 @@ subroutine cal_momentumA(assm,flag,rhoi,ui,dt,A,b,ap)
         de=assm%hydrau%de
         rho=assm%property%rho(:,nr+1)
         uin=assm%th_boundary%u%inlet
-        pin=assm%th_boundary%p%inlet
+        
         pout=assm%th_boundary%p%outlet
         ulast=assm%thermal%velocity
         pguess=assm%thermal%Pressure
+		!pin=assm%th_boundary%p%inlet
+		pin=(3*pguess(1)-pguess(2))/2.0
        !dx rhoi,ulast,f,De,rho,uin,pin,api,pout
        !计算各个控制体的常系数和源项
        api=0.0
