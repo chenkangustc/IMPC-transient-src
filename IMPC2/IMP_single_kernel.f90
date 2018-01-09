@@ -510,17 +510,20 @@ subroutine update_property(assm,drho)
       do i=0,M,1
         RHOF(i)=assm%property%rho(i,N)
       enddo
-  
+      !print*,RHOF
       do i=1,M-1,1
          assm%property%rho(i,N)=get_density(assm%thermal%Temperature(i,N))
       enddo
+      !print*,'temperature=',assm%thermal%Temperature(:,N)
       assm%property%rho(0,N)=assm%property%rho(1,N)
       assm%property%rho(M,N)=assm%property%rho(M-1,N)
-    
+     ! print*,'rho=',assm%property%rho(:,N)
       drho=0.0
       do i=0,M,1
         drho=drho+abs((assm%property%rho(i,N)-RHOF(i))/RHOF(i))
+        !print*,'drho=',drho
       enddo
+      !print*,'drho=',drho
 end subroutine update_property
     subroutine solve_momentumA(N,A,b,u)
      implicit none

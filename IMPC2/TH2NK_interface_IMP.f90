@@ -74,26 +74,40 @@
    !as the transient calculate is after steady calculate,so the initial condition is useless
    !the most important is the boundary condition include inlet temperature/inlet velocity and outlet pressre
    !convert the core boundary to the assembly boundary
-	 !allocate the flowrate
-	 call driving_imp_flowAlloc(assm1,design%assembly_flow)
-	 !set the inlet temperature
+   !set the inlet temperature
 	 do i=1,nr,1
 		assm1(i)%th_boundary%T%inlet=design%tcoolin
 	 enddo
+   !allocate the flowrate
+	 call driving_imp_flowAlloc(assm1,design%assembly_flow)
+
 	 
 	 do i=1,nr,1!zone start
+       print*,'zone=',i
 	   do j=1,assm1(i)%mesh%ny,1!dy
           do k=1,N,1
+		   !covert the power from zone total W to pin w/m^3 
            !print*,'assembly=',assembly(i,j+assm1(i)%mesh%layer_bottom),'height=',assm1(i)%geom%height(j)
            if(k<=assm1(i)%mesh%Nf) power(j,k)=assembly(i,j+assm1(i)%mesh%layer_bottom)/(assm1(i)%geom%N_fuelpin*assm1(i)%geom%height(j)*3.14159*assm1(i)%geom%pellet**2)
           enddo
        enddo
-	   if (transient_flag)  then
-            call driving_imp_transient(assm1(i),power, fq_core,last_, current_)
-        else
-            call driving_imp_steady(assm1(i),power,fq_core)
-        end if
-		
+       
+       !if(i==50) then 
+       !    print*,power
+       !endif
+	   
+	   if (assm1(i)%th_boundary%u%inlet==0.0) then
+		  assm1(i)%thermal%velocity=0.0
+		  assm1(i)%th_boundary%u%outlet=0.0
+		  assm1(i)%thermal%temperature=assm1(i)%th_boundary%T%inlet
+		  assm1(i)%th_boundary%T%outlet=assm1(i)%th_boundary%T%inlet
+	   else
+	     if (transient_flag)  then
+              call driving_imp_transient(assm1(i),power, fq_core,last_, current_)
+          else
+              call driving_imp_steady(assm1(i),power,fq_core)
+         end if
+	   endif	
 	   dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
 	   do j=1,assm1(i)%mesh%Ny,1
 	    volumn=0.0
@@ -111,7 +125,7 @@
 		Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
 		!print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
 		Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
-	   enddo
+       enddo
 	 enddo!zone end
 	 !calculate the average toutlet
 	 TAoutlet_total=0.0
@@ -142,11 +156,19 @@
 		xf=assm1(i)%geom%pellet
 		xg=assm1(i)%geom%bond
 		xs=assm1(i)%geom%cladth
+		
 		do j=1,assm1(i)%mesh%Ny,1
+		  if (assm1(i)%th_boundary%u%inlet==0.0) then
+			assm1(i)%thermal%Tfg(j)=assm1(i)%thermal%temperature(j,Nf+1)
+			assm1(i)%thermal%Tgs(j)=assm1(i)%thermal%temperature(j,Nf+Ng+1)
+			assm1(i)%thermal%Tsc(j)=assm1(i)%thermal%temperature(j,Nradial)
+		  else
 			assm1(i)%thermal%Tfg(j)=(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(i)%thermal%temperature(j,Nf+1))/(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
 			assm1(i)%thermal%Tgs(j)=(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(i)%thermal%temperature(j,Nf+Ng)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf+Ng+1))/(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
 			assm1(i)%thermal%Tsc(j)=(assm1(i)%property%htc(j)*assm1(i)%thermal%temperature(j,Nradial)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(i)%thermal%temperature(j,Nradial-1))/(assm1(i)%property%htc(j)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
+		  endif
 		enddo
+
 	 enddo
 	  ! open(6,file='.\output\Tfuel.txt')
       ! write(6,*) Tfuel

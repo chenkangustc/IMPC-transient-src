@@ -1,5 +1,6 @@
 module imp_single_channel
     use constants
+	use imp_property
     use imp_assm_global
     use imp_single_kernel
     use imp_assembly_header
@@ -13,14 +14,15 @@ module imp_single_channel
 		type(sys_assembly),allocatable::assm(:)
 		real(KREAL),allocatable::flowrate(:)
 		!local
-		real(KREAL)::fuelArea!flow area of pin
+		real(KREAL)::fuelArea,density!flow area of pin
 		integer zone,n_pin
 		integer i
 		zone=size(assm)
 		do  i=1,zone,1
 			n_pin=assm(i)%geom%n_pin
 			fuelArea=assm(i)%hydrau%aflow
-			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea)
+			density=get_density(assm(i)%th_boundary%T%inlet)
+			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
 		enddo
 	end subroutine driving_imp_flowAlloc
 	
@@ -63,6 +65,9 @@ subroutine driving_imp_steady(assm,power,fq_core)
        call modify_PV(assm,ap,pmodify)
        print*,'pv step=',i,' btotal=',btotal
       end do
+      !print*,'velocity=',assm%th_boundary%u%inlet,assm%thermal%velocity,assm%th_boundary%u%outlet
+      !print*,'pressure=',assm%th_boundary%p%inlet,assm%thermal%pressure,assm%th_boundary%p%outlet
+
       j=j+1
       call solve_temperature(assm,flag,Ti,rhoi,dt)
       call update_property(assm,drho)!物性更新

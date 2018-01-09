@@ -312,13 +312,15 @@ module imp_assm_header
         real(KREAL),intent(in)::Pressure
         real(KREAL),intent(in)::Velocity
 		!local
-		integer i
+		integer i,N
         write(*,*)'init the thermal value'
         this%Temperature=Temperature
         !this%Pressure=Pressure
         this%Velocity=Velocity
-		do i=1,size(this%Pressure),1
-		   this%Pressure(i)=Pressure-5000.0*(i-1)
+		N=size(this%Pressure)
+		do i=1,N,1
+		   !this%Pressure(i)=Pressure-5000.0*(i-1)
+		   this%Pressure(i)=Pressure+500.0*(N-i)
 		enddo
 		this%Tfg=0.0
 		this%Tgs=0.0

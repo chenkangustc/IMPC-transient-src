@@ -77,11 +77,11 @@ contains
             end do
         end do
 		
-       open(1,file='.\output\powDistribution.txt')
-       write(1,100) power
-	   100 Format(F15.5)
-       close(1) 
-	   read(*,*)
+      ! open(1,file='.\output\powDistribution.txt')
+      ! write(1,100) power
+	  ! 100 Format(F15.5)
+      ! close(1) 
+	  ! read(*,*)
 		 
         is_pass = .FALSE.
         if (ns%feedback%is_model)  then
