@@ -83,6 +83,9 @@ program DAISY
             end if
         end if
         
+		!*****************************************
+		open(6,file='.\output\selftimelist.txt')
+		!*****************************************
         ! transient calculation
         if (nt%flag%is_transient)  then
             call Run_steady ()
@@ -102,7 +105,9 @@ program DAISY
             end select
         end if
     end if 
-    
+    !*****************************************
+	close(6)
+	!*****************************************
     ! --------------------------------------------------------------------------
 	
     call Driving_th_post_process ()

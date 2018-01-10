@@ -42,6 +42,7 @@
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)  :: TAoutlet_total,A_total!used to calculate the core average outlet temperature
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
+		real(KREAL)  :: max_T_inner,max_T_outer
         real(KREAL), allocatable  :: power(:, :)
         real(KREAL), allocatable  :: fq_core(:, :)
 		
@@ -83,7 +84,7 @@
 
 	 
 	 do i=1,nr,1!zone start
-	  if(i==19) then
+	  !if(i==19) then
        print*,'zone=',i
 	   do j=1,assm1(i)%mesh%ny,1!dy
           do k=1,N,1
@@ -127,7 +128,7 @@
 		!print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
 		Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
        enddo
-	  endif
+	  !endif
 	 enddo!zone end
 	 !calculate the average toutlet
 	 TAoutlet_total=0.0
@@ -148,7 +149,6 @@
 		enddo
 	 enddo
 	 !calculate the surface temperature
-
 	 do i=1,nr,1
 	 	Nf=assm1(i)%mesh%Nf
 		Ng=assm1(i)%mesh%Ng
@@ -157,10 +157,9 @@
 		Nradial=Nf+Ng+Ns+1
 		xf=assm1(i)%geom%pellet
 		xg=assm1(i)%geom%bond
-		xs=assm1(i)%geom%cladth
-		
+		xs=assm1(i)%geom%cladth		
 		do j=1,assm1(i)%mesh%Ny,1
-		  if (assm1(i)%th_boundary%u%inlet==0.0) then
+		  if (assm1(i)%th_boundary%u%inlet==0.0) then!这种可能性可以排除
 			assm1(i)%thermal%Tfg(j)=assm1(i)%thermal%temperature(j,Nf+1)
 			assm1(i)%thermal%Tgs(j)=assm1(i)%thermal%temperature(j,Nf+Ng+1)
 			assm1(i)%thermal%Tsc(j)=assm1(i)%thermal%temperature(j,Nradial)
@@ -170,8 +169,22 @@
 			assm1(i)%thermal%Tsc(j)=(assm1(i)%property%htc(j)*assm1(i)%thermal%temperature(j,Nradial)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(i)%thermal%temperature(j,Nradial-1))/(assm1(i)%property%htc(j)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
 		  endif
 		enddo
-
-	 enddo
+	  enddo!surface zone end
+	 !write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
+		max_T_inner=0.0
+		max_T_outer=0.0
+		do i=1,nr,1
+			do j=1,assm1(i)%mesh%Ny,1
+				if(max_T_inner<assm1(i)%thermal%Tgs(j)) max_T_inner=assm1(i)%thermal%Tgs(j)
+				if(max_T_outer<assm1(i)%thermal%Tsc(j)) max_T_outer=assm1(i)%thermal%Tsc(j)
+			enddo
+		enddo
+		
+	   !open(6,file='.\output\selftimelist.txt',STATUS='OLD')
+       write(6,100) current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
+	   100 Format(1x,F8.1,F10.2,F10.2,F10.2,F10.2,F10.2,F10.2)
+       ! !write(2,*) assm1%pow%power
+       !close(6) 
 	  ! open(6,file='.\output\Tfuel.txt')
       ! write(6,*) Tfuel
       ! !write(2,*) assm1%pow%power
