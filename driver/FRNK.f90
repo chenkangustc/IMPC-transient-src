@@ -49,7 +49,7 @@ program DAISY
     implicit none
 	!local
 	integer tNK2TH
-    tNK2TH=1
+    tNK2TH=0
     ! --------------------------------------------------------------------------
 	!    call Driving_th_check_model ()
     
