@@ -433,7 +433,7 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
     enddo
 
      
-     do k=1,100,1
+     do k=1,5000,1
        do i=1,M-1,1
            do j=1,N,1
                if(k==1) then
