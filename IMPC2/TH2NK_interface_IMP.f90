@@ -83,6 +83,7 @@
 
 	 
 	 do i=1,nr,1!zone start
+	  if(i==19) then
        print*,'zone=',i
 	   do j=1,assm1(i)%mesh%ny,1!dy
           do k=1,N,1
@@ -126,6 +127,7 @@
 		!print*,'Tcoolant=',Tcoolant(i,j+assm1(i)%mesh%layer_bottom)
 		Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
        enddo
+	  endif
 	 enddo!zone end
 	 !calculate the average toutlet
 	 TAoutlet_total=0.0
