@@ -178,11 +178,13 @@
 				if(max_T_inner<assm1(i)%thermal%Tgs(j)) max_T_inner=assm1(i)%thermal%Tgs(j)
 				if(max_T_outer<assm1(i)%thermal%Tsc(j)) max_T_outer=assm1(i)%thermal%Tsc(j)
 			enddo
-		enddo
-		
-	   !open(6,file='.\output\selftimelist.txt',STATUS='OLD')
-       write(6,100) current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
-	   100 Format(1x,F8.1,F10.2,F10.2,F10.2,F10.2,F10.2,F10.2)
+        enddo
+       
+       !open(5,file='.\output\selftimelist.txt',STATUS='new')
+       !close(5)
+	   !open(6,file='.\output\selftimelist.txt',STATUS='OLD',ACCESS='append')
+       !write(6,100) current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
+	   !100 Format(1x,F8.1,F10.2,F10.2,F10.2,F10.2,F10.2,F10.2)
        ! !write(2,*) assm1%pow%power
        !close(6) 
 	  ! open(6,file='.\output\Tfuel.txt')

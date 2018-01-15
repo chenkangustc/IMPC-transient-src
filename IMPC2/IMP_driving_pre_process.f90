@@ -194,7 +194,7 @@ contains
 		  !Dy=assm%geom%height(k)
           !print*,dy
 		 !Dy=assm%geom%rod
-		 Dy=geom%height(k)
+		 Dy=geom%height(k)/100 !convert the unit from cm to m
 		 !print*,'dy=',dy
        elseif(i==0)then 
          Dy=0.0
