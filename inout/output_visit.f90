@@ -18,6 +18,8 @@ module output_visit
     
     use global
     use th_global
+	
+	use imp_assm_global 
     
     implicit none 
     private
@@ -829,7 +831,8 @@ contains
             do ia = 1, ns%state%layer
                 do ir = 1, ns%state%nodal
                     iz = mesh%zone(ir)
-                    write(unit=unit_, fmt=*) avg_channel%tcoolant(ia, iz)
+                    !write(unit=unit_, fmt=*) avg_channel%tcoolant(ia, iz)
+					write(unit=unit_, fmt=*) assm1(iz)%thermal%Tcoolant(ia)
                 end do
             end do
             write(unit=unit_, fmt=*)  '    '
@@ -844,8 +847,9 @@ contains
             do ia = 1, ns%state%layer
                 do ir = 1, ns%state%nodal
                     iz = mesh%zone(ir)
-                    write(unit=unit_, fmt=*) avg_channel%tclad_surf(ia, iz)
-                end do
+                    !write(unit=unit_, fmt=*) avg_channel%tclad_surf(ia, iz)
+					write(unit=unit_, fmt=*) assm1(iz)%thermal%Tsc(ia)
+				end do
             end do
             write(unit=unit_, fmt=*)  '    '
             write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
@@ -859,8 +863,9 @@ contains
             do ia = 1, ns%state%layer
                 do ir = 1, ns%state%nodal
                     iz = mesh%zone(ir)
-                    write(unit=unit_, fmt=*) avg_channel%tclad_inner(ia, iz)
-                end do
+                    !write(unit=unit_, fmt=*) avg_channel%tclad_inner(ia, iz)
+					write(unit=unit_, fmt=*) assm1(iz)%thermal%Tgs(ia)
+				end do
             end do
             write(unit=unit_, fmt=*)  '    '
             write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
@@ -889,7 +894,8 @@ contains
             do ia = 1, ns%state%layer
                 do ir = 1, ns%state%nodal
                     iz = mesh%zone(ir)
-                    write(unit=unit_, fmt=*) avg_channel%tfuel_center(ia, iz)
+                    !write(unit=unit_, fmt=*) avg_channel%tfuel_center(ia, iz)
+					write(unit=unit_, fmt=*) assm1(iz)%thermal%tfuel_center(ia)
                 end do
             end do
             write(unit=unit_, fmt=*)  '    '
@@ -904,7 +910,8 @@ contains
             do ia = 1, ns%state%layer
                 do ir = 1, ns%state%nodal
                     iz = mesh%zone(ir)
-                    write(unit=unit_, fmt=*) avg_channel%tfuel_avg(ia, iz)
+                    !write(unit=unit_, fmt=*) avg_channel%tfuel_avg(ia, iz)
+					write(unit=unit_, fmt=*) assm1(iz)%thermal%Tfuel(ia)
                 end do
             end do
             write(unit=unit_, fmt=*)  '    '

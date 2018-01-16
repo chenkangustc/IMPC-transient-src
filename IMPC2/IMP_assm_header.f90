@@ -87,6 +87,9 @@ module imp_assm_header
         real(KREAL),allocatable::Temperature(:,:) !pvt
         real(KREAL),allocatable::pressure(:)
         real(KREAL),allocatable::velocity(:)
+		real(KREAL),allocatable::Tcoolant(:)
+		real(KREAL),allocatable::Tfuel(:)
+		real(KREAL),allocatable::Tfuel_center(:)
 		real(KREAL),allocatable::Tfg(:)
 		real(KREAL),allocatable::Tgs(:)
 		real(KREAL),allocatable::Tsc(:)
@@ -322,6 +325,9 @@ module imp_assm_header
 		   !this%Pressure(i)=Pressure-5000.0*(i-1)
 		   this%Pressure(i)=Pressure+500.0*(N-i)
 		enddo
+		this%Tfuel_center=0.0
+		this%Tcoolant=0.0
+		this%Tfuel=0.0
 		this%Tfg=0.0
 		this%Tgs=0.0
 		this%Tsc=0.0
