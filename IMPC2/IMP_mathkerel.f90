@@ -6,6 +6,9 @@ module imp_mathkerel
     public::get_convection
     public::get_Nusselt
     public::get_hyconstant
+    public::get_nusselt_IHX_tube
+    public::get_nusselt_IHX_shell
+	public::get_nusselt_PIPE_tube
     
 contains
     subroutine tdma(N,A,B,u)
@@ -83,7 +86,44 @@ contains
      Pe=Re*Pr
      Nu=5.0+2.5D-2*Pe**0.8
     end subroutine get_Nusselt
-    
+	
+	!
+	function get_Nusselt_IHX_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+		!local
+		real(KREAL)::Re,Pr,Pe,Nu
+		Re=4*flowrate*De/(vis*flowarea)
+		Pr=vis*shc/conductivity
+		Pe=Re*Pr
+		Nu=0.482+0.00185*Pe**0.827
+	end function get_Nusselt_IHX_tube
+	
+	function get_Nusselt_IHX_shell(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+		!local
+		real(KREAL)::Re,Pr,Pe,Nu
+		Re=4*flowrate*De/(vis*flowarea)
+		Pr=vis*shc/conductivity
+		Pe=Re*Pr
+		Nu=0.60+0.0006*Pe
+	end function get_Nusselt_IHX_shell
+	
+	function get_Nusselt_PIPE_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+		!local
+		real(KREAL)::Re,Pr,Pe,Nu
+		Re=4*flowrate*De/(vis*flowarea)
+		Pr=vis*shc/conductivity
+		Pe=Re*Pr
+		Nu=0.482+0.00185*Pe**0.827
+	end function get_Nusselt_PIPE_tube
+    !
     subroutine get_hyconstant(rc,pd,Aflow,wet,de)
        real(KREAL):: rc,p,pd !r是包壳外半径 p是对边距
        real(KREAL):: Aflow,Ashell,Atotal,wet,de

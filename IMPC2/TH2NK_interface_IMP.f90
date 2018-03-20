@@ -19,6 +19,7 @@
      use imp_driving_post_process
      use imp_power_header
      use imp_single_channel
+	 use imp_property
     implicit none
 
      !real(KREAL),allocatable::power(:,:),fq_core(:,:)
@@ -103,6 +104,7 @@
 		  assm1(i)%th_boundary%u%outlet=0.0
 		  assm1(i)%thermal%temperature=assm1(i)%th_boundary%T%inlet
 		  assm1(i)%th_boundary%T%outlet=assm1(i)%th_boundary%T%inlet
+		  assm1(i)%property%rho=get_density(assm1(i)%th_boundary%T%inlet)
 	   else
 	     if (transient_flag)  then
               call driving_imp_transient(assm1(i),power, fq_core,last_, current_)
@@ -159,18 +161,18 @@
 		xg=assm1(i)%geom%bond
 		xs=assm1(i)%geom%cladth		
 		do j=1,assm1(i)%mesh%Ny,1
-		  if (assm1(i)%th_boundary%u%inlet==0.0) then!这种可能性可以排除
-			assm1(i)%thermal%Tfg(j)=assm1(i)%thermal%temperature(j,Nf+1)
-			assm1(i)%thermal%Tgs(j)=assm1(i)%thermal%temperature(j,Nf+Ng+1)
-			assm1(i)%thermal%Tsc(j)=assm1(i)%thermal%temperature(j,Nradial)
-		  else
+		  !if (assm1(i)%th_boundary%u%inlet==0.0) then!这种可能性可以排除
+			!assm1(i)%thermal%Tfg(j)=assm1(i)%thermal%temperature(j,Nf+1)
+			!assm1(i)%thermal%Tgs(j)=assm1(i)%thermal%temperature(j,Nf+Ng+1)
+			!assm1(i)%thermal%Tsc(j)=assm1(i)%thermal%temperature(j,Nradial)
+		  !else
 			assm1(i)%thermal%Tcoolant(j)=Tcoolant(i,j)
 			assm1(i)%thermal%Tfuel(j)=Tfuel(i,j)
 			assm1(i)%thermal%Tfuel_center(j)=assm1(i)%thermal%temperature(j,1)
 			assm1(i)%thermal%Tfg(j)=(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(i)%thermal%temperature(j,Nf+1))/(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
 			assm1(i)%thermal%Tgs(j)=(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(i)%thermal%temperature(j,Nf+Ng)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf+Ng+1))/(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
 			assm1(i)%thermal%Tsc(j)=(assm1(i)%property%htc(j)*assm1(i)%thermal%temperature(j,Nradial)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(i)%thermal%temperature(j,Nradial-1))/(assm1(i)%property%htc(j)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
-		  endif
+		  !endif
 		enddo
 	  enddo!surface zone end
 	 !write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
