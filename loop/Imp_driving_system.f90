@@ -7,7 +7,7 @@
 !
 !****************************************************************************
 
-    program loop
+    module loop_interface
     use Imp_driving_presys
 	use Imp_cal_loop
     use Imp_timer_global
@@ -16,6 +16,8 @@
     use Imp_test_IHX_thermal
     use Imp_test_PIPE_thermal
     implicit none
+    contains
+    subroutine driving_loop_interface()
     !local
     integer::i,Nt
 	real(KREAL)::dt
@@ -39,5 +41,6 @@
 	enddo
 	end associate
     call driving_postsys()
-    end program loop
+    end subroutine driving_loop_interface
+    end module loop_interface
 
