@@ -2376,9 +2376,11 @@ contains
                 
                 select case (TRIM(ADJUSTL(a_word)))
                 case ('FDBK')
-                    read(unit=aline, fmt=*, iostat=io_error)  keyword, dummy_log(1:2), dummy_char(1)
+                    read(unit=aline, fmt=*, iostat=io_error)  keyword, dummy_log(1:4), dummy_char(1)
                     ns%feedback%is_inner = dummy_log(1)
                     ns%feedback%is_model = dummy_log(2)
+					ns%feedback%is_imp   = dummy_log(3)
+					ns%feedback%is_loop  = dummy_log(4)
                     ns%feedback%model_name = dummy_char(1)
                     self_fdbk%is_th_inner = dummy_log(1)
                     self_fdbk%is_model = dummy_log(2)

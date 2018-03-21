@@ -81,7 +81,9 @@ module state_header
         logical, public                      :: is_feedback = .FALSE.           ! is feedback or not ?
         logical, public                      :: is_nested   = .FALSE.           ! feedback perform one time or nested cycle ?
         logical, public                      :: is_inner    = .FALSE.           ! is inner feedback ?
-        logical, public                      :: is_coupled  = .FALSE.           ! is coupled feedback ? (by real calculation)
+        logical, public                      :: is_imp      = .FALSE.
+		logical, public                      :: is_loop     = .FALSE.
+		logical, public                      :: is_coupled  = .FALSE.           ! is coupled feedback ? (by real calculation)
         logical, public                      :: is_model    = .FALSE.           ! is model feedback, for benchamrk verification
         character(len=MAX_WORD_LEN), public  :: model_name  = 'lra'             ! feedback model used
     end type feedback_steady_tp
