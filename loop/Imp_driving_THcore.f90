@@ -1,15 +1,18 @@
-	module driving_THcore
+	module Imp_driving_THcore
 		use contants
+		use imp_property_header
 		use Imp_assm_global
 		use imp_single_channel
 		implicit none
 		contains
-		subroutine driving_THcore_steady(Qin,Tin,assembly)
+		subroutine driving_THcore_steady(Qin,Tin,assembly,Tout)
 			real(KREAL),intent(in)::assembly(:,:)!power(zone,layer) W
 			real(KREAL),intent(in)::Qin,Tin
+			real(KREAL),intent(out)::Tout	!Tave of core
 			!local
 			integer  :: i,j,k 
 			real(KREAL),allocatable::pow(:,:),fq_core(:,:)
+			real(KREAL)::density,flowrate
 
 			fq_core=1.0D0		
 			nr = SIZE(assembly, dim=1)!zone                           
@@ -33,7 +36,7 @@
 					enddo
 				enddo
 			enddo
-	 
+			
 			do i=1,nr,1
 				if (assm1(i)%th_boundary%u%inlet==0.0) then
 					assm1(i)%thermal%velocity=0.0
@@ -49,5 +52,12 @@
 					end if
 				endif	
 			enddo !zone		
+			!Tout volum ave
+			Tout=0.0
+			do i=1,nr,1
+				density=get_density(assm(i)%th_boundary%T%inlet)
+				flowrate=assm(i)%th_boundary%u%inlet*(assm(i)%geom%n_pin*assm(i)%hydrau%aflow*density)
+				Tout=Tout+assm1(i)%th_boundary%T%outlet*flowrate/Qin	
+			enddo
 		end subroutine driving_THcore_steady
-	end module driving_THcore
+	end module Imp_driving_THcore

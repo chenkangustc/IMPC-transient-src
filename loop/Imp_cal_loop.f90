@@ -8,12 +8,18 @@ module Imp_cal_loop
 		real(KREAL),intent(in)::assembly(:,:)! (zone, layer), in W, 各组件功率;
         !local
         real(KREAL)::sigma
+		real(KREAL)::coreTin,coreTout,coreQin
         sigma=1.0
+		coreTin=0.0
+		coreTout=0.0
+		coreQin=0.0
         do while(sigma>0.001)
-            core%Tfin=PipePR%Tfout
+            coreTfin=PipePR%Tfout
+			coreQin=PipePR%Q
             print *,'core cal'
-		    call driving_THcore_steady(assembly)
-		    pipeRI%Tfin=core%Tfout
+			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
+		    call driving_THcore_steady(coreQin,coreTin,assembly,coreTout)
+		    pipeRI%Tfin=coreTout
             print*,'pipe cal'
 		    call PipeRI%thCals()
 		    IHX1%Tpin=PipeRI%Tfout

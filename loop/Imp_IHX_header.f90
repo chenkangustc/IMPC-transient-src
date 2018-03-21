@@ -177,7 +177,6 @@ module Imp_IHX_header
 	  if(allocated(this%htp)) deallocate(this%htp)
 	  if(allocated(this%hvp)) deallocate(this%hvp)
 	  if(allocated(this%hts)) deallocate(this%hts)
-
     end subroutine free_IHX
 	
     subroutine update_property(this)

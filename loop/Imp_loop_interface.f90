@@ -10,18 +10,10 @@
 ! 
 !***************************************************************************************
     module TH2NK_interface_loop
-	 use constants
-	 use th_global
-	 
-     use imp_re_input_global
+	 use constants 
      use imp_assm_global
-     use imp_driving_pre_process
-     use imp_driving_post_process
-     use imp_power_header
-     use imp_single_channel
-	 use imp_property
+	 use imp_driving_THcore
     implicit none
-
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
     contains
@@ -43,8 +35,6 @@
 		real(KREAL)  :: TAoutlet_total,A_total!used to calculate the core average outlet temperature
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
 		real(KREAL)  :: max_T_inner,max_T_outer
-        real(KREAL), allocatable  :: power(:, :)
-        real(KREAL), allocatable  :: fq_core(:, :)
 		
 		integer  :: nf,ng,ns,nRadial,ny
         integer  :: nr, na, npin,M,N
@@ -53,25 +43,7 @@
         last_ = last
         current_ = current
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
-        na = SIZE(assembly, dim=2)                                              ! 轴向的节块数目layer
-        
-    	M=size(assm1(1)%thermal%temperature,dim=1)
-        N=size(assm1(1)%thermal%temperature,dim=2)
-        allocate(power(M,N),fq_core(M,N))
-		fq_core=1.0D0
-        power=0.0 
-		do i=1,nr,1
-		!power
-		do i=1,nr,1!zone start
-			print*,'zone=',i
-			do j=1,assm1(i)%mesh%ny,1!dy
-				do k=1,N,1
-				!covert the power from zone total W to pin w/m^3 
-				!print*,'assembly=',assembly(i,j+assm1(i)%mesh%layer_bottom),'height=',assm1(i)%geom%height(j)
-					if(k<=assm1(i)%mesh%Nf) power(j,k)=assembly(i,j+assm1(i)%mesh%layer_bottom)/(assm1(i)%geom%N_fuelpin*assm1(i)%geom%height(j)*3.14159*assm1(i)%geom%pellet**2)
-				enddo
-			enddo
-		 enddo
+        na = SIZE(assembly, dim=2)                                              ! 轴向的节块数目layer     
 		!=========================================================
 		if (transient_flag)  then
             call driving_loop_transient(assembly,last_, current_)
@@ -80,24 +52,24 @@
 		end if
 	    !==========================================================
 		!热工反馈
-			dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
-			do j=1,assm1(i)%mesh%Ny,1
-				volumn=0.0
-				TVtotal=0.0
-				do k=1,assm1(i)%mesh%Nf,1 !rod average		
-					if (k==1) then
-						TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*(k*dr)**2*assm1(i)%geom%height(j)
-						volumn=volumn+3.14*(k*dr)**2*assm1(i)%geom%height(j)
-					else
-						TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
-						volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
-					endif
-				enddo
-				Tfuel(i,j+assm1(i)%mesh%layer_bottom)=TVtotal/volumn
-				Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
-				Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
+		dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
+		do j=1,assm1(i)%mesh%Ny,1
+			volumn=0.0
+			TVtotal=0.0
+			do k=1,assm1(i)%mesh%Nf,1 !rod average		
+				if (k==1) then
+					TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*(k*dr)**2*assm1(i)%geom%height(j)
+					volumn=volumn+3.14*(k*dr)**2*assm1(i)%geom%height(j)
+				else
+					TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
+					volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
+				endif
 			enddo
-		enddo!zone end
+			Tfuel(i,j+assm1(i)%mesh%layer_bottom)=TVtotal/volumn
+			Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
+			Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
+		enddo
+			
 		TAoutlet_total=0.0
 		A_total=0.0
 		do i=1,nr,1
@@ -134,7 +106,7 @@
 				assm1(i)%thermal%Tsc(j)=(assm1(i)%property%htc(j)*assm1(i)%thermal%temperature(j,Nradial)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(i)%thermal%temperature(j,Nradial-1))/(assm1(i)%property%htc(j)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
 			enddo
 		enddo!surface zone end
-	 !write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
+		!write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
 		max_T_inner=0.0
 		max_T_outer=0.0
 		do i=1,nr,1
