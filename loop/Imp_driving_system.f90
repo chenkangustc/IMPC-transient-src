@@ -36,7 +36,7 @@
     write(unit=FILE_O,fmt="('  time',' flowrate',' coreTout',' IHXTin',' IHXTout')")
 	do i=1,Nt,1
         current=last+dt
-		call driving_loop_transient(last,current)
+!		call driving_loop_transient(last,current)
         write(unit=FILE_O,fmt="(F6.1,' ',4F8.2)") current,core%Q,core%Tfout,IHX1%Tpin,IHX1%Tpout
         last=current
 	enddo

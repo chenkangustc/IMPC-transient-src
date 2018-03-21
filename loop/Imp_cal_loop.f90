@@ -10,6 +10,8 @@ module Imp_cal_loop
         !local
         real(KREAL)::sigma
 		real(KREAL)::coreTin,coreTout,coreQin
+		logical:: transient_flag
+		transient_flag=.FALSE.
         sigma=1.0
 		coreTin=0.0
 		coreTout=0.0
@@ -19,7 +21,7 @@ module Imp_cal_loop
 			coreQin=PipePR%Q
             print *,'core cal'
 			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
-		    call driving_THcore_steady(coreQin,coreTin,assembly,coreTout)
+		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout)
 		    pipeRI%Tfin=coreTout
             print*,'pipe cal'
 		    call PipeRI%thCals()
@@ -34,12 +36,23 @@ module Imp_cal_loop
         enddo
 	end subroutine driving_loop_steady
 	
-	subroutine driving_loop_transient(last,current)
+	subroutine driving_loop_transient(assembly,last,current)
         implicit none
+		real(KREAL),intent(in)::assembly(:,:)!power(zone,layer)
         real(KREAL),intent(in)::last,current
-        
-            call cal_loop_hydraulic(current)    
-		    call core%thCalt(last,current)
+        !local
+		real(KREAL)::coreTin,coreTout,coreQin,Qloop
+		logical::transient_flag
+		transient_flag=.TRUE.
+		
+            call cal_loop_hydraulic(current,Qloop)						
+			coreQin=Qloop
+			coreTin=PipePR%Tfout			
+            print *,'core cal'
+			!driving_THcore_steady(Qin,Tin,assembly,Tout)
+		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout,last,current)
+		    pipeRI%Tfin=coreTout
+            print*,'pipe cal'
 		    pipeRI%Tfin=core%Tfout
             print*,'pipe cal'
 		    call PipeRI%thCalt(last,current)
@@ -53,12 +66,12 @@ module Imp_cal_loop
             
 	end subroutine driving_loop_transient
 	
-	subroutine cal_loop_hydraulic(current)
+	subroutine cal_loop_hydraulic(current,flowrate)
 		implicit none
 		real(KREAL),INTENT(in)::current!time
+		real(KREAL),INTENT(out)::flowrate
 		!local
 		real(KREAL)::alpha,beta,LAsum
-		real(KREAL)::flowrate
 		integer i!i is the num of the device
 		LAsum=PipePR%ltotal/PipePR%Area+core%Ltotal/core%Area+PipeRI%ltotal/PipeRI%Area+IHX1%Lsingle/IHX1%Areap+PipeIP%ltotal/PipeIP%Area
 		alpha=LAsum+pump1%rho*pump1%yita*pump1%I*pump1%omegae**2/pump1%Qe**2

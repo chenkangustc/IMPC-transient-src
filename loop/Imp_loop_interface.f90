@@ -45,11 +45,12 @@
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
         na = SIZE(assembly, dim=2)                                              ! 轴向的节块数目layer     
 		!=========================================================
-		!if (transient_flag)  then
-  !          call driving_loop_transient(assembly,last_, current_)
-		!else
+		!热工计算
+		if (transient_flag)  then
+           call driving_loop_transient(assembly,last_, current_)
+		else
             call driving_loop_steady(assembly)
-		!end if
+		end if
 	    !==========================================================
 		!热工反馈
 		dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf

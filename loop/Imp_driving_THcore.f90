@@ -5,10 +5,12 @@
 		use imp_single_channel
 		implicit none
 		contains
-		subroutine driving_THcore_steady(Qin,Tin,assembly,Tout)
+		subroutine driving_TH_core(transient_flag,Qin,Tin,assembly,Tout,last,current)
+			logical,intent(in)::transient_flag
 			real(KREAL),intent(in)::assembly(:,:)!power(zone,layer) W
 			real(KREAL),intent(in)::Qin,Tin
 			real(KREAL),intent(out)::Tout	!Tave of core
+			real(KREAL),intent(in),optional::last,current
 			!local
 			integer  :: i,j,k 
             integer  :: nr,na,M,N
@@ -46,7 +48,11 @@
 					assm1(i)%th_boundary%T%outlet=assm1(i)%th_boundary%T%inlet
 					assm1(i)%property%rho=get_density(assm1(i)%th_boundary%T%inlet)
 				else
-						call driving_imp_steady(assm1(i),pow,fq_core)
+					if (transient_flag)then
+						call driving_imp_Transient(assm1(i),pow,fq_core,last,current)
+					else
+						call driving_imp_steady(assm1(i),pow,fq_core)					
+					endif
 				endif	
 			enddo !zone		
 			!Tout volum ave
@@ -56,5 +62,5 @@
 				flowrate=assm1(i)%th_boundary%u%inlet*(assm1(i)%geom%n_pin*assm1(i)%hydrau%aflow*density)
 				Tout=Tout+assm1(i)%th_boundary%T%outlet*flowrate/Qin	
 			enddo
-		end subroutine driving_THcore_steady
+		end subroutine driving_TH_core
 	end module Imp_driving_THcore
