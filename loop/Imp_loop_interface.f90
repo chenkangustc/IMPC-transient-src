@@ -12,12 +12,12 @@
     module TH2NK_interface_loop
 	 use constants 
      use imp_assm_global
-	 use imp_driving_THcore
+     use Imp_cal_loop
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
     contains
-    subroutine Perform_TH_imp(transient_flag, assembly, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)
+    subroutine Perform_TH_loop(transient_flag, assembly, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)
 		logical, intent(in)      :: transient_flag                              ! .TRUE. --transient
         real(KREAL), intent(in)  :: assembly(:, :)                              ! (zone, layer), in W, 各组件功率;
         real(KREAL), intent(in out)  :: Tfuel(:, :)                             ! (nr, na), in K, 各组件平均燃料温度;
@@ -45,11 +45,11 @@
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
         na = SIZE(assembly, dim=2)                                              ! 轴向的节块数目layer     
 		!=========================================================
-		if (transient_flag)  then
-            call driving_loop_transient(assembly,last_, current_)
-		else
+		!if (transient_flag)  then
+  !          call driving_loop_transient(assembly,last_, current_)
+		!else
             call driving_loop_steady(assembly)
-		end if
+		!end if
 	    !==========================================================
 		!热工反馈
 		dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
@@ -115,10 +115,6 @@
 				if(max_T_outer<assm1(i)%thermal%Tsc(j)) max_T_outer=assm1(i)%thermal%Tsc(j)
 			enddo
         enddo
-       
-	  
-		if (allocated(power))       deallocate(power)
-		if (allocated(fq_core))     deallocate(fq_core)     
-	end subroutine Perform_TH_imp
+	end subroutine Perform_TH_loop
 end module TH2NK_interface_loop
 
