@@ -9,6 +9,7 @@ module imp_single_channel
      public::driving_imp_steady
      public::driving_imp_Transient
 	 public::driving_imp_flowAlloc
+	 public::driving_loop_flowAlloc
     contains
 	subroutine driving_imp_flowAlloc(assm,flowrate)
 		type(sys_assembly),allocatable::assm(:)
@@ -25,6 +26,29 @@ module imp_single_channel
 			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
 		enddo
 	end subroutine driving_imp_flowAlloc
+	
+	subroutine driving_loop_flowAlloc(assm,Qin)
+		type(sys_assembly),intent(in out)::assm(:)
+		real(KREAL),intent(in)::Qin
+		!local
+		real(KREAL),allocatable::flowrate(:)
+		real(KREAL)::fuelArea,density!flow area of pin
+		integer zone,n_pin
+		integer i
+		zone=size(assm)
+		allocate(flowrate(zone))
+		
+		do i=1,zone,1
+			flowrate(i)=Qin/zone!average
+		enddo
+		
+		do  i=1,zone,1
+			n_pin=assm(i)%geom%n_pin
+			fuelArea=assm(i)%hydrau%aflow
+			density=get_density(assm(i)%th_boundary%T%inlet)
+			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
+		enddo
+	end subroutine driving_loop_flowAlloc
 	
 subroutine driving_imp_steady(assm,power,fq_core)
     type(sys_assembly),intent(in out)::assm

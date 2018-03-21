@@ -22,8 +22,8 @@
 	 use imp_property
     implicit none
 
-     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
-     !integer M,N,i,j
+    !real(KREAL),allocatable::power(:,:),fq_core(:,:)
+    !integer M,N,i,j
     contains
     subroutine Perform_TH_imp(transient_flag, assembly, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)
 		logical, intent(in)      :: transient_flag                              ! .TRUE. --transient
@@ -74,9 +74,9 @@
 		 enddo
 		!=========================================================
 		if (transient_flag)  then
-            call driving_loop_transient(power,fq_core,last_, current_)
+            call driving_loop_transient(assembly,last_, current_)
 		else
-            call driving_loop_steady(power,fq_core)
+            call driving_loop_steady(assembly)
 		end if
 	    !==========================================================
 		!热工反馈

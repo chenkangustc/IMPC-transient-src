@@ -3,15 +3,16 @@ module Imp_cal_loop
 	use constants
 	implicit none
 	contains
-	subroutine driving_loop_steady()
+	subroutine driving_loop_steady(assembly)
 		implicit none
+		real(KREAL),intent(in)::assembly(:,:)! (zone, layer), in W, 各组件功率;
         !local
         real(KREAL)::sigma
         sigma=1.0
         do while(sigma>0.001)
             core%Tfin=PipePR%Tfout
             print *,'core cal'
-		    call core%thCals()
+		    call driving_THcore_steady(assembly)
 		    pipeRI%Tfin=core%Tfout
             print*,'pipe cal'
 		    call PipeRI%thCals()
