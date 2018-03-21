@@ -30,7 +30,8 @@
     dt=ttotal/Nt
 	last=0.0
 	current=0.0
-	call driving_loop_steady()
+    
+	!call driving_loop_steady()
     
     write(unit=FILE_O,fmt="('  time',' flowrate',' coreTout',' IHXTin',' IHXTout')")
 	do i=1,Nt,1

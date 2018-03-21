@@ -1,6 +1,7 @@
 module Imp_cal_loop
-    use Imp_loop_global
 	use constants
+    use Imp_loop_global
+	use Imp_driving_THcore
 	implicit none
 	contains
 	subroutine driving_loop_steady(assembly)
@@ -14,7 +15,7 @@ module Imp_cal_loop
 		coreTout=0.0
 		coreQin=0.0
         do while(sigma>0.001)
-            coreTfin=PipePR%Tfout
+            coreTin=PipePR%Tfout
 			coreQin=PipePR%Q
             print *,'core cal'
 			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
