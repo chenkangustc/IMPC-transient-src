@@ -22,7 +22,7 @@
 			na = SIZE(assembly, dim=2)!layer                          
 			M=size(assm1(1)%thermal%temperature,dim=1)
 			N=size(assm1(1)%thermal%temperature,dim=2)		
-            allocate(pow(nr,na),fq_core(nr,na))
+            allocate(pow(na,N),fq_core(na,N))
 			pow=0.0
 			fq_core=1.0
 		
@@ -38,9 +38,7 @@
 						if(k<=assm1(i)%mesh%Nf) pow(j,k)=assembly(i,j+assm1(i)%mesh%layer_bottom)/(assm1(i)%geom%N_fuelpin*assm1(i)%geom%height(j)*3.14159*assm1(i)%geom%pellet**2)
 					enddo
 				enddo
-			enddo
-			
-			do i=1,nr,1
+
 				if (assm1(i)%th_boundary%u%inlet==0.0) then
 					assm1(i)%thermal%velocity=0.0
 					assm1(i)%th_boundary%u%outlet=0.0

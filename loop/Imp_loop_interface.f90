@@ -18,7 +18,8 @@
     !integer M,N,i,j
     contains
     subroutine Perform_TH_loop(transient_flag, assembly, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)
-		logical, intent(in)      :: transient_flag                              ! .TRUE. --transient
+		implicit none
+        logical, intent(in)      :: transient_flag                              ! .TRUE. --transient
         real(KREAL), intent(in)  :: assembly(:, :)                              ! (zone, layer), in W, 各组件功率;
         real(KREAL), intent(in out)  :: Tfuel(:, :)                             ! (nr, na), in K, 各组件平均燃料温度;
         real(KREAL), intent(in out)  :: Tcoolant(:, :)                          ! (nr, na), in K, 各组件平均冷却剂温度;
@@ -43,7 +44,9 @@
         last_ = last
         current_ = current
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
-        na = SIZE(assembly, dim=2)                                              ! 轴向的节块数目layer     
+        na = SIZE(assembly, dim=2) 
+        M=SIZE(assm1(1)%thermal%temperature,dim=1)
+        N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer     
 		!=========================================================
 		!热工计算
 		if (transient_flag)  then
@@ -53,6 +56,7 @@
 		end if
 	    !==========================================================
 		!热工反馈
+        do i=1,nr,1
 		dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
 		do j=1,assm1(i)%mesh%Ny,1
 			volumn=0.0
@@ -70,7 +74,7 @@
 			Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
 			Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
 		enddo
-			
+		enddo	
 		TAoutlet_total=0.0
 		A_total=0.0
 		do i=1,nr,1

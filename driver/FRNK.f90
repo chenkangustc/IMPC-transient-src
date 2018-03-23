@@ -47,12 +47,13 @@ program DAISY
     use Imp_driving_syspost
 	!use imp_driving_output
     !test
-    use testNK2TH
+    !use testNK2TH
+    use testNK2loop
     
     implicit none
 	!local
-	integer tNK2TH
-    tNK2TH=0
+	logical:: tNK2TH
+    tNK2TH=.TRUE.
     ! --------------------------------------------------------------------------
 	!    call Driving_th_check_model ()
     
@@ -65,8 +66,9 @@ program DAISY
     call driving_presys()
 	
 	! --------------------------------------------------------------------------
-	if (tNK2TH==1) then 
-        call driving_testNK2TH()   
+	if (tNK2TH) then 
+        !call driving_testNK2TH()   
+        call driving_testNK2loop()
     endif
     ! --------------------------------------------------------------------------
     ! perturbation calculation

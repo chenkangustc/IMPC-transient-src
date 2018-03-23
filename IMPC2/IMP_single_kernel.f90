@@ -534,7 +534,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=(assm%mesh%r(i,j)+Df/2.0)*CTC(i,j)/Df
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
           ap(i,j)=ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Df*q(i,j)
          elseif (j>1.and.j<Nf)then!fuel内部控制体
@@ -542,7 +542,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=(assm%mesh%r(i,j)+Df/2.0)*CTC(i,j)/Df
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Df*q(i,j)
          elseif(j==Nf)then!f-g边界左侧控制体
@@ -550,7 +550,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=2*(assm%mesh%r(i,j)+Df/2.0)*(Df+Dg)/(Df/CTC(i,j)+Dg/CTC(i,j+1))/(Df+Dg)
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Df*q(i,j)  
          elseif (j==Nf+1)then!f-g边界右侧控制体
@@ -558,7 +558,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=(assm%mesh%r(i,j)+Dg/2.0)*CTC(i,j)/Dg
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Dg*q(i,j)
          elseif(j>Nf+1.and.j<Nf+Ng)then!g气隙内部控制体
@@ -566,7 +566,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=(assm%mesh%r(i,j)+Dg/2.0)*CTC(i,j)/Dg
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Dg*q(i,j)
          elseif(j==Nf+Ng)then!g-c边界左侧控制体
@@ -574,7 +574,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=2*(assm%mesh%r(i,j)+Dg/2.0)*(Dg+Ds)/(Dg/CTC(i,j)+Ds/CTC(i,j+1))/(Dg+Ds)
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Dg*q(i,j)
          elseif(j==Nf+Ng+1)then!g-c边界右侧控制体
@@ -582,7 +582,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)*CTC(i,j)/Ds
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
          elseif(j>Nf+Ng+1.and.j<Nf+Ng+Ns)then!c包壳内部控制体
@@ -590,7 +590,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)*CTC(i,j)/Ds
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
          elseif(j==Nf+Ng+Ns)then!s-fluid边界左侧控制体
@@ -608,15 +608,15 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
            ae(i,j)=0.0
            as(i,j)=0.0
            an(i,j)=0.0
-           if(flag==1.0) api(i,j)=RHOI(i,j)*Dy/dt
-           ap(i,j)=aw(i,j)+api(i,j)+RHOi(i-1,j)*uin
-           bs(i,j)=Dy/SHC(i,j)*q(i,j)+RHOi(i-1,j)*uin*assm%th_boundary%T%inlet          
+           if(flag==1.0) api(i,j)=RHO(i,j)*Dy/dt
+           ap(i,j)=aw(i,j)+api(i,j)+RHO(i-1,j)*uin
+           bs(i,j)=Dy/SHC(i,j)*q(i,j)+RHO(i-1,j)*uin*assm%th_boundary%T%inlet          
           else!流体内部以及出口控制体
            aw(i,j)=Dy/SHC(i,j)*2.0*3.14*Xt/Area*1.0/(1.0/assm%property%htc(i)+Ds/(2*CTC(i,j-1)))
            ae(i,j)=0.0
            as(i,j)=0.0
-           an(i,j)=0.5*(RHOi(i,j)+RHOi(i-1,j))*assm%thermal%velocity(i-1)
-           if(flag==1.0) api(i,j)=RHOI(i,j)*Dy/dt
+           an(i,j)=0.5*(RHO(i,j)+RHO(i-1,j))*assm%thermal%velocity(i-1)
+           if(flag==1.0) api(i,j)=RHO(i,j)*Dy/dt
            ap(i,j)=an(i,j)+aw(i,j)+api(i,j)
            bs(i,j)=Dy/SHC(i,j)*q(i,j)        
           endif
@@ -673,7 +673,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
          enddo
      enddo
 	 assm%th_boundary%T%outlet=assm%thermal%Temperature(M-1,N)
-end subroutine cal_th_temperature_rhoi
+end subroutine cal_th_temperature_RHOi
 subroutine solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
  implicit none
  type(sys_assembly),intent(in out)::assm

@@ -18,7 +18,7 @@ module Imp_cal_loop
 		coreTout=0.0
 		coreQin=0.0
 		write(*,*)'driving loop steady:'
-        do while(sigma>0.001)
+        do while(sigma>0.05)
             coreTin=PipePR%Tfout
 			coreQin=PipePR%Q
             print *,'core cal'
