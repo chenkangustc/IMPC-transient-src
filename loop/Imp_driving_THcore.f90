@@ -22,7 +22,7 @@
 			na = SIZE(assembly, dim=2)!layer                          
 			M=size(assm1(1)%thermal%temperature,dim=1)
 			N=size(assm1(1)%thermal%temperature,dim=2)		
-            allocate(pow(M,N),fq_core(M,N))
+            allocate(pow(nr,na),fq_core(nr,na))
 			pow=0.0
 			fq_core=1.0
 		
@@ -49,9 +49,9 @@
 					assm1(i)%property%rho=get_density(assm1(i)%th_boundary%T%inlet)
 				else
 					if (transient_flag)then
-						call driving_imp_Transient(assm1(i),pow,fq_core,last,current)
+						if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(i),pow,fq_core,last,current)
 					else
-						call driving_imp_steady(assm1(i),pow,fq_core)					
+						call driving_imp_THsteady(assm1(i),pow,fq_core)					
 					endif
 				endif	
 			enddo !zone		

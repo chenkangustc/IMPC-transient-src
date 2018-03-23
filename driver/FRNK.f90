@@ -42,6 +42,9 @@ program DAISY
 	!IMPC
 	!use imp_assm_global
 	use imp_driving_pre_process
+    use Imp_driving_presys
+    use Imp_inputcard!I/O
+    use Imp_driving_syspost
 	!use imp_driving_output
     !test
     use testNK2TH
@@ -58,6 +61,8 @@ program DAISY
     call Driving_th_pre_process ()
 	
 	call Sys_pre_process()
+    
+    call driving_presys()
 	
 	! --------------------------------------------------------------------------
 	if (tNK2TH==1) then 
@@ -108,5 +113,7 @@ program DAISY
     call Driving_th_post_process ()
     
     call Run_post_process ()
+    
+    call driving_postsys()
 
 end program DAISY

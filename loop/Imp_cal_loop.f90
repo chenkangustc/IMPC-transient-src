@@ -2,6 +2,7 @@ module Imp_cal_loop
 	use constants
     use Imp_loop_global
 	use Imp_driving_THcore
+	use Imp_inputcard
 	implicit none
 	contains
 	subroutine driving_loop_steady(assembly)
@@ -16,6 +17,7 @@ module Imp_cal_loop
 		coreTin=0.0
 		coreTout=0.0
 		coreQin=0.0
+		write(*,*)'driving loop steady:'
         do while(sigma>0.001)
             coreTin=PipePR%Tfout
 			coreQin=PipePR%Q
@@ -23,7 +25,7 @@ module Imp_cal_loop
 			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
 		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout)
 		    pipeRI%Tfin=coreTout
-            print*,'pipe cal'
+            print*,'pipe cal steady'
 		    call PipeRI%thCals()
 		    IHX1%Tpin=PipeRI%Tfout
 		    call IHX1%thCals()
@@ -31,7 +33,7 @@ module Imp_cal_loop
 		    call PipeIP%thCals()
             PipePR%Tfin=PipeIP%Tfout
             call PipePR%thCals()
-            sigma=abs((PipePR%Tfout-core%Tfin)/core%Tfin)
+            sigma=abs((PipePR%Tfout-coreTin)/coreTin)
             print*,sigma
         enddo
 	end subroutine driving_loop_steady
@@ -52,18 +54,16 @@ module Imp_cal_loop
 			!driving_THcore_steady(Qin,Tin,assembly,Tout)
 		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout,last,current)
 		    pipeRI%Tfin=coreTout
-            print*,'pipe cal'
-		    pipeRI%Tfin=core%Tfout
-            print*,'pipe cal'
+            print*,'pipe cal transient'
 		    call PipeRI%thCalt(last,current)
 		    IHX1%Tpin=PipeRI%Tfout
 		    call IHX1%thCalt(last,current)
 		    PipeIP%Tfin=IHX1%Tpout
 		    call PipeIP%thCalt(last,current)
             PipePR%Tfin=PipeIP%Tfout
-            call PipePR%thCalt(last,current)
-            core%Tfin=PipePR%Tfout    
-            
+            call PipePR%thCalt(last,current) 
+		    write(unit=file_t,fmt="(F6.1,' ',5F8.2)") current,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout
+          
 	end subroutine driving_loop_transient
 	
 	subroutine cal_loop_hydraulic(current,flowrate)

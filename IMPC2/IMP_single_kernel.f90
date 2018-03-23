@@ -13,7 +13,9 @@ module imp_single_kernel
      public::modify_PV
      public::cal_th_convection
      public::cal_th_temperature
+	 public::cal_th_temperature_rhoi
      public::solve_temperature
+	 public::solve_temperature_rhoi
      public::update_property
     contains
     subroutine solve_momentum(assm,flag,rhoi,ui,dt,ap)!(几何网格水力学)（p）（初始条件）（边界条件）（瞬态计算选项）
@@ -483,6 +485,206 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
 	 assm%th_boundary%T%outlet=assm%thermal%Temperature(M-1,N)
 end subroutine cal_th_temperature
 
+subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+ implicit none
+ type(sys_assembly),intent(in out)::assm
+ real(KREAL),intent(in)::flag
+ real(KREAL),intent(in)::Ti(:,:),rhoi(:,:)
+ real(KREAL),intent(in)::dt
+ !local
+    real(KREAL):: Area,Xt,xf,xg,xs,Df,Dg,Ds,Dy,uin,Tin
+    integer  M,N,i,j,k,Nf,Ng,Ns,Ny
+    real(KREAL),allocatable::Tj(:,:)
+    real(KREAL),allocatable::RHO(:,:),SHC(:,:),CTC(:,:),DVS(:,:)
+    real(KREAL),allocatable::aw(:,:),ae(:,:),ap(:,:),as(:,:),an(:,:),api(:,:),bs(:,:),q(:,:)
+     Area=assm%hydrau%aflow
+     uin=assm%th_boundary%u%inlet
+     Tin=assm%th_boundary%T%inlet
+     xf=assm%geom%pellet
+     xg=assm%geom%Bond
+     xs=assm%geom%Cladth
+     Xt=Xf+Xg+Xs !包壳外径
+     Nf=assm%mesh%Nf
+     Ng=assm%mesh%Ng
+     Ns=assm%mesh%Ns
+     Ny=assm%mesh%Ny
+     M=assm%mesh%Ny+1
+     N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
+     Df=Xf/Nf
+     Dg=Xg/Ng
+     Ds=Xs/Ns
+     !Dy=assm%geom%height/Ny
+     
+    allocate(Tj(1:M-1,1:N))
+    allocate(RHO(0:M,0:N),SHC(0:M,0:N),CTC(0:M,0:N),DVS(0:M,0:N))
+    allocate(aw(1:M-1,1:N),ae(1:M-1,1:N),ap(1:M-1,1:N),as(1:M-1,1:N),an(1:M-1,1:N),api(1:M-1,1:N),bs(1:M-1,1:N),q(1:M-1,1:N))
+    rho=assm%property%rho
+    shc=assm%property%shc
+    ctc=assm%property%ctc
+    dvs=assm%property%dvs
+    !set the pow
+    q=assm%pow%power
+    
+    api=0.0
+    Do i=1,M-1,1
+	    Dy=assm%geom%height(i+assm%mesh%layer_bottom)
+        Do j=1,N,1
+         if (j==1)then!轴对称边界的控制体
+          aw(i,j)=0.0
+          ae(i,j)=(assm%mesh%r(i,j)+Df/2.0)*CTC(i,j)/Df
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
+          ap(i,j)=ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Df*q(i,j)
+         elseif (j>1.and.j<Nf)then!fuel内部控制体
+          aw(i,j)=(assm%mesh%r(i,j)-Df/2.0)*CTC(i,j)/Df
+          ae(i,j)=(assm%mesh%r(i,j)+Df/2.0)*CTC(i,j)/Df
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Df*q(i,j)
+         elseif(j==Nf)then!f-g边界左侧控制体
+          aw(i,j)=(assm%mesh%r(i,j)-Df/2.0)*CTC(i,j)/Df
+          ae(i,j)=2*(assm%mesh%r(i,j)+Df/2.0)*(Df+Dg)/(Df/CTC(i,j)+Dg/CTC(i,j+1))/(Df+Dg)
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Df/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Df*q(i,j)  
+         elseif (j==Nf+1)then!f-g边界右侧控制体
+          aw(i,j)=2*(assm%mesh%r(i,j)-Dg/2.0)*(df+dg)/(df/CTC(i,j-1)+dg/CTC(i,j))/(df+dg)
+          ae(i,j)=(assm%mesh%r(i,j)+Dg/2.0)*CTC(i,j)/Dg
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Dg*q(i,j)
+         elseif(j>Nf+1.and.j<Nf+Ng)then!g气隙内部控制体
+          aw(i,j)=(assm%mesh%r(i,j)-Dg/2.0)*CTC(i,j)/Dg
+          ae(i,j)=(assm%mesh%r(i,j)+Dg/2.0)*CTC(i,j)/Dg
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Dg*q(i,j)
+         elseif(j==Nf+Ng)then!g-c边界左侧控制体
+          aw(i,j)=(assm%mesh%r(i,j)-Dg/2.0)*CTC(i,j)/Dg
+          ae(i,j)=2*(assm%mesh%r(i,j)+Dg/2.0)*(Dg+Ds)/(Dg/CTC(i,j)+Ds/CTC(i,j+1))/(Dg+Ds)
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Dg/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Dg*q(i,j)
+         elseif(j==Nf+Ng+1)then!g-c边界右侧控制体
+          aw(i,j)=2*(assm%mesh%r(i,j)-Ds/2.0)*(dg+ds)/(dg/CTC(i,j-1)+ds/CTC(i,j))/(dg+ds)
+          ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)*CTC(i,j)/Ds
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
+         elseif(j>Nf+Ng+1.and.j<Nf+Ng+Ns)then!c包壳内部控制体
+          aw(i,j)=(assm%mesh%r(i,j)-Ds/2.0)*CTC(i,j)/Ds
+          ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)*CTC(i,j)/Ds
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHOi(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
+         elseif(j==Nf+Ng+Ns)then!s-fluid边界左侧控制体
+          aw(i,j)=(assm%mesh%r(i,j)-Ds/2.0)*CTC(i,j)/Ds
+          ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)/(1.0/assm%property%htc(i)+ds/(2.0*CTC(i,j)))
+          as(i,j)=0.0
+          an(i,j)=0.0
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
+         elseif(j==Nf+Ng+Ns+1)then!fluid控制体
+          
+          if(i==1)then!流体入口的控制体
+           aw(i,j)=Dy/SHC(i,j)*2.0*3.14*Xt/Area*1.0/(1.0/assm%property%htc(i)+Ds/(2*CTC(i,j-1)))
+           ae(i,j)=0.0
+           as(i,j)=0.0
+           an(i,j)=0.0
+           if(flag==1.0) api(i,j)=RHOI(i,j)*Dy/dt
+           ap(i,j)=aw(i,j)+api(i,j)+RHOi(i-1,j)*uin
+           bs(i,j)=Dy/SHC(i,j)*q(i,j)+RHOi(i-1,j)*uin*assm%th_boundary%T%inlet          
+          else!流体内部以及出口控制体
+           aw(i,j)=Dy/SHC(i,j)*2.0*3.14*Xt/Area*1.0/(1.0/assm%property%htc(i)+Ds/(2*CTC(i,j-1)))
+           ae(i,j)=0.0
+           as(i,j)=0.0
+           an(i,j)=0.5*(RHOi(i,j)+RHOi(i-1,j))*assm%thermal%velocity(i-1)
+           if(flag==1.0) api(i,j)=RHOI(i,j)*Dy/dt
+           ap(i,j)=an(i,j)+aw(i,j)+api(i,j)
+           bs(i,j)=Dy/SHC(i,j)*q(i,j)        
+          endif
+         endif              
+      enddo
+    enddo
+
+     
+     do k=1,5000,1
+       do i=1,M-1,1
+           do j=1,N,1
+               if(k==1) then
+                Tj(i,j)=Ti(i,j)
+               else
+                if(j==1)then
+                 Tj(i,j)=(ae(i,j)*Tj(i,j+1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
+                elseif(j>1.and.j<N)then
+                 Tj(i,j)=(aw(i,j)*Tj(i,j-1)+ae(i,j)*Tj(i,j+1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
+                elseif(j==N) then
+                  if(i==1)then
+                    Tj(i,j)=(aw(i,j)*Tj(i,j-1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
+                  else
+                    Tj(i,j)=(aw(i,j)*Tj(i,j-1)+an(i,j)*Tj(i-1,j)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)  
+                 endif
+                endif
+              endif
+           enddo
+       enddo
+     enddo
+     
+     do i=1,M-1,1!as for the solid,no need to know the inlet and outlet temperature
+         do j=1,N,1
+            !if(i>0.and.i<M)then
+            !    if(j==0)then
+            !      assm%thermal%Temperature(i,j)=Tj(i,j+1)
+            !    else
+                  assm%thermal%Temperature(i,j)=Tj(i,j)
+            !    endif
+            !elseif(i==0)then
+            !    if(j==0)then
+            !      assm%thermal%Temperature(i,j)=Tj(i+1,j+1)
+            !    elseif(j>0.and.j<N)then
+            !      assm%thermal%Temperature(i,j)=Tj(i+1,j)
+            !    elseif(j==N)then!入口
+            !      assm%thermal%Temperature(i,j)=Tin
+            !    endif
+           !elseif(i==M)then
+           !     if(j==0)then
+           !       assm%thermal%Temperature(i,j)=Tj(i-1,j+1)
+           !     else
+           !       assm%thermal%Temperature(i,j)=Tj(i-1,j)
+           !     endif
+            !endif           
+         enddo
+     enddo
+	 assm%th_boundary%T%outlet=assm%thermal%Temperature(M-1,N)
+end subroutine cal_th_temperature_rhoi
+subroutine solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+ implicit none
+ type(sys_assembly),intent(in out)::assm
+ real(KREAL),intent(in)::flag
+ real(KREAL),intent(in)::Ti(:,:)
+ real(KREAL),intent(in)::rhoi(:,:)
+ real(KREAL):: dt
+ !local
+ call cal_th_convection(assm)
+ call cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+end subroutine solve_temperature_rhoi
 subroutine solve_temperature(assm,flag,Ti,rhoi,dt)
  implicit none
  type(sys_assembly),intent(in out)::assm

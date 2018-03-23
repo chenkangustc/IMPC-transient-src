@@ -4,12 +4,13 @@ module Imp_inputcard
     use,intrinsic::ISO_FORTRAN_ENV
     use constants
 	implicit none
-	integer::file_unit,file_o
+	integer::file_i,file_o,file_t
 	integer,parameter,private::N_keyword=8
     integer,parameter,private::MAX_REAL_PARAMETER=50
 	integer,parameter,private::MAX_INT_PARAMETER=50
-    character(len=MAX_WORD_LEN),parameter::FILE_IN='input.case'
-    character(len=MAX_WORD_LEN),parameter::FILE_OUT='output.txt'
+    character(len=MAX_WORD_LEN),parameter::FILE_IN='loopinput.case'
+    character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
+	character(len=MAX_WORD_LEN),parameter::FILE_LTIME='looptimelist.txt'
     character(len=MAX_WORD_LEN)::INP_SECTION(N_keyword)
     
 	
@@ -25,14 +26,16 @@ module Imp_inputcard
 		! Variables
 		call set_section_keyword()
         open(newunit=file_o,file=FILE_OUT,status='replace',action='write',iostat=io_error)
-		open(newunit=file_unit,file=FILE_IN,status='old',action='read',iostat=io_error)      
-        !read(unit=file_unit,fmt='(A)',iostat=io_error) aline
+		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error)   
+		write(unit=file_t,fmt="('  time',' flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout')")
+		open(newunit=file_i,file=FILE_IN,status='old',action='read',iostat=io_error)   		
+        !read(unit=file_i,fmt='(A)',iostat=io_error) aline
 		do
-			read(unit=file_unit,fmt='(A)',iostat=io_error) aline
+			read(unit=file_i,fmt='(A)',iostat=io_error) aline
             if(io_error==IOSTAT_END) exit
 			read(unit=aline,fmt=*,iostat=io_error) section_name       
 			! if(is_keyword(INP_SECTION,section_name)) then
-			!     backspace(file_unit,iostat=io_error)
+			!     backspace(file_i,iostat=io_error)
 			!     exit
 			! end if        
 			if(is_keyword(INP_SECTION,section_name)) then
@@ -121,7 +124,7 @@ module Imp_inputcard
 			!print*,trim(aline)
 			print*,trim(adjustl(section_name))
 		end do
-        close(file_unit)
+        close(file_i)
 	end subroutine driving_input_read
 	
     subroutine Set_section_keyword()

@@ -7,7 +7,7 @@
 !
 !****************************************************************************
 
-    module loop_interface
+    module Imp_test_loop
     use Imp_driving_presys
 	use Imp_cal_loop
     use Imp_timer_global
@@ -43,5 +43,5 @@
 	end associate
     call driving_postsys()
     end subroutine driving_loop_interface
-    end module loop_interface
+    end module Imp_test_loop
 

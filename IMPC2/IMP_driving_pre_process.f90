@@ -25,7 +25,7 @@ contains
      write(*,*)'start the sys pre process:'
      !alloc
 	  layer_core=ns%state%layer-ns%state%layer_bottom-ns%state%layer_top
-		if(ns%feedback%is_feedback .and. ns%feedback%is_inner) then
+		if(ns%feedback%is_feedback .and. (ns%feedback%is_inner.OR.ns%feedback%is_imp.OR.ns%feedback%is_loop)) then
 			allocate(assm1(ns%state%zone))
 			allocate(imp_pow(ns%state%zone,ns%state%layer))
 			do i=1,ns%state%zone,1
