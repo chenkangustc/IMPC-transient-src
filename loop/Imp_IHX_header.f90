@@ -23,6 +23,7 @@ module Imp_IHX_header
 		real(KREAL)::Lsingle
 		real(KREAL),allocatable::zz(:)
 		real(KREAL)::Rtube,Rp,Rpa,thickt,thickv
+		real(KREAL)::Plength!中心节距
 		real(KREAL)::Areap
 		integer::Ntube
 		real(KREAL)::AreaTubeSingle,AreaTubeTotal
@@ -96,7 +97,7 @@ module Imp_IHX_header
 		this%AreaTubeTotal=Ntube*this%AreaTubeSingle
 		
 		this%Tpin=663.15!K
-		this%Tsin=30!K
+		this%Tsin=303!K
         this%Tpout=this%Ti
         this%Tsout=this%Ti
 		
@@ -236,16 +237,18 @@ module Imp_IHX_header
 		integer::i,N
 		real(KREAL)::Nust,Nupt,Nupv
 		real(KREAL)::Areap_,Areas_,Qp_,Qs_
+		real(KREAL)::Dtubeo
 		N=this%N
 		Areap_=this%Areap/this%Ntube
 		Areas_=this%AreaTubeSingle
 		Qp_=this%Qp/this%Ntube
 		Qs_=this%Qs/this%Ntube
+		Dtubeo=(this%Rtube+this%thickt)*2.0
 		!get_Nusselt_IHX_shell(flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
 		do i=1,N,1
 			Nust=get_Nusselt_IHX_tube(Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss,this%shcs(i),this%ks(i))!secondary
-			Nupt=get_Nusselt_IHX_shell(Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp,this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
-			Nupv=get_Nusselt_IHX_shell(Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp,this%shcp(i),this%kp(i))	
+			Nupt=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp,this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
+			Nupv=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp,this%shcp(i),this%kp(i))	
 			this%hts(i)=Nust*this%ks(i)/this%Des
 			this%htp(i)=Nupt*this%kp(i)/this%Dep
 			this%hvp(i)=Nupv*this%kp(i)/this%Dep

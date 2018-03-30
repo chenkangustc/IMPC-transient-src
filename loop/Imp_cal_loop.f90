@@ -3,6 +3,7 @@ module Imp_cal_loop
     use Imp_loop_global
 	use Imp_driving_THcore
 	use Imp_inputcard
+	use Imp_driving_syspost
 	implicit none
 	contains
 	subroutine driving_loop_steady(assembly)
@@ -36,6 +37,7 @@ module Imp_cal_loop
             sigma=abs((PipePR%Tfout-coreTin)/coreTin)
             print*,sigma
         enddo
+		call driving_output_steady()
 	end subroutine driving_loop_steady
 	
 	subroutine driving_loop_transient(assembly,last,current)

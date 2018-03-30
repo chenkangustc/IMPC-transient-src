@@ -97,10 +97,11 @@ contains
 		Re=4*flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
-		Nu=0.482+0.00185*Pe**0.827
+		Nu=0.023*Re**0.8*Pr**0.333
 	end function get_Nusselt_IHX_tube
 	
-	function get_Nusselt_IHX_shell(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+	function get_Nusselt_IHX_shell(P,D,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		real(KREAL),intent(in)::P,D
 		real(KREAL),intent(in)::flowarea,wet,De
 		real(KREAL),intent(in)::rho,vis,shc,conductivity
 		real(KREAL),intent(in)::flowrate
@@ -109,7 +110,7 @@ contains
 		Re=4*flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
-		Nu=0.60+0.0006*Pe
+		Nu=7.55*P/D-20.*(P/D)**(-13)+3.67/(90.*(P/D)**2)*Pe**(0.56+0.19*P/D)
 	end function get_Nusselt_IHX_shell
 	
 	function get_Nusselt_PIPE_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
@@ -121,7 +122,7 @@ contains
 		Re=4*flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
-		Nu=0.482+0.00185*Pe**0.827
+		Nu=4.8+0.0156*Re**0.85*Pr**0.93
 	end function get_Nusselt_PIPE_tube
     !
     subroutine get_hyconstant(rc,pd,Aflow,wet,de)
