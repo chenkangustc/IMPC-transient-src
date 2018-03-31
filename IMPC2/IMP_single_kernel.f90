@@ -634,7 +634,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
 	 Tj=Ti
 	 erro=1.0
 	 num=1
-	 do while(erro.gt.1.0D-3)
+	 do while(erro.gt.1.0D-6)
        do i=1,M-1,1
            do j=1,N,1
                 if(j==1)then
