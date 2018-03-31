@@ -13,6 +13,7 @@
 	 use constants 
      use imp_assm_global
      use Imp_cal_loop
+     use imp_loop_global
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
@@ -33,12 +34,11 @@
         !local
         REAL(KREAL)  :: last_, current_
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
-		real(KREAL)  :: TAoutlet_total,A_total!used to calculate the core average outlet temperature
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
 		real(KREAL)  :: max_T_inner,max_T_outer
 		
 		integer  :: nf,ng,ns,nRadial,ny
-        integer  :: nr, na, npin,M,N
+        integer  :: nr, na,M,N
 		integer  :: i,j,k
         
         last_ = last
@@ -75,14 +75,9 @@
 			Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
 		enddo
 		enddo	
-		TAoutlet_total=0.0
-		A_total=0.0
-		do i=1,nr,1
-			!volumn average
-			TAoutlet_total=TAoutlet_total+assm1(i)%th_boundary%T%outlet*assm1(i)%hydrau%aflow*assm1(i)%th_boundary%u%outlet
-			A_total=A_total+assm1(i)%hydrau%aflow*assm1(i)%th_boundary%u%outlet
-		enddo
-		toutlet=TAoutlet_total/A_total
+
+		toutlet=core%Tfout
+        
 		max_Tcoolant=0.0
 		max_Tfuel=0.0
 		!calculate max_Tcoolant max_Tfuel

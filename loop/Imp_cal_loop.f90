@@ -12,21 +12,24 @@ module Imp_cal_loop
         !local
         real(KREAL)::sigma
 		real(KREAL)::coreTin,coreTout,coreQin
+        integer::num
 		logical:: transient_flag
 		transient_flag=.FALSE.
         sigma=1.0
 		coreTin=0.0
 		coreTout=0.0
 		coreQin=0.0
-		write(*,*)'driving loop steady:'
-        do while(sigma>0.05)
+        num=0
+		!write(*,*)'driving loop steady:'
+        do while(sigma.gt.1.0D-6)
+            num=num+1
             coreTin=PipePR%Tfout
 			coreQin=PipePR%Q
-            print *,'core cal'
+            !print *,'core cal'
 			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
 		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout)
 		    pipeRI%Tfin=coreTout
-            print*,'pipe cal steady'
+           ! print*,'pipe cal steady'
 		    call PipeRI%thCals()
 		    IHX1%Tpin=PipeRI%Tfout
 		    call IHX1%thCals()
@@ -35,7 +38,7 @@ module Imp_cal_loop
             PipePR%Tfin=PipeIP%Tfout
             call PipePR%thCals()
             sigma=abs((PipePR%Tfout-coreTin)/coreTin)
-            print*,sigma
+            print*,'num=',num,'sigma=',sigma,'coreTin=',coreTin,'coreTout=',coreTout
         enddo
 		call driving_output_steady()
 	end subroutine driving_loop_steady

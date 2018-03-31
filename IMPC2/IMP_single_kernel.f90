@@ -303,8 +303,9 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
  real(KREAL),intent(in)::dt
  !local
     real(KREAL):: Area,Xt,xf,xg,xs,Df,Dg,Ds,Dy,uin,Tin
-    integer  M,N,i,j,k,Nf,Ng,Ns,Ny
-    real(KREAL),allocatable::Tj(:,:)
+    integer  M,N,i,j,k,Nf,Ng,Ns,Ny,num
+	real(KREAL)::erro
+    real(KREAL),allocatable::Tj(:,:),Tk(:,:),Td(:,:)
     real(KREAL),allocatable::RHO(:,:),SHC(:,:),CTC(:,:),DVS(:,:)
     real(KREAL),allocatable::aw(:,:),ae(:,:),ap(:,:),as(:,:),an(:,:),api(:,:),bs(:,:),q(:,:)
      Area=assm%hydrau%aflow
@@ -325,7 +326,7 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
      Ds=Xs/Ns
      !Dy=assm%geom%height/Ny
      
-    allocate(Tj(1:M-1,1:N))
+    allocate(Tj(1:M-1,1:N),Tk(1:M-1,1:N),Td(1:M-1,1:N))
     allocate(RHO(0:M,0:N),SHC(0:M,0:N),CTC(0:M,0:N),DVS(0:M,0:N))
     allocate(aw(1:M-1,1:N),ae(1:M-1,1:N),ap(1:M-1,1:N),as(1:M-1,1:N),an(1:M-1,1:N),api(1:M-1,1:N),bs(1:M-1,1:N),q(1:M-1,1:N))
     rho=assm%property%rho
@@ -435,12 +436,13 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
     enddo
 
      
-     do k=1,5000,1
+     !do k=1,5000,1
+	 Tj=Ti
+	 erro=1.0
+	 num=1
+	 do while(erro.gt.1.0D-3)
        do i=1,M-1,1
            do j=1,N,1
-               if(k==1) then
-                Tj(i,j)=Ti(i,j)
-               else
                 if(j==1)then
                  Tj(i,j)=(ae(i,j)*Tj(i,j+1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
                 elseif(j>1.and.j<N)then
@@ -452,9 +454,12 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
                     Tj(i,j)=(aw(i,j)*Tj(i,j-1)+an(i,j)*Tj(i-1,j)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)  
                  endif
                 endif
-              endif
-           enddo
+				if(num.gt.1) Td(i,j)=abs((Tj(i,j)-Tk(i,j))/Tk(i,j))
+		   enddo
        enddo
+	   if(num.gt.1)  erro=maxval(Td)
+	   Tk=Tj
+	   num=num+1
      enddo
      
      do i=1,M-1,1!as for the solid,no need to know the inlet and outlet temperature
@@ -492,9 +497,9 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
  real(KREAL),intent(in)::Ti(:,:),rhoi(:,:)
  real(KREAL),intent(in)::dt
  !local
-    real(KREAL):: Area,Xt,xf,xg,xs,Df,Dg,Ds,Dy,uin,Tin
-    integer  M,N,i,j,k,Nf,Ng,Ns,Ny
-    real(KREAL),allocatable::Tj(:,:)
+    real(KREAL):: Area,Xt,xf,xg,xs,Df,Dg,Ds,Dy,uin,Tin,erro
+    integer  M,N,i,j,k,Nf,Ng,Ns,Ny,Num
+    real(KREAL),allocatable::Tj(:,:),Tk(:,:),Td(:,:)
     real(KREAL),allocatable::RHO(:,:),SHC(:,:),CTC(:,:),DVS(:,:)
     real(KREAL),allocatable::aw(:,:),ae(:,:),ap(:,:),as(:,:),an(:,:),api(:,:),bs(:,:),q(:,:)
      Area=assm%hydrau%aflow
@@ -515,7 +520,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
      Ds=Xs/Ns
      !Dy=assm%geom%height/Ny
      
-    allocate(Tj(1:M-1,1:N))
+    allocate(Tj(1:M-1,1:N),Tk(1:M-1,1:N),Td(1:M-1,1:N))
     allocate(RHO(0:M,0:N),SHC(0:M,0:N),CTC(0:M,0:N),DVS(0:M,0:N))
     allocate(aw(1:M-1,1:N),ae(1:M-1,1:N),ap(1:M-1,1:N),as(1:M-1,1:N),an(1:M-1,1:N),api(1:M-1,1:N),bs(1:M-1,1:N),q(1:M-1,1:N))
     rho=assm%property%rho
@@ -625,12 +630,13 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
     enddo
 
      
-     do k=1,5000,1
+     !do k=1,5000,1
+	 Tj=Ti
+	 erro=1.0
+	 num=1
+	 do while(erro.gt.1.0D-3)
        do i=1,M-1,1
            do j=1,N,1
-               if(k==1) then
-                Tj(i,j)=Ti(i,j)
-               else
                 if(j==1)then
                  Tj(i,j)=(ae(i,j)*Tj(i,j+1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
                 elseif(j>1.and.j<N)then
@@ -642,9 +648,12 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
                     Tj(i,j)=(aw(i,j)*Tj(i,j-1)+an(i,j)*Tj(i-1,j)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)  
                  endif
                 endif
-              endif
-           enddo
+				if(num.gt.1) Td(i,j)=abs((Tj(i,j)-Tk(i,j))/Tk(i,j))
+		   enddo
        enddo
+	   if(num.gt.1)  erro=maxval(Td)
+	   Tk=Tj
+	   num=num+1
      enddo
      
      do i=1,M-1,1!as for the solid,no need to know the inlet and outlet temperature

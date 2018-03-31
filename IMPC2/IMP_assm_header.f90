@@ -382,7 +382,7 @@ module imp_assm_header
         class(assmpow),intent(in out)::this
         real(KREAL),intent(in)::power(:,:)
         real(KREAL),intent(in)::fq_core(:,:)
-        write(*,*)'set power...'
+        !write(*,*)'set power...'
         this%power=power
         this%fq_core=fq_core
         !call this%print

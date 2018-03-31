@@ -3,6 +3,7 @@
 		use imp_property
 		use Imp_assm_global
 		use imp_single_channel
+		use imp_loop_global
 		implicit none
 		contains
 		subroutine driving_TH_core(transient_flag,Qin,Tin,assembly,Tout,last,current)
@@ -60,5 +61,6 @@
 				flowrate=assm1(i)%th_boundary%u%inlet*(assm1(i)%geom%n_pin*assm1(i)%hydrau%aflow*density)
 				Tout=Tout+assm1(i)%th_boundary%T%outlet*flowrate/Qin	
 			enddo
+			core%Tfout=Tout
 		end subroutine driving_TH_core
 	end module Imp_driving_THcore

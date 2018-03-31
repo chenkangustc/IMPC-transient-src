@@ -35,9 +35,11 @@ module imp_single_channel
 		!local
 		real(KREAL),allocatable::flowrate(:)
 		real(KREAL)::fuelArea,density!flow area of pin
-		integer zone,n_pin
-		integer i
+		integer zone,n_pin,layer,nr
+		integer i,j
 		zone=size(assm)
+		layer=size(assm(1)%thermal%velocity)
+		nr=size(assm(1)%thermal%temperature,2)
 		allocate(flowrate(zone))
 		
 		do i=1,zone,1
@@ -45,11 +47,20 @@ module imp_single_channel
 		enddo
 		
 		do  i=1,zone,1
-			n_pin=assm(i)%geom%n_pin
-			fuelArea=assm(i)%hydrau%aflow
-			density=get_density(assm(i)%th_boundary%T%inlet)
-			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
+			
+				n_pin=assm(i)%geom%n_pin
+				fuelArea=assm(i)%hydrau%aflow
+				density=get_density(assm(i)%th_boundary%T%inlet)
+				assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
+				density=get_density(assm(i)%th_boundary%T%outlet)
+				assm(i)%th_boundary%u%outlet=flowrate(i)/(n_pin*fuelArea*density)			
+			do j=1,layer,1
+				density=get_density(assm(i)%thermal%temperature(j,nr))
+				assm(i)%thermal%velocity(j)=flowrate(i)/(n_pin*fuelArea*density)
+			enddo
 		enddo
+		!velocity
+		
 	end subroutine driving_loop_flowAlloc
 	
 subroutine driving_imp_steady(assm,power,fq_core)
@@ -64,7 +75,7 @@ subroutine driving_imp_steady(assm,power,fq_core)
     real(KREAL),allocatable::ui(:),Ti(:,:)
     real(KREAL),allocatable::rhoi(:,:),rhofi(:)
     real(KREAL),allocatable::ap(:)
-    write(*,*)'start steady calculation:'
+    !write(*,*)'start steady calculation:'
     flag=0.0
     dt=1.0!为保证方程求解dt不为0，无具体意义+
     Ny=assm%mesh%Ny
@@ -162,7 +173,7 @@ subroutine driving_imp_THsteady(assm,power,fq_core)
     real(KREAL),allocatable::ui(:),Ti(:,:)
     real(KREAL),allocatable::rhoi(:,:),rhofi(:)
     real(KREAL),allocatable::ap(:)
-    write(*,*)'start steady calculation:'
+    !write(*,*)'start steady calculation:'
     flag=0.0
     dt=1.0!为保证方程求解dt不为0，无具体意义+
     Ny=assm%mesh%Ny
