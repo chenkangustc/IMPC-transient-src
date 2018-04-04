@@ -27,14 +27,14 @@ module testNK2loop
         max_Tfuel = 0.0; max_Tcoolant = 0.0; min_Rhocoolant = 0.0; 
         last = 0.0; current = 0.0;
 	    
-	    transient_flag=.FALSE.
+	    transient_flag=.TRUE.
 	   open(unit=1,file='.\output\powDistribution.txt')
        !read(1,*) xf,xg,xs,height,nf,ng,ns,ny,f,Tin,pout,Tic,uic,tmax,nt,sigma,sigmab,alpha
        !read(1,*) this%xf,this%xg,this%xs,this%acf,this%height,this%pd,this%npin,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
        read(1,100) power
 	   100 Format(F15.5)
 	   close(1)
-	   !power=100.0*power!125MW
+	   !power=10.0*power!125MW
 	   !print*,'power=',power
 	   if(transient_flag==.FALSE.) then
             if (ns%feedback%is_loop)  then
@@ -43,10 +43,10 @@ module testNK2loop
 	   else       
 			  transient_flag=.FALSE.
 			  call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  	   
-			  power=0.8*power
+			  !power=0.8*power
 			  transient_flag=.TRUE.
-       		  tTotal=500.0
-			  nTime=500
+       		  tTotal=5000.0
+			  nTime=5000
 			  dtime=tTotal/nTime
 			  do i=1,nTime,1
 				  current=current+dtime
@@ -66,5 +66,5 @@ module testNK2loop
 	   print*,'zone=',i_zone,'velocity=',assm1(i_zone)%thermal%velocity
 	   print*,'zone=',i_zone,'pressure=',assm1(i_zone)%thermal%pressure
        read(*,*)
-    endsubroutine driving_testNK2loop
-endmodule testNK2loop
+    end subroutine driving_testNK2loop
+end module testNK2loop
