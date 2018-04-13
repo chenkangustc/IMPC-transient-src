@@ -8,7 +8,7 @@ module Imp_inputcard
 	integer,parameter,private::N_keyword=8
     integer,parameter,private::MAX_REAL_PARAMETER=50
 	integer,parameter,private::MAX_INT_PARAMETER=50
-    character(len=MAX_WORD_LEN),parameter::FILE_IN='loopinput.case'
+    character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
 	character(len=MAX_WORD_LEN),parameter::FILE_LTIME='looptimelist.txt'
     character(len=MAX_WORD_LEN)::INP_SECTION(N_keyword)
