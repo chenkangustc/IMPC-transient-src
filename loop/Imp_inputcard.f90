@@ -26,8 +26,9 @@ module Imp_inputcard
 		! Variables
 		call set_section_keyword()
         open(newunit=file_o,file=FILE_OUT,status='replace',action='write',iostat=io_error)
-		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error)   
-		write(unit=file_t,fmt="('  time',' flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout')")
+		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error) 
+	    !write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
+		write(unit=file_t,fmt="('   time','    pow','    flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout',' IHXQs','  IHXTsin',' IHXTsout')")
 		open(newunit=file_i,file=FILE_IN,status='old',action='read',iostat=io_error)   		
         !read(unit=file_i,fmt='(A)',iostat=io_error) aline
 		do

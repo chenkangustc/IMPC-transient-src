@@ -49,8 +49,19 @@ module Imp_cal_loop
         real(KREAL),intent(in)::last,current
         !local
 		real(KREAL)::coreTin,coreTout,coreQin,Qloop
+		real(KREAL)::powinput
+		integer::i,j,nr,na
 		logical::transient_flag
+		
 		transient_flag=.TRUE.
+		nr=size(assembly,dim=1)
+		na=size(assembly,dim=2)
+		powinput=0.0
+		do i=1,nr,1
+			do j=1,na,1
+				powinput=powinput+assembly(i,j)
+			enddo
+		enddo
 		
             call cal_loop_hydraulic(current,Qloop)						
 			coreQin=Qloop
@@ -67,7 +78,7 @@ module Imp_cal_loop
 		    call PipeIP%thCalt(last,current)
             PipePR%Tfin=PipeIP%Tfout
             call PipePR%thCalt(last,current) 
-		    write(unit=file_t,fmt="(F6.1,' ',5F8.2)") current,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout
+		    write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
           
 	end subroutine driving_loop_transient
 	
