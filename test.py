@@ -4,7 +4,7 @@ import matplotlib.ticker as ticker
 #dir='.\\test1.25MW1000s30mpipe\\'
 #dir='.\\0403\\'
 #dir='E:\\documents\\doctors degree\\software\\tansistant\\system\\test\\vvtest1.0\\'
-dir='.\\'
+dir='..\\'
 file='looptimelist.txt'
 
 loopdat=np.loadtxt(dir+file,skiprows=1)
@@ -15,10 +15,15 @@ coreTin=loopdat[:,3]
 coreTout=loopdat[:,4]
 IHXTin=loopdat[:,5]
 IHXTout=loopdat[:,6]
+Qs=loopdat[:,7]
+Tsin=loopdat[:,8]
+Tsout=loopdat[:,9]
 shc=151.0
 powinput=loopdat[:,1]
 pripow=shc*flowrate*(IHXTin-IHXTout)
 corepow=shc*flowrate*(coreTout-coreTin)
+shcs=4660.0
+secpow=shcs*Qs*(Tsout-Tsin)
 
 fig,ax=plt.subplots(2,2)
 ax[0,0].plot(time,flowrate,label='flowrate')
@@ -42,8 +47,9 @@ ax[1,0].set_xlabel('time/s')
 ax[1,0].set_title( 'Temperature' )
 ax[1,0].legend()
 
-ax[1,1].plot(time,pripow,label='pripow')
-ax[1,1].plot(time,corepow,label='corepow(cmdt)')
+ax[1,1].plot(time,pripow,label='pripow(IHXpcmdt)')
+ax[1,1].plot(time,corepow,label='corepow(Corecmdt)')
+ax[1,1].plot(time,secpow,label='secpow(IHXscmdt)')
 ax[1,1].set_ylabel('Pow/W')
 ax[1,1].set_xlabel('time/s')
 ax[1,1].set_title('Pow removed by IHX')
