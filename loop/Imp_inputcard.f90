@@ -4,13 +4,14 @@ module Imp_inputcard
     use,intrinsic::ISO_FORTRAN_ENV
     use constants
 	implicit none
-	integer::file_i,file_o,file_t
+	integer::file_i,file_o,file_t,file_maxT
 	integer,parameter,private::N_keyword=8
     integer,parameter,private::MAX_REAL_PARAMETER=50
 	integer,parameter,private::MAX_INT_PARAMETER=50
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
 	character(len=MAX_WORD_LEN),parameter::FILE_LTIME='looptimelist.txt'
+	character(len=MAX_WORD_LEN),parameter::FILE_MAXTIME='maxT.timelist'
     character(len=MAX_WORD_LEN)::INP_SECTION(N_keyword)
     
 	
@@ -27,8 +28,10 @@ module Imp_inputcard
 		call set_section_keyword()
         open(newunit=file_o,file=FILE_OUT,status='replace',action='write',iostat=io_error)
 		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error) 
-	    !write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
+		!write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
 		write(unit=file_t,fmt="('   time','    pow','    flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout',' IHXQs','  IHXTsin',' IHXTsout')")
+		open(newunit=file_maxT,file=FILE_MAXTIME,status='replace',action='write',iostat=io_error)
+        write(unit=file_maxT,fmt="('  time','  maxFuel','  maxCool',' maxTinner',' maxTouter')")
 		open(newunit=file_i,file=FILE_IN,status='old',action='read',iostat=io_error)   		
         !read(unit=file_i,fmt='(A)',iostat=io_error) aline
 		do

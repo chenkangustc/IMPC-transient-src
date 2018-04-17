@@ -78,5 +78,6 @@ module Imp_driving_syspost
         close(FILE_I)
         close(FILE_O)
 		close(FILE_T)
+		close(FILE_maxT)
     end subroutine driving_postsys
 end module Imp_driving_syspost

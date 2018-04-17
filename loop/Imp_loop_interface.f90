@@ -14,6 +14,7 @@
      use imp_assm_global
      use Imp_cal_loop
      use imp_loop_global
+	 use imp_inputcard
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
@@ -115,6 +116,7 @@
 				if(max_T_outer<assm1(i)%thermal%Tsc(j)) max_T_outer=assm1(i)%thermal%Tsc(j)
 			enddo
         enddo
+	write(unit=file_maxT,fmt="(F6.1,'',4F9.2)")current,max_Tfuel,max_Tcoolant,max_T_inner,max_T_outer	
 	end subroutine Perform_TH_loop
 end module TH2NK_interface_loop
 
