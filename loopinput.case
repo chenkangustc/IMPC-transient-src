@@ -1,5 +1,5 @@
 !pump:device   	I	    He	  Qe	   omegae	     yita		
-      pump	    1.0  10.0  300.0  1000.0      0.75					
+      pump	    1.0  10.0  158.844  1000.0      0.75					
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
         pipePR	    10.0	    0.05	 0.005	     0	    158.844	   493	 200
 !Reactor:device   	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny

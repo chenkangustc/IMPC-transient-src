@@ -30,9 +30,10 @@
 			do i=1,nr,1
 				assm1(i)%th_boundary%T%inlet=Tin
 			enddo
-
+			
 			call driving_loop_flowAlloc(assm1,Qin)
-
+			
+			
 			do i=1,nr,1!zone start
 				do j=1,assm1(i)%mesh%ny,1!dy
 					do k=1,N,1

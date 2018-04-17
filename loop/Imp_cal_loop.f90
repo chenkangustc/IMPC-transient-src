@@ -10,21 +10,27 @@ module Imp_cal_loop
 		implicit none
 		real(KREAL),intent(in)::assembly(:,:)! (zone, layer), in W, 各组件功率;
         !local
+		real(KREAL)::current
         real(KREAL)::sigma
 		real(KREAL)::coreTin,coreTout,coreQin
+		real(KREAL)::powinput
         integer::num
 		logical:: transient_flag
 		transient_flag=.FALSE.
+		current=0.0
         sigma=1.0
 		coreTin=0.0
 		coreTout=0.0
 		coreQin=0.0
+		powinput=0.0
         num=0
+		!cal total input power
+		call cal_total_inputpow(assembly,powinput)
 		!write(*,*)'driving loop steady:'
         do while(sigma.gt.1.0D-6)
             num=num+1
             coreTin=PipePR%Tfout
-			coreQin=PipePR%Q
+			coreQin=Pump1%Qe
             !print *,'core cal'
 			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
 		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout)
@@ -41,6 +47,7 @@ module Imp_cal_loop
             print*,'num=',num,'sigma=',sigma,'coreTin=',coreTin,'coreTout=',coreTout
         enddo
 		call driving_output_steady()
+		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
 	end subroutine driving_loop_steady
 	
 	subroutine driving_loop_transient(assembly,last,current)
@@ -54,14 +61,8 @@ module Imp_cal_loop
 		logical::transient_flag
 		
 		transient_flag=.TRUE.
-		nr=size(assembly,dim=1)
-		na=size(assembly,dim=2)
-		powinput=0.0
-		do i=1,nr,1
-			do j=1,na,1
-				powinput=powinput+assembly(i,j)
-			enddo
-		enddo
+		
+		call cal_total_inputpow(assembly,powinput)
 		
             call cal_loop_hydraulic(current,Qloop)						
 			coreQin=Qloop
@@ -148,4 +149,20 @@ module Imp_cal_loop
             IHX1%Qp=flowrate
             PipeIP%Q=flowrate
     end subroutine set_flowrate
+	
+	subroutine cal_total_inputpow(powinput,powtotal)
+		implicit none
+		real(KREAL),intent(in)::powinput(:,:)
+		real(KREAL),intent(out)::powtotal
+		!local
+		integer::nr,na,i,j
+		nr=size(powinput,dim=1)
+		na=size(powinput,dim=2)
+		powtotal=0.0
+		do i=1,nr,1
+			do j=1,na,1
+				powtotal=powtotal+powinput(i,j)
+			enddo
+		enddo
+	end subroutine cal_total_inputpow
 end module Imp_cal_loop

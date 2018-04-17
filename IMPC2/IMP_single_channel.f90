@@ -46,8 +46,7 @@ module imp_single_channel
 			flowrate(i)=Qin/zone!average
 		enddo
 		
-		do  i=1,zone,1
-			
+		do  i=1,zone,1			
 				n_pin=assm(i)%geom%n_pin
 				fuelArea=assm(i)%hydrau%aflow
 				density=get_density(assm(i)%th_boundary%T%inlet)

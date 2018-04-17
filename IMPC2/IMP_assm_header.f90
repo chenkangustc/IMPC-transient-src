@@ -5,7 +5,7 @@ module imp_assm_header
     implicit none
     type,public::AssmGeom
       
-	  !real(KREAL):: rod            !元件半径
+	  !real(KREAL):: rod           !元件半径
       real(KREAL):: pellet         !芯块半径
       real(KREAL):: Bond           !元件气隙厚度
       real(KREAL):: Cladth         !元件外壳厚度

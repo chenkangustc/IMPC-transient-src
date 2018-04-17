@@ -34,7 +34,6 @@ module imp_single_kernel
         !pguess=assm%thermal%pressure
         call cal_momentumA(assm,flag,rhoi,ui,dt,A,b,ap)
         call solve_momentumA(M,A,b,assm%thermal%Velocity)
-
     end subroutine solve_momentum
 
     !subroutine cal_momentumA(N,f,De,rhoi,rho,uin,ui,ulast,pin,pout,pguess,dx,dt,A,b)!rho是当前迭代步的物性
@@ -48,7 +47,7 @@ subroutine cal_momentumA(assm,flag,rhoi,ui,dt,A,b,ap)
      real(KREAL),intent(in out)::A(:,:)
      real(KREAL),intent(in out)::b(:)
      real(KREAL),intent(in out)::ap(:)
-      !local
+       !local
        integer N,i,k!N是矢量控制体的个数
        integer nr,nz!nr是径向的控制体个数，nz是轴向的标量控制体个数
        real(KREAL):: dx
@@ -254,7 +253,7 @@ subroutine modify_PV(assm,ap,pmodify)
                elseif(i>1.and.i<Ny-1)then
                  assm%thermal%velocity(i)=assm%thermal%velocity(i)+(pmodify(i)-pmodify(i+1))/ap(i)
                elseif(i==Ny-1)then
-               !assm%thermal%velocity(i)=assm%thermal%velocity(i)+(pmodify(i)-pout)/ap(i)!pmout=0.0
+				 !assm%thermal%velocity(i)=assm%thermal%velocity(i)+(pmodify(i)-pout)/ap(i)!pmout=0.0
                  assm%thermal%velocity(i)=assm%thermal%velocity(i)+pmodify(i)/ap(i)
                endif
             enddo
@@ -301,7 +300,7 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
  real(KREAL),intent(in)::flag
  real(KREAL),intent(in)::Ti(:,:),rhoi(:,:)
  real(KREAL),intent(in)::dt
- !local
+	!local
     real(KREAL):: Area,Xt,xf,xg,xs,Df,Dg,Ds,Dy,uin,Tin
     integer  M,N,i,j,k,Nf,Ng,Ns,Ny,num
 	real(KREAL)::erro
@@ -324,8 +323,7 @@ subroutine cal_th_temperature(assm,flag,Ti,rhoi,dt)
      Df=Xf/Nf
      Dg=Xg/Ng
      Ds=Xs/Ns
-     !Dy=assm%geom%height/Ny
-     
+    !Dy=assm%geom%height/Ny     
     allocate(Tj(1:M-1,1:N),Tk(1:M-1,1:N),Td(1:M-1,1:N))
     allocate(RHO(0:M,0:N),SHC(0:M,0:N),CTC(0:M,0:N),DVS(0:M,0:N))
     allocate(aw(1:M-1,1:N),ae(1:M-1,1:N),ap(1:M-1,1:N),as(1:M-1,1:N),an(1:M-1,1:N),api(1:M-1,1:N),bs(1:M-1,1:N),q(1:M-1,1:N))
