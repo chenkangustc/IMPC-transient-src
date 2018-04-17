@@ -49,7 +49,7 @@
         M=SIZE(assm1(1)%thermal%temperature,dim=1)
         N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer     
 		!=========================================================
-		!热工计算
+		!热工水力计算
 		if (transient_flag)  then
            call driving_loop_transient(assembly,last_, current_)
 		else
