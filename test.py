@@ -4,10 +4,9 @@ import matplotlib.ticker as ticker
 #dir='.\\test1.25MW1000s30mpipe\\'
 #dir='.\\0403\\'
 #dir='E:\\documents\\doctors degree\\software\\tansistant\\system\\test\\vvtest1.0\\'
-dir='..\\'
-file='looptimelist.txt'
 
-loopdat=np.loadtxt(dir+file,skiprows=1)
+loopdat=np.loadtxt('..\\looptimelist.txt',skiprows=1)
+maxdat=np.loadtxt('..\\maxT.timelist',skiprows=1)
 
 time=loopdat[:,0]
 flowrate=loopdat[:,2]
@@ -25,7 +24,13 @@ corepow=shc*flowrate*(coreTout-coreTin)
 shcs=4660.0
 secpow=shcs*Qs*(Tsout-Tsin)
 
-fig,ax=plt.subplots(2,2)
+times=maxdat[:,0]
+maxTfuel=maxdat[:,1]
+maxTcoolant=maxdat[:,2]
+maxTinner=maxdat[:,3]
+maxTouter=maxdat[:,4]
+
+fig,ax=plt.subplots(3,2)
 ax[0,0].plot(time,flowrate,label='flowrate')
 ax[0,0].set_ylabel('flowrate kg/s')
 ax[0,0].set_xlabel('time/s')
@@ -55,6 +60,14 @@ ax[1,1].set_xlabel('time/s')
 ax[1,1].set_title('Pow removed by IHX')
 ax[1,1].legend()
 
+ax[2,1].plot(times,maxTfuel,label='maxTfuel')
+ax[2,1].plot(times,maxTcoolant,label='maxTcoolant')
+ax[2,1].plot(times,maxTinner,label='maxTinner')
+ax[2,1].plot(times,maxTouter,label='maxTouter')
+ax[2,1].set_ylabel('Temperature/K')
+ax[2,1].set_xlabel('time/s')
+ax[2,1].set_title('max Temperature')
+ax[2,1].legend()
 
 '''
 file2='output.timelist'
