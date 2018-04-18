@@ -500,7 +500,8 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
     real(KREAL),allocatable::Tj(:,:),Tk(:,:),Td(:,:)
     real(KREAL),allocatable::RHO(:,:),SHC(:,:),CTC(:,:),DVS(:,:)
     real(KREAL),allocatable::aw(:,:),ae(:,:),ap(:,:),as(:,:),an(:,:),api(:,:),bs(:,:),q(:,:)
-     Area=assm%hydrau%aflow
+    real(KREAL)::kw,kn,ks 
+	 Area=assm%hydrau%aflow
      uin=assm%th_boundary%u%inlet
      Tin=assm%th_boundary%T%inlet
      xf=assm%geom%pellet
@@ -597,31 +598,56 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
           bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
          elseif(j==Nf+Ng+Ns)then!s-fluid边界左侧控制体
-          aw(i,j)=(assm%mesh%r(i,j)-Ds/2.0)*CTC(i,j)/Ds
-          ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)/(1.0/assm%property%htc(i)+ds/(2.0*CTC(i,j)))
+          ! aw(i,j)=(assm%mesh%r(i,j)-Ds/2.0)*CTC(i,j)/Ds
+          ! ae(i,j)=(assm%mesh%r(i,j)+Ds/2.0)/(1.0/assm%property%htc(i)+ds/(2.0*CTC(i,j)))
+          ! as(i,j)=0.0
+          ! an(i,j)=0.0
+          ! if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          ! ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
+          ! bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
+		  kw=2*CTC(i,j)*CTC(i,j-1)/(CTC(i,j)+CTC(i,j-1))
+		  aw(i,j)=(assm%mesh%r(i,j)-Ds/2.0)*kw/(assm%mesh%r(i,j)*Ds**2)
+          ae(i,j)=assm%property%htc(i)*(assm%mesh%r(i,j)+Ds/2.0)/(assm%mesh%r(i,j)*Ds)
           as(i,j)=0.0
           an(i,j)=0.0
-          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)*assm%mesh%r(i,j)*Ds/dt
+          if(flag==1.0) api(i,j)=RHO(i,j)*SHC(i,j)/dt
           ap(i,j)=aw(i,j)+ae(i,j)+api(i,j)
-          bs(i,j)=assm%mesh%r(i,j)*Ds*q(i,j)
+          bs(i,j)=q(i,j)
          elseif(j==Nf+Ng+Ns+1)then!fluid控制体
           
           if(i==1)then!流体入口的控制体
-           aw(i,j)=Dy/SHC(i,j)*2.0*3.14*Xt/Area*1.0/(1.0/assm%property%htc(i)+Ds/(2*CTC(i,j-1)))
+           ! aw(i,j)=Dy/SHC(i,j)*2.0*3.14*Xt/Area*1.0/(1.0/assm%property%htc(i)+Ds/(2*CTC(i,j-1)))
+           ! ae(i,j)=0.0
+           ! as(i,j)=0.0
+           ! an(i,j)=0.0
+           ! if(flag==1.0) api(i,j)=RHO(i,j)*Dy/dt
+           ! ap(i,j)=aw(i,j)+api(i,j)+RHO(i-1,j)*uin
+           ! bs(i,j)=Dy/SHC(i,j)*q(i,j)+RHO(i-1,j)*uin*assm%th_boundary%T%inlet 
+		   aw(i,j)=assm%property%htc(i)*2.0*PI*Xt*Dy
            ae(i,j)=0.0
            as(i,j)=0.0
            an(i,j)=0.0
-           if(flag==1.0) api(i,j)=RHO(i,j)*Dy/dt
-           ap(i,j)=aw(i,j)+api(i,j)+RHO(i-1,j)*uin
-           bs(i,j)=Dy/SHC(i,j)*q(i,j)+RHO(i-1,j)*uin*assm%th_boundary%T%inlet          
-          else!流体内部以及出口控制体
-           aw(i,j)=Dy/SHC(i,j)*2.0*3.14*Xt/Area*1.0/(1.0/assm%property%htc(i)+Ds/(2*CTC(i,j-1)))
+           if(flag==1.0) api(i,j)=RHO(i,j)*Area*Dy*SHC(i,j)/dt
+           ap(i,j)=aw(i,j)+api(i,j)+RHO(i,j)*uin*Area*SHC(i,j)
+           bs(i,j)=RHO(i,j)*uin*Area*SHC(i,j)*assm%th_boundary%T%inlet
+           elseif(i==M-1)then!流体出口
+		   aw(i,j)=assm%property%htc(i)*2.0*PI*Xt*Dy
            ae(i,j)=0.0
-           as(i,j)=0.0
-           an(i,j)=0.5*(RHO(i,j)+RHO(i-1,j))*assm%thermal%velocity(i-1)
-           if(flag==1.0) api(i,j)=RHO(i,j)*Dy/dt
-           ap(i,j)=an(i,j)+aw(i,j)+api(i,j)
-           bs(i,j)=Dy/SHC(i,j)*q(i,j)        
+           as(i,j)=RHO(i,j)*uin*Area*SHC(i,j)
+           an(i,j)=0.0
+           if(flag==1.0) api(i,j)=RHO(i,j)*Area*Dy*SHC(i,j)/dt
+           ap(i,j)=as(i,j)+aw(i,j)+api(i,j)
+           bs(i,j)=0.0
+		   else!流体内部，考虑导热
+		   kn=2*CTC(i+1,j)*CTC(i,j)/(CTC(i+1,j)+CTC(i,j))
+		   ks=2*CTC(i-1,j)*CTC(i,j)/(CTC(i-1,j)+CTC(i,j))
+		   aw(i,j)=assm%property%htc(i)*2.0*PI*Xt*Dy
+           ae(i,j)=0.0
+           as(i,j)=RHO(i,j)*uin*Area*SHC(i,j)+area*ks/Dy
+           an(i,j)=Area*kn/Dy
+           if(flag==1.0) api(i,j)=RHO(i,j)*Area*Dy*SHC(i,j)/dt
+           ap(i,j)=an(i,j)+as(i,j)+aw(i,j)+api(i,j)
+           bs(i,j)=0.0
           endif
          endif              
       enddo
@@ -639,12 +665,14 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
                  Tj(i,j)=(ae(i,j)*Tj(i,j+1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
                 elseif(j>1.and.j<N)then
                  Tj(i,j)=(aw(i,j)*Tj(i,j-1)+ae(i,j)*Tj(i,j+1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
-                elseif(j==N) then
-                  if(i==1)then
+                elseif(j==N) then!fluid
+                  if(i==1)then!fluid inlet
                     Tj(i,j)=(aw(i,j)*Tj(i,j-1)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
-                  else
-                    Tj(i,j)=(aw(i,j)*Tj(i,j-1)+an(i,j)*Tj(i-1,j)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)  
-                 endif
+                  elseif(i==M-1)then!fluid outlet
+                    Tj(i,j)=(aw(i,j)*Tj(i,j-1)+as(i,j)*Tj(i-1,j)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)  
+                  else!fluid inner
+					Tj(i,j)=(aw(i,j)*Tj(i,j-1)+as(i,j)*Tj(i-1,j)+an(i,j)*Tj(i+1,j)+bs(i,j)+api(i,j)*Ti(i,j))/ap(i,j)
+				 endif
                 endif
 				if(num.gt.1) Td(i,j)=abs((Tj(i,j)-Tk(i,j))/Tk(i,j))
 		   enddo
