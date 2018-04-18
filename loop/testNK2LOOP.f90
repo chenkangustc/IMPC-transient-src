@@ -7,6 +7,7 @@ module testNK2loop
     subroutine driving_testNK2loop()
 
         real(KREAL)  :: power(ns%state%zone, ns%state%layer)
+		real(KREAL)  :: powerSteady(ns%state%zone, ns%state%layer)
         real(KREAL)  :: fq(ns%state%zone, ns%state%layer)
         
         logical  :: transient_flag = .FALSE.
@@ -44,12 +45,14 @@ module testNK2loop
 			  transient_flag=.FALSE.
 			  call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  	   
 			  !power=0.8*power
+			  powerSteady=power
 			  transient_flag=.TRUE.
        		  tTotal=5000.0
 			  nTime=5000
 			  dtime=tTotal/nTime
 			  do i=1,nTime,1
 				  current=current+dtime
+				  call get_pow(current,power,powerSteady)
 				  call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  
 				  print*,'time=',current,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
 				  last=current
@@ -67,4 +70,26 @@ module testNK2loop
 	   print*,'zone=',i_zone,'pressure=',assm1(i_zone)%thermal%pressure
        read(*,*)
     end subroutine driving_testNK2loop
+	
+	subroutine get_pow(current,pow,powS)
+		implicit none
+		real(KREAL),intent(in)::current,powS(:,:)
+		real(KREAL),intent(in out)::pow(:,:)
+		!local
+        integer::i,j,nr,na
+        real(KREAL)::powtotal,powStotal
+        powtotal=0.0
+        powStotal=0.0
+        nr=size(pow,dim=1)
+        na=size(pow,dim=2)
+		!if(current<=400.0) pow=-powS*(current-400.0)/400.0
+		!pow=powS
+		pow=0.0
+        do i=1,nr,1
+            do j=1,na,1
+                powtotal=powtotal+pow(i,j)
+                powStotal=powStotal+powS(i,j)
+            enddo
+        enddo
+	end subroutine get_pow
 end module testNK2loop
