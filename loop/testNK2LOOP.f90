@@ -35,7 +35,7 @@ module testNK2loop
        read(1,100) power
 	   100 Format(F15.5)
 	   close(1)
-	   !power=10.0*power!125MW
+	   power=50.0*power!72.5MW 
 	   !print*,'power=',power
 	   if(transient_flag==.FALSE.) then
             if (ns%feedback%is_loop)  then
