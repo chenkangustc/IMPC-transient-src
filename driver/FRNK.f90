@@ -53,7 +53,7 @@ program DAISY
     implicit none
 	!local
 	logical:: tNK2TH
-    tNK2TH=.TRUE.
+    tNK2TH=.FALSE.
     ! --------------------------------------------------------------------------
 	!    call Driving_th_check_model ()
     
