@@ -168,8 +168,9 @@ module Imp_pipe_header
 		class(pipe),intent(in out)::this
 		!local
 		integer::i,j,info,Ny
-		real(KREAL)::aw,ap,ae,as,apz,S
+		real(KREAL)::aw,ap,ae,as,an,apz,S
 		real(KREAL)::ms!m per tube per Nyy of shell
+		real(KREAL)::kfn,kfs
 		real(KREAL),allocatable::A(:,:),B(:)
 		real(KREAL),allocatable::Tfl(:),Tsl(:)
 
@@ -182,6 +183,8 @@ module Imp_pipe_header
 				  shcf=>this%shcf,&
 				  htc=>this%htc,  &
 				  Q=>this%Q,      &
+				  area=>this%area,&
+				  kf=>this%kf,    &
 				  Tfin=>this%Tfin)
             
         Ny=this%Ny
@@ -200,18 +203,31 @@ module Imp_pipe_header
 			!rpq=(this%areap+this%Ntube*PI*(this%Rtube+this%thickt)**2)/PI!radiau**2 r2 of primary 
 			ms=PI*((Rtube+thicks)**2-Rtube**2)*Length(i)*rhos
 			select case(j)
-			  case(1)!fluid			  
-			  ae=htc(i)*PI*2*Rtube*Length(i)
-			  !apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
-			  apz=0.0
-			  ap=Q*shcf(i)+ae+apz
-			  if(i==1)then
-				as=0
-				S=apz*Tfl(i)+Q*shcf(i)*Tfin
+			  case(1)!fluid
+			  if(i==1.or.i==Ny) then
+				ae=htc(i)*PI*2*Rtube*Length(i)
+				!apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
+				apz=0.0
+				ap=Q*shcf(i)+ae+apz
+				if(i==1)then
+					as=0
+					S=apz*Tfl(i)+Q*shcf(i)*Tfin
+				else
+					as=Q*shcf(i)
+					S=apz*Tfl(i)
+					A(i,i-1)=-as
+				endif
 			  else
-				as=Q*shcf(i)
+				kfn=2*kf(i)*kf(i+1)/(kf(i)+kf(i+1))
+				kfs=2*kf(i)*kf(i-1)/(kf(i)+kf(i-1))
+				an=area*kfn/this%length(i)
+			  	as=Q*shcf(i)+area*kfs/this%length(i)
+				ae=htc(i)*PI*2*Rtube*Length(i)
+				apz=0.0
+				ap=an+as+ae+apz
 				S=apz*Tfl(i)
-                A(i,i-1)=-as
+				A(i,i+1)=-an
+				A(i,i-1)=-as
 			  endif
 			  A(i,i)=ap
 			  A(i,i+Ny)=-ae!tube
@@ -248,8 +264,9 @@ module Imp_pipe_header
 		!local
 		integer::i,j,info,Ny
         real(KREAL)::dt
-		real(KREAL)::aw,ap,ae,as,apz,S
+		real(KREAL)::aw,ap,ae,as,an,apz,S
 		real(KREAL)::ms!m per tube per Nyy of shell
+		real(KREAL)::kfn,kfs
 		real(KREAL),allocatable::A(:,:),B(:)
 		real(KREAL),allocatable::Tfl(:),Tsl(:)
 
@@ -263,6 +280,7 @@ module Imp_pipe_header
 				  shcf=>this%shcf,&
 				  htc=>this%htc,  &
 				  Q=>this%Q,      &
+				  kf=>this%kf,    &
 				  Tfin=>this%Tfin)
            
         Ny=this%Ny
@@ -280,21 +298,33 @@ module Imp_pipe_header
 			do i=1,Ny,1!different height
 			ms=PI*((Rtube+thicks)**2-Rtube**2)*Length(i)*rhos
 			select case(j)
-			  case(1)!fluid			  
-			  ae=htc(i)*PI*2*Rtube*Length(i)
-			  apz=area*length(i)*rhof(i)*shcf(i)/dt
-			  !apz=0.0
-			  ap=Q*shcf(i)+ae+apz
-			  if(i==1)then
-				as=0
-				S=apz*Tfl(i)+Q*shcf(i)*Tfin
+			  case(1)!fluid
+			  if(i==1.or.i==Ny) then
+				ae=htc(i)*PI*2*Rtube*Length(i)
+				!apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
+				apz=0.0
+				ap=Q*shcf(i)+ae+apz
+				if(i==1)then
+					as=0
+					S=apz*Tfl(i)+Q*shcf(i)*Tfin
+				else
+					as=Q*shcf(i)
+					S=apz*Tfl(i)
+					A(i,i-1)=-as
+				endif
 			  else
-				as=Q*shcf(i)
+				kfn=2*kf(i)*kf(i+1)/(kf(i)+kf(i+1))
+				kfs=2*kf(i)*kf(i-1)/(kf(i)+kf(i-1))
+				an=area*kfn/this%length(i)
+			  	as=Q*shcf(i)+area*kfs/this%length(i)
+				ae=htc(i)*PI*2*Rtube*Length(i)
+				apz=area*length(i)*rhof(i)*shcf(i)/dt
+				ap=an+as+ae+apz
 				S=apz*Tfl(i)
-                A(i,i-1)=-as
+				A(i,i+1)=-an
+				A(i,i-1)=-as
 			  endif
 			  A(i,i)=ap
-
 			  A(i,i+Ny)=-ae!tube
 			  B(i)=S			  
 			  case(2)!solid
