@@ -266,6 +266,7 @@ module Imp_IHX_header
 		real(KREAL)::an,aw,ap,ae,as,apz,S
 		real(KREAL)::areap,areas
 		real(KREAL)::mt,mv!m per tube per Ny of tube or shell
+		real(KREAL)::kpn,kps,ksn,kss
 		!real(KREAL)::dt
 		real(KREAL)::Qsa,Qpa
 		real(KREAL),allocatable::A(:,:),B(:)
@@ -278,8 +279,8 @@ module Imp_IHX_header
 		
 		Qsa=this%Qs/this%Ntube
 		Qpa=this%Qp/this%Ntube
-        areap=this%areap/this%Ntube
-		areas=this%AreaTubeSingle
+        areap=this%areap/this%Ntube!p 
+		areas=this%AreaTubeSingle!s
 		!dt=current-last
 		A=0.0
 		B=0.0
@@ -296,38 +297,65 @@ module Imp_IHX_header
 		    !assmue that the IHX is cylindrical
 			!rpq=(this%areap+this%Ntube*PI*(this%Rtube+this%thickt)**2)/PI!radiau**2 r2 of primary 
 			mv=PI*((this%Rp+this%thickv)**2-this%Rp**2)*this%Length(i)*this%rhov
+
 			select case(j)
 			  case(1)!primary
-			  aw=this%htp(i)*PI*2*(this%Rtube+this%thickt)*this%Length(i)
-			  ae=this%hvp(i)*PI*2*this%Rpa*this%Length(i)
-			  !apz=areap*this%length(i)*this%rhop(i)*this%shcp(i)/dt
-			  apz=0.0
-			  ap=Qpa*this%shcp(i)+aw+ae+apz
-			  if(i==N)then
-				an=0.0
-				S=apz*Tpl(i)+Qpa*this%shcp(i)*this%Tpin
-	      	  else
-				an=Qpa*this%shcp(i)
+			  if(i==1.or.i==N) then!inlet and outlet
+				aw=this%htp(i)*PI*2*(this%Rtube+this%thickt)*this%Length(i)
+				ae=this%hvp(i)*PI*2*this%Rpa*this%Length(i)
+				!apz=areap*this%length(i)*this%rhop(i)*this%shcp(i)/dt
+				apz=0.0
+				ap=Qpa*this%shcp(i)+aw+ae+apz
+				if(i==N)then
+					an=0.0
+					S=apz*Tpl(i)+Qpa*this%shcp(i)*this%Tpin
+				else
+					an=Qpa*this%shcp(i)
+					S=apz*Tpl(i)
+					A(i,i+1)=-an
+				endif
+			  else!inner:i=[2,Ny-1]
+				kpn=2*this%kp(i)*this%kp(i+1)/(this%kp(i)+this%kp(i+1))
+				kps=2*this%kp(i)*this%kp(i-1)/(this%kp(i)+this%kp(i-1))
+				an=Qpa*this%shcp(i)+areap/this%Length(i)*kpn
+				as=areas/this%Length(i)*kps
+			  	aw=this%htp(i)*PI*2*(this%Rtube+this%thickt)*this%Length(i)
+				ae=this%hvp(i)*PI*2*this%Rpa*this%Length(i)
+				apz=0.0
+				ap=an+as+aw+ae+apz				
 				S=apz*Tpl(i)
-                A(i,i+1)=-an
-			  endif
+				A(i,i+1)=-an
+				A(i,i-1)=-as
+			  endif		
 			  A(i,i)=ap
 			  A(i,i+2*N)=-aw!tube
 			  A(i,i+3*N)=-ae!shell
 			  B(i)=S
 			  case(2)!secondary
-			  
-			  ae=this%hts(i)*PI*2*this%Rtube*this%Length(i)
-			  !apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
-			  apz=0.0
-			  ap=Qsa*this%shcs(i)+ae+apz
-			  if(i==1)then
-				as=0
-				S=apz*Tsl(i)+Qsa*this%shcs(i)*this%Tsin
+			  if(i==1.or.i==N) then
+				ae=this%hts(i)*PI*2*this%Rtube*this%Length(i)
+				!apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
+				apz=0.0
+				ap=Qsa*this%shcs(i)+ae+apz
+				if(i==1)then
+					as=0
+					S=apz*Tsl(i)+Qsa*this%shcs(i)*this%Tsin
+				else
+					as=Qsa*this%shcs(i)
+					S=apz*Tsl(i)
+					A(i+N,i-1+N)=-as
+				endif
 			  else
-				as=Qsa*this%shcs(i)
+			  	ksn=2*this%ks(i)*this%ks(i+1)/(this%ks(i)+this%ks(i+1))
+				kss=2*this%ks(i)*this%ks(i-1)/(this%ks(i)+this%ks(i-1))
+			  	an=areas/this%length(i)*ksn
+				as=Qsa*this%shcs(i)+areas/this%length(i)*kss
+				ae=this%hts(i)*PI*2*this%Rtube*this%Length(i)
+				apz=0.0
+				ap=an+as+ae+apz
 				S=apz*Tsl(i)
-                A(i+N,i-1+N)=-as
+				A(i+N,i+1+N)=-an
+				A(i+N,i-1+N)=-as
 			  endif
               A(i+N,i+N)=ap			  
 			  A(i+N,i+2*N)=-ae!tube
@@ -394,6 +422,7 @@ module Imp_IHX_header
 		real(KREAL)::an,aw,ap,ae,as,apz,S
 		real(KREAL)::areap,areas
 		real(KREAL)::mt,mv!m per tube per Ny of tube or shell
+        real(KREAL)::kpn,kps,ksn,kss
 		real(KREAL)::dt
 		real(KREAL)::Qsa,Qpa
 		real(KREAL),allocatable::A(:,:),B(:)
@@ -425,36 +454,62 @@ module Imp_IHX_header
 			mv=PI*((this%Rp+this%thickv)**2-this%Rp**2)*this%Length(i)*this%rhov
 			select case(j)
 			  case(1)!primary
-			  aw=this%htp(i)*PI*2*(this%Rtube+this%thickt)*this%Length(i)
-			  ae=this%hvp(i)*PI*2*this%Rpa*this%Length(i)
-			  apz=areap*this%length(i)*this%rhop(i)*this%shcp(i)/dt
-			  ap=Qpa*this%shcp(i)+aw+ae+apz
-			  if(i==N)then
-				an=0.0
-				S=apz*Tpl(i)+Qpa*this%shcp(i)*this%Tpin
-	      	  else
-				an=Qpa*this%shcp(i)
+			  if(i==1.or.i==N) then!inlet and outlet
+				aw=this%htp(i)*PI*2*(this%Rtube+this%thickt)*this%Length(i)
+				ae=this%hvp(i)*PI*2*this%Rpa*this%Length(i)
+				apz=areap*this%length(i)*this%rhop(i)*this%shcp(i)/dt
+				ap=Qpa*this%shcp(i)+aw+ae+apz
+				if(i==N)then
+					an=0.0
+					S=apz*Tpl(i)+Qpa*this%shcp(i)*this%Tpin
+				else
+					an=Qpa*this%shcp(i)
+					S=apz*Tpl(i)
+					A(i,i+1)=-an
+				endif
+			  else!inner:i=[2,Ny-1]
+				kpn=2*this%kp(i)*this%kp(i+1)/(this%kp(i)+this%kp(i+1))
+				kps=2*this%kp(i)*this%kp(i-1)/(this%kp(i)+this%kp(i-1))
+				an=Qpa*this%shcp(i)+areap/this%Length(i)*kpn
+				as=areas/this%Length(i)*kps
+			  	aw=this%htp(i)*PI*2*(this%Rtube+this%thickt)*this%Length(i)
+				ae=this%hvp(i)*PI*2*this%Rpa*this%Length(i)
+				apz=areap*this%length(i)*this%rhop(i)*this%shcp(i)/dt
+				ap=an+as+aw+ae+apz				
 				S=apz*Tpl(i)
-                A(i,i+1)=-an
-			  endif
-			  A(i,i)=ap			  
+				A(i,i+1)=-an
+				A(i,i-1)=-as
+			  endif		
+			  A(i,i)=ap
 			  A(i,i+2*N)=-aw!tube
 			  A(i,i+3*N)=-ae!shell
 			  B(i)=S
 			  case(2)!secondary
-			  
-			  ae=this%hts(i)*PI*2*this%Rtube*this%Length(i)
-			  apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
-			  ap=Qsa*this%shcs(i)+ae+apz
-			  if(i==1)then
-				as=0
-				S=apz*Tsl(i)+Qsa*this%shcs(i)*this%Tsin
+			  if(i==1.or.i==N) then
+				ae=this%hts(i)*PI*2*this%Rtube*this%Length(i)
+				apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
+				ap=Qsa*this%shcs(i)+ae+apz
+				if(i==1)then
+					as=0
+					S=apz*Tsl(i)+Qsa*this%shcs(i)*this%Tsin
+				else
+					as=Qsa*this%shcs(i)
+					S=apz*Tsl(i)
+					A(i+N,i-1+N)=-as
+				endif
 			  else
-				as=Qsa*this%shcs(i)
+			  	ksn=2*this%ks(i)*this%ks(i+1)/(this%ks(i)+this%ks(i+1))
+				kss=2*this%ks(i)*this%ks(i-1)/(this%ks(i)+this%ks(i-1))
+			  	an=areas/this%length(i)*ksn
+				as=Qsa*this%shcs(i)+areas/this%length(i)*kss
+				ae=this%hts(i)*PI*2*this%Rtube*this%Length(i)
+				apz=areas*this%length(i)*this%rhos(i)*this%shcs(i)/dt
+				ap=an+as+ae+apz
 				S=apz*Tsl(i)
-                A(i+N,i-1+N)=-as
+				A(i+N,i+1+N)=-an
+				A(i+N,i-1+N)=-as
 			  endif
-			  A(i+N,i+N)=ap		  
+              A(i+N,i+N)=ap			  
 			  A(i+N,i+2*N)=-ae!tube
 			  B(i+N)=S
 			  
