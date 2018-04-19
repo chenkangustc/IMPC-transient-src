@@ -1,50 +1,51 @@
 module Imp_driving_syspost
 	use Imp_loop_global!common data
-    use Imp_inputcard!IOfile
+    use Imp_assm_global!core
+	use Imp_inputcard!IOfile
 	use Imp_driving_presys, only:driving_free_loop
-    implicit none
+    
+	implicit none
 	contains
-	subroutine driving_output_steady()
-		implicit none
-		integer    ::i
-		real(KREAL)::LL
-		!outputIHX
-        write(unit=FILE_O,fmt="('  height','   Ts  ',' Ttube','  Tp ','  Tshell')")
-        do i=0,IHX1%N+1,1
-          if(i==0)then
-              write(unit=FILE_O,fmt="('  0.0000',F8.1,'        ',F8.1)") IHX1%Tsin,IHX1%Tpout
-          elseif(i==IHX1%N+1)then
-              write(unit=FILE_O,fmt="(F8.4,F8.1,'        ',F8.1)") IHX1%Lsingle,IHX1%Tsout,IHX1%Tpin          
-          else
-              write(unit=FILE_O,fmt="(F8.4,4F8.1)") IHX1%zz(i),IHX1%Ts(i),IHX1%Tt(i),IHX1%Tp(i),IHX1%Tv(i)
-          end if
-        enddo
-        !output core
-        write(unit=FILE_O,fmt="('  height','  Tf  ','  Tshell')")
-        LL=0.0
-        do i=0,core%Ny+1,1
-          if(i==0)then
-              write(unit=FILE_O,fmt="('  0.0000',F8.1)") core%Tfin
-          elseif(i==core%Ny+1)then
-              write(unit=FILE_O,fmt="(F8.4,F8.1)") core%Ltotal,core%Tfout         
-          else
-			 if(i==1)then 
-				LL=core%length(i)/2.0
-			 else
-				LL=LL+(core%length(i)+core%length(i-1))/2.0
-             end if
-              write(unit=FILE_O,fmt="(F8.4,2F8.1)") LL,core%Tf(i),core%Ts(i)
-          end if
-        enddo 
+	subroutine loop_output_steady()
+	end subroutine loop_output_steady
+	subroutine loop_output_transient(current)
+		real(KREAL),intent(in)::current
+		!local
+		integer::nr,nave
+		integer::i
+		real(KREAL),allocatable::aveT(:)
+		nr=assm1(1)%mesh%n_zone
+		nave=2*nr
+		allocate(aveT(nave))
+		do i=1,nr,1
+			aveT(2*i-1)=assm1(i)%thermal%Tfave
+			aveT(2*i)=assm1(i)%thermal%Tcave
+		enddo
+		write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current,aveT!(aveT(i),i=1,Nave)
+		!looptimelist.txt
 
-
-	end subroutine driving_output_steady
+	end subroutine loop_output_transient
 	
 	subroutine driving_postsys()
         implicit none
         integer::i
         real(KREAL)::LL
-        !outputIHX
+        !free
+        call driving_free_loop()
+        !close
+        close(FILE_I)
+        close(FILE_O)
+		close(FILE_T)
+		close(FILE_maxT)
+		close(FILE_aveT)
+    end subroutine driving_postsys
+end module Imp_driving_syspost
+
+	! subroutine driving_output_steady()
+		! implicit none
+		! integer    ::i
+		! real(KREAL)::LL
+		! !outputIHX
         ! write(unit=FILE_O,fmt="('  height','   Ts  ',' Ttube','  Tp ','  Tshell')")
         ! do i=0,IHX1%N+1,1
           ! if(i==0)then
@@ -55,7 +56,7 @@ module Imp_driving_syspost
               ! write(unit=FILE_O,fmt="(F8.4,4F8.1)") IHX1%zz(i),IHX1%Ts(i),IHX1%Tt(i),IHX1%Tp(i),IHX1%Tv(i)
           ! end if
         ! enddo
-        !output core
+        ! !output core
         ! write(unit=FILE_O,fmt="('  height','  Tf  ','  Tshell')")
         ! LL=0.0
         ! do i=0,core%Ny+1,1
@@ -72,13 +73,6 @@ module Imp_driving_syspost
               ! write(unit=FILE_O,fmt="(F8.4,2F8.1)") LL,core%Tf(i),core%Ts(i)
           ! end if
         ! enddo 
-        !free
-        call driving_free_loop()
-        !close
-        close(FILE_I)
-        close(FILE_O)
-		close(FILE_T)
-		close(FILE_maxT)
-		close(FILE_aveT)
-    end subroutine driving_postsys
-end module Imp_driving_syspost
+
+
+	! end subroutine driving_output_steady

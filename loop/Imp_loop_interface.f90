@@ -15,6 +15,7 @@
      use Imp_cal_loop
      use imp_loop_global
 	 use imp_inputcard
+	 use imp_driving_syspost
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
@@ -58,11 +59,13 @@
            call driving_loop_steady(assembly)		   
 		end if
 		!output
-		do i=1,nr,1
-			aveT(2*i-1)=assm1(i)%thermal%Tfave
-			aveT(2*i)=assm1(i)%thermal%Tcave
-		enddo
-		write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current_,(aveT(i),i=1,Nave)
+		if(.NOT.transient_flag) call loop_output_steady()
+		call loop_output_transient(current)
+		! do i=1,nr,1
+			! aveT(2*i-1)=assm1(i)%thermal%Tfave
+			! aveT(2*i)=assm1(i)%thermal%Tcave
+		! enddo
+		! write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current_,(aveT(i),i=1,Nave)
 	    !==========================================================
 		!热工反馈
         do i=1,nr,1

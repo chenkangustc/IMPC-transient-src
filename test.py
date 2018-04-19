@@ -90,7 +90,7 @@ ax[0,0].plot(time,Tfave,label='fuelTave')
 ax[0,0].plot(time,Tcave,label='coolantTave')
 ax[0,0].set_ylabel('Temperature/K')
 ax[0,0].set_xlabel('time/s')
-ax[0,0].set_title(' Temperature')
+ax[0,0].set_title('zone='+zone+' Temperature')
 ax[0,0].legend()
 
 
