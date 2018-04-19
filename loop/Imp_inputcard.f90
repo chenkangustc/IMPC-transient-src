@@ -4,7 +4,7 @@ module Imp_inputcard
     use,intrinsic::ISO_FORTRAN_ENV
     use constants
 	implicit none
-	integer::file_i,file_o,file_t,file_maxT,file_aveT
+	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
 	integer,parameter,private::N_keyword=8
     integer,parameter,private::MAX_REAL_PARAMETER=50
 	integer,parameter,private::MAX_INT_PARAMETER=50
@@ -13,7 +13,7 @@ module Imp_inputcard
 	character(len=MAX_WORD_LEN),parameter::FILE_LTIME='looptimelist.txt'
 	character(len=MAX_WORD_LEN),parameter::FILE_MAXTIME='maxT.timelist'
 	character(len=MAX_WORD_LEN),parameter::FILE_AVETIME='aveT.timelist'
-	!character(len=MAX_WORD_LEN),parameter::FILE_DIS='./time/t='
+	character(len=MAX_WORD_LEN),parameter::FILE_DIS='Tdis.txt'
     character(len=MAX_WORD_LEN)::INP_SECTION(N_keyword)
     
 	
@@ -35,6 +35,7 @@ module Imp_inputcard
 		open(newunit=file_maxT,file=FILE_MAXTIME,status='replace',action='write',iostat=io_error)
         write(unit=file_maxT,fmt="('  time','  maxFuel','  maxCool',' maxTinner',' maxTouter')")
 		open(newunit=file_aveT,file=FILE_AVETIME,status='replace',action='write',iostat=io_error)
+		open(newunit=file_disT,file=FILE_DIS,status='replace',action='write',iostat=io_error)	
 		open(newunit=file_i,file=FILE_IN,status='old',action='read',iostat=io_error)   		
         !read(unit=file_i,fmt='(A)',iostat=io_error) aline
 		do

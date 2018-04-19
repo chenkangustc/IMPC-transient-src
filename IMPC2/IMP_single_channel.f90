@@ -241,9 +241,9 @@ subroutine cal_Tave(assm)
 	N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
 	dr=assm%geom%pellet/assm%mesh%Nf
 	!fuel
+	volumn=0.0
+	TVtotal=0.0
 	do j=1,assm%mesh%Ny,1
-		volumn=0.0
-		TVtotal=0.0
 		do k=1,assm%mesh%Nf,1 !rod average					
 			if (k==1) then
 				TVtotal=TVtotal+assm%thermal%temperature(j,k)*PI*dr**2*assm%geom%height(j)
@@ -255,7 +255,7 @@ subroutine cal_Tave(assm)
 		enddo
 	enddo
 	assm%thermal%Tfave=TVtotal/volumn
-	!coolant
+	!Tcave
 	TLtotal=0.0
 	Ltotal=0.0
 	do j=1,assm%mesh%Ny,1
@@ -263,6 +263,25 @@ subroutine cal_Tave(assm)
 		Ltotal=Ltotal+assm%geom%height(j)
 	enddo
 	assm%thermal%Tcave=TLtotal/Ltotal
+	!Tcoolant
+	do j=1,assm%mesh%Ny,1
+	   assm%thermal%Tcoolant(j)=assm%thermal%temperature(j,N)
+	enddo
+	!Tfuel
+	do j=1,assm%mesh%Ny,1
+		TVtotal=0.0
+		volumn=0.0
+		do k=1,assm%mesh%Nf,1 !rod average					
+			if (k==1) then
+				TVtotal=TVtotal+assm%thermal%temperature(j,k)*PI*dr**2*assm%geom%height(j)
+				volumn=volumn+PI*dr**2*assm%geom%height(j)
+			else
+				TVtotal=TVtotal+assm%thermal%temperature(j,k)*PI*((k*dr)**2-((k-1)*dr)**2)*assm%geom%height(j)
+				volumn=volumn+PI*((k*dr)**2-((k-1)*dr)**2)*assm%geom%height(j)
+			endif
+		enddo
+		assm%thermal%Tfuel(j)=TVtotal/volumn
+	enddo
 end subroutine cal_Tave
 
 end module imp_single_channel

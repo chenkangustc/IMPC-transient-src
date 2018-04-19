@@ -7,23 +7,42 @@ module Imp_driving_syspost
 	implicit none
 	contains
 	subroutine loop_output_steady()
+		integer::ny,n_zone
+		integer::i,j
+		ny=assm1(1)%mesh%ny
+		n_zone=assm1(1)%mesh%n_zone
+		write(unit=File_o,fmt="(<Ny>F8.2)") (assm1(1)%mesh%z(i,1),i=1,ny)
+		do i=1,n_zone,1
+			write(unit=File_o,fmt="(<Ny>F8.2)") assm1(i)%thermal%Tfuel(:)
+			write(unit=File_o,fmt="(<Ny>F8.2)") assm1(i)%thermal%Tcoolant(:)
+		enddo
+
 	end subroutine loop_output_steady
+	
 	subroutine loop_output_transient(current)
 		real(KREAL),intent(in)::current
 		!local
-		integer::nr,nave
-		integer::i
+		integer::nr,nave,ny
+		integer::i,izone
 		real(KREAL),allocatable::aveT(:)
 		nr=assm1(1)%mesh%n_zone
-		nave=2*nr
+        ny=assm1(1)%mesh%ny
+		nave=4*nr
 		allocate(aveT(nave))
 		do i=1,nr,1
-			aveT(2*i-1)=assm1(i)%thermal%Tfave
-			aveT(2*i)=assm1(i)%thermal%Tcave
+			aveT(4*i-3)=assm1(i)%thermal%Tfave
+			aveT(4*i-2)=assm1(i)%thermal%Tcave
+			aveT(4*i-1)=assm1(i)%th_boundary%T%inlet
+			aveT(4*i)=assm1(i)%th_boundary%T%outlet
 		enddo
 		write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current,aveT!(aveT(i),i=1,Nave)
 		!looptimelist.txt
-
+		!Tdis.txt
+		izone=12!
+		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,(assm1(1)%mesh%z(i,1),i=1,ny)
+		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tfuel(:)
+		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tcoolant(:)
+		
 	end subroutine loop_output_transient
 	
 	subroutine driving_postsys()
@@ -38,6 +57,7 @@ module Imp_driving_syspost
 		close(FILE_T)
 		close(FILE_maxT)
 		close(FILE_aveT)
+		close(FILE_disT)
     end subroutine driving_postsys
 end module Imp_driving_syspost
 

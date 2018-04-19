@@ -7,6 +7,8 @@ import matplotlib.ticker as ticker
 
 loopdat=np.loadtxt('..\\looptimelist.txt',skiprows=1)
 maxdat=np.loadtxt('..\\maxT.timelist',skiprows=1)
+data2=np.loadtxt('..\\aveT.timelist')
+data3=np.loadtxt('..\\Tdis.txt')
 
 time=loopdat[:,0]
 flowrate=loopdat[:,2]
@@ -80,19 +82,74 @@ ax[2,1].set_xlabel('time/s')
 ax[2,1].set_title('max Temperature')
 ax[2,1].legend()
 
-data2=np.loadtxt('..\\aveT.timelist')
+
+
+zone=12
 time=data2[:,0]
-zone=19
+Tfave=data2[:,4*zone-3]
+Tcave=data2[:,4*zone-2]
+Tinlet=data2[:,4*zone-1]
+Toutlet=data2[:,4*zone]
+zz=data3[0,1:]
+t=0
+Tfuel=data3[3*t+1,1:]
+Tcoolant=data3[3*t+2,1:]
 fig,ax=plt.subplots(3,2)
-Tfave=data2[:,2*zone-1]
-Tcave=data2[:,2*zone]
+
 ax[0,0].plot(time,Tfave,label='fuelTave')
 ax[0,0].plot(time,Tcave,label='coolantTave')
+ax[0,0].plot(time,Tinlet,label='Tinlet')
+ax[0,0].plot(time,Toutlet,label='Toutlet')
 ax[0,0].set_ylabel('Temperature/K')
 ax[0,0].set_xlabel('time/s')
-ax[0,0].set_title('zone='+zone+' Temperature')
+ax[0,0].set_title('zone='+str(zone)+' Temperature dynamic curve')
 ax[0,0].legend()
 
+ax[0,1].plot(zz,Tfuel,label='Tfuel')
+ax[0,1].plot(zz,Tcoolant,label='Tcoolant')
+ax[0,1].set_ylabel('Temperature/K')
+ax[0,1].set_xlabel('zz/m')
+ax[0,1].set_title('zone='+str(zone)+',t='+str(t)+' Temperature')
+ax[0,1].legend()
 
+t=50
+Tfuel=data3[3*t+1,1:]
+Tcoolant=data3[3*t+2,1:]
+ax[1,0].plot(zz,Tfuel,label='Tfuel')
+ax[1,0].plot(zz,Tcoolant,label='Tcoolant')
+ax[1,0].set_ylabel('Temperature/K')
+ax[1,0].set_xlabel('zz/m')
+ax[1,0].set_title('zone='+str(zone)+',t='+str(t)+' Temperature')
+ax[1,0].legend()
+
+t=11
+Tfuel=data3[3*t+1,1:]
+Tcoolant=data3[3*t+2,1:]
+ax[1,1].plot(zz,Tfuel,label='Tfuel')
+ax[1,1].plot(zz,Tcoolant,label='Tcoolant')
+ax[1,1].set_ylabel('Temperature/K')
+ax[1,1].set_xlabel('zz/m')
+ax[1,1].set_title('zone='+str(zone)+',t='+str(t)+' Temperature')
+ax[1,1].legend()
+
+t=12
+Tfuel=data3[3*t+1,1:]
+Tcoolant=data3[3*t+2,1:]
+ax[2,0].plot(zz,Tfuel,label='Tfuel')
+ax[2,0].plot(zz,Tcoolant,label='Tcoolant')
+ax[2,0].set_ylabel('Temperature/K')
+ax[2,0].set_xlabel('zz/m')
+ax[2,0].set_title('zone='+str(zone)+',t='+str(t)+' Temperature')
+ax[2,0].legend()
+
+t=13
+Tfuel=data3[3*t+1,1:]
+Tcoolant=data3[3*t+2,1:]
+ax[2,1].plot(zz,Tfuel,label='Tfuel')
+ax[2,1].plot(zz,Tcoolant,label='Tcoolant')
+ax[2,1].set_ylabel('Temperature/K')
+ax[2,1].set_xlabel('zz/m')
+ax[2,1].set_title('zone='+str(zone)+',t='+str(t)+' Temperature')
+ax[2,1].legend()
 
 plt.show()

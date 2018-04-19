@@ -47,6 +47,7 @@ module Imp_cal_loop
             print*,'num=',num,'sigma=',sigma,'coreTin=',coreTin,'coreTout=',coreTout
         enddo
 		!call driving_output_steady()
+		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
 	end subroutine driving_loop_steady
 	
 	subroutine driving_loop_transient(assembly,last,current)
