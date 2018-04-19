@@ -93,6 +93,7 @@ module imp_assm_header
 		real(KREAL),allocatable::Tfg(:)
 		real(KREAL),allocatable::Tgs(:)
 		real(KREAL),allocatable::Tsc(:)
+		real(KREAL)::Tfave,Tcave
       contains
        procedure,public::init=>init_thermal
       end type thermal
@@ -331,6 +332,9 @@ module imp_assm_header
 		this%Tfg=0.0
 		this%Tgs=0.0
 		this%Tsc=0.0
+		this%Tfave=0.0
+		this%Tcave=0.0
+		
      end subroutine init_thermal
      
      subroutine set_AssmInit(this,Ti,Pi,Ui,Tin,Pout,Uin)

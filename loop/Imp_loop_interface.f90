@@ -37,9 +37,9 @@
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
 		real(KREAL)  :: max_T_inner,max_T_outer
-		
+		real(KREAL),allocatable::aveT(:)
 		integer  :: nf,ng,ns,nRadial,ny
-        integer  :: nr, na,M,N
+        integer  :: nr, na,M,N,Nave
 		integer  :: i,j,k
         
         last_ = last
@@ -47,14 +47,22 @@
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
         na = SIZE(assembly, dim=2) 
         M=SIZE(assm1(1)%thermal%temperature,dim=1)
-        N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer     
+        N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer  
+		Nave=2*nr
+		allocate(aveT(Nave))
 		!=========================================================
 		!热工水力计算
 		if (transient_flag)  then
            call driving_loop_transient(assembly,last_, current_)
 		else
-           call driving_loop_steady(assembly)
+           call driving_loop_steady(assembly)		   
 		end if
+		!output
+		do i=1,nr,1
+			aveT(2*i-1)=assm1(i)%thermal%Tfave
+			aveT(2*i)=assm1(i)%thermal%Tcave
+		enddo
+		write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current_,(aveT(i),i=1,Nave)
 	    !==========================================================
 		!热工反馈
         do i=1,nr,1

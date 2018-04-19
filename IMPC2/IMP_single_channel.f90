@@ -190,6 +190,8 @@ subroutine driving_imp_THsteady(assm,power,fq_core)
     drho=1.0
     call assm%pow%set(power,fq_core)
     call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+	!cal Tfave & Tcave
+	call cal_Tave(assm)
 end subroutine driving_imp_THsteady
 subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     type(sys_assembly),intent(in out)::assm
@@ -225,5 +227,42 @@ subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     j=0
     drho=1.0   
     call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+	call cal_Tave(assm)
 end subroutine driving_imp_THtransient
+
+subroutine cal_Tave(assm)
+	implicit none
+	type(sys_assembly),intent(in out)::assm
+	integer::j,k,N
+	real(KREAL)::volumn,TVtotal
+	real(KREAL)::TLtotal,Ltotal
+	real(KREAL)::dr
+	!计算元件的芯块平均温度和冷却剂平均温度
+	N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
+	dr=assm%geom%pellet/assm%mesh%Nf
+	!fuel
+	do j=1,assm%mesh%Ny,1
+		volumn=0.0
+		TVtotal=0.0
+		do k=1,assm%mesh%Nf,1 !rod average					
+			if (k==1) then
+				TVtotal=TVtotal+assm%thermal%temperature(j,k)*PI*dr**2*assm%geom%height(j)
+				volumn=volumn+PI*dr**2*assm%geom%height(j)
+			else
+				TVtotal=TVtotal+assm%thermal%temperature(j,k)*PI*((k*dr)**2-((k-1)*dr)**2)*assm%geom%height(j)
+				volumn=volumn+PI*((k*dr)**2-((k-1)*dr)**2)*assm%geom%height(j)
+			endif
+		enddo
+	enddo
+	assm%thermal%Tfave=TVtotal/volumn
+	!coolant
+	TLtotal=0.0
+	Ltotal=0.0
+	do j=1,assm%mesh%Ny,1
+		TLtotal=TLtotal+assm%thermal%temperature(j,N)*assm%geom%height(j)
+		Ltotal=Ltotal+assm%geom%height(j)
+	enddo
+	assm%thermal%Tcave=TLtotal/Ltotal
+end subroutine cal_Tave
+
 end module imp_single_channel

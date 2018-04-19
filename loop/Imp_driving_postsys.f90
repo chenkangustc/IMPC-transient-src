@@ -79,5 +79,6 @@ module Imp_driving_syspost
         close(FILE_O)
 		close(FILE_T)
 		close(FILE_maxT)
+		close(FILE_aveT)
     end subroutine driving_postsys
 end module Imp_driving_syspost

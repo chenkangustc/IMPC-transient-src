@@ -80,28 +80,19 @@ ax[2,1].set_xlabel('time/s')
 ax[2,1].set_title('max Temperature')
 ax[2,1].legend()
 
-'''
-file2='output.timelist'
-redat=np.loadtxt(dir+file2,skiprows=10)
-power=redat[:,4]
-Tcmax=redat[:,11]
-Tfmax=redat[:,14]
-Tmaxinner=redat[:,16]
-Tmaxouter=redat[:,17]
+data2=np.loadtxt('..\\aveT.timelist')
+time=data2[:,0]
+zone=19
+fig,ax=plt.subplots(3,2)
+Tfave=data2[:,2*zone-1]
+Tcave=data2[:,2*zone]
+ax[0,0].plot(time,Tfave,label='fuelTave')
+ax[0,0].plot(time,Tcave,label='coolantTave')
+ax[0,0].set_ylabel('Temperature/K')
+ax[0,0].set_xlabel('time/s')
+ax[0,0].set_title(' Temperature')
+ax[0,0].legend()
 
-ax[1,0].plot(time,power,label='power')
-ax[1,0].set_ylabel('power')
-ax[1,0].set_xlabel('time/s')
-ax[1,0].set_title( 'Power' )
-ax[1,0].legend()
 
-ax[1,1].plot(time,Tcmax,label='Tcmax')
-ax[1,1].plot(time,Tfmax,label='Tfmax')
-ax[1,1].plot(time,Tmaxinner,label='Tmaxinner')
-ax[1,1].plot(time,Tmaxouter,label='Tmaxouter')
-ax[1,1].set_ylabel('Temperature/K')
-ax[1,1].set_xlabel('time/s')
-ax[1,1].set_title( 'Temperature' )
-ax[1,1].legend()
-'''
+
 plt.show()
