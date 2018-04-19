@@ -9,6 +9,7 @@ loopdat=np.loadtxt('..\\looptimelist.txt',skiprows=1)
 maxdat=np.loadtxt('..\\maxT.timelist',skiprows=1)
 data2=np.loadtxt('..\\aveT.timelist')
 data3=np.loadtxt('..\\Tdis.txt')
+#FIG2 control
 
 time=loopdat[:,0]
 flowrate=loopdat[:,2]
@@ -91,9 +92,7 @@ Tcave=data2[:,4*zone-2]
 Tinlet=data2[:,4*zone-1]
 Toutlet=data2[:,4*zone]
 zz=data3[0,1:]
-t=0
-Tfuel=data3[3*t+1,1:]
-Tcoolant=data3[3*t+2,1:]
+
 fig,ax=plt.subplots(3,2)
 
 ax[0,0].plot(time,Tfave,label='fuelTave')
@@ -105,6 +104,9 @@ ax[0,0].set_xlabel('time/s')
 ax[0,0].set_title('zone='+str(zone)+' Temperature dynamic curve')
 ax[0,0].legend()
 
+t=0
+Tfuel=data3[3*t+1,1:]
+Tcoolant=data3[3*t+2,1:]
 ax[0,1].plot(zz,Tfuel,label='Tfuel')
 ax[0,1].plot(zz,Tcoolant,label='Tcoolant')
 ax[0,1].set_ylabel('Temperature/K')
