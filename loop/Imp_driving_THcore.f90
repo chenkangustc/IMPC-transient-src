@@ -17,7 +17,7 @@
             integer  :: nr,na,M,N
             integer  :: Nzone,izone
 			real(KREAL),allocatable::pow(:,:),fq_core(:,:)
-			real(KREAL)::density,flowrate
+			real(KREAL)::density,flowrate,Qinpart
             
 			fq_core=1.0D0
             Nzone=core%Nflow+core%Nflowsemi!需要计算的zone的数量
@@ -33,8 +33,8 @@
 			do i=1,Nzone,1
 				assm1(core%fzone(i))%th_boundary%T%inlet=Tin
 			enddo
-			
-			call driving_loop_flowAlloc(assm1,Qin)
+			Qinpart=Qin/core%Nsplit
+			call driving_loop_flowAlloc(assm1,Qinpart)
 
 			do i=1,Nzone,1!zone start
                 izone=core%fzone(i)
@@ -62,9 +62,10 @@
 			Tout=0.0
 			do i=1,Nzone,1
 				density=get_density(assm1(izone)%th_boundary%T%inlet)
-				flowrate=assm1(izone)%th_boundary%u%inlet*(assm1(izone)%geom%n_pin*assm1(izone)%hydrau%aflow*density)
-				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qin	
+				flowrate=assm1(izone)%hydrau%Qf
+				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qinpart
 			enddo
+            Tout=Tout+core%sigmaPass*Qinpart*Tin/Qinpart
 			core%Tfout=Tout
 		end subroutine driving_TH_core
 	end module Imp_driving_THcore
