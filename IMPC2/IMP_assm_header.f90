@@ -61,6 +61,7 @@ module imp_assm_header
     end type th_boundary
     
     type,public::hydraulic
+        real(KREAL):: Qf
         real(KREAL):: fric
         real(KREAL):: aflow
         real(KREAL):: wet

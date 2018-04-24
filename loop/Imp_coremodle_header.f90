@@ -9,6 +9,7 @@ module Imp_coremodle_header
         !useful
         integer::Nflow
         integer::Nflowsemi!缩略模型半组件
+        integer::Nsplit!计算时堆芯分成的份数
         integer,allocatable::fzone(:)!zones which should be allocated flow
         real(KREAL)::sigmaPass
 	    !geom 

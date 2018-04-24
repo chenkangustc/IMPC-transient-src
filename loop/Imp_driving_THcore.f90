@@ -15,10 +15,13 @@
 			!local
 			integer  :: i,j,k 
             integer  :: nr,na,M,N
+            integer  :: Nzone,izone
 			real(KREAL),allocatable::pow(:,:),fq_core(:,:)
 			real(KREAL)::density,flowrate
-
-			fq_core=1.0D0		
+            
+			fq_core=1.0D0
+            Nzone=core%Nflow+core%Nflowsemi!需要计算的zone的数量
+            
 			nr = SIZE(assembly, dim=1)!zone                           
 			na = SIZE(assembly, dim=2)!layer                          
 			M=size(assm1(1)%thermal%temperature,dim=1)
@@ -27,40 +30,40 @@
 			pow=0.0
 			fq_core=1.0
 		
-			do i=1,nr,1
-				assm1(i)%th_boundary%T%inlet=Tin
+			do i=1,Nzone,1
+				assm1(core%fzone(i))%th_boundary%T%inlet=Tin
 			enddo
 			
 			call driving_loop_flowAlloc(assm1,Qin)
-			
-			
-			do i=1,nr,1!zone start
-				do j=1,assm1(i)%mesh%ny,1!dy
+			!全组件计算
+			do i=1,core%Nflow,1!zone start
+                izone=core%fzone(i)
+				do j=1,assm1(izone)%mesh%ny,1!dy
 					do k=1,N,1
-						if(k<=assm1(i)%mesh%Nf) pow(j,k)=assembly(i,j+assm1(i)%mesh%layer_bottom)/(assm1(i)%geom%N_fuelpin*assm1(i)%geom%height(j)*3.14159*assm1(i)%geom%pellet**2)
+						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(i,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*3.14159*assm1(izone)%geom%pellet**2)
 					enddo
 				enddo
 
-				if (assm1(i)%th_boundary%u%inlet==0.0) then
-					assm1(i)%thermal%velocity=0.0
-					assm1(i)%th_boundary%u%outlet=0.0
-					assm1(i)%thermal%temperature=assm1(i)%th_boundary%T%inlet
-					assm1(i)%th_boundary%T%outlet=assm1(i)%th_boundary%T%inlet
-					assm1(i)%property%rho=get_density(assm1(i)%th_boundary%T%inlet)
+				if (assm1(izone)%th_boundary%u%inlet==0.0) then
+					assm1(izone)%thermal%velocity=0.0
+					assm1(izone)%th_boundary%u%outlet=0.0
+					assm1(izone)%thermal%temperature=assm1(izone)%th_boundary%T%inlet
+					assm1(izone)%th_boundary%T%outlet=assm1(izone)%th_boundary%T%inlet
+					assm1(izone)%property%rho=get_density(assm1(izone)%th_boundary%T%inlet)
 				else
 					if (transient_flag)then
-						if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(i),pow,fq_core,last,current)
+						if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(izone),pow,fq_core,last,current)
 					else
-						call driving_imp_THsteady(assm1(i),pow,fq_core)					
+						call driving_imp_THsteady(assm1(izone),pow,fq_core)					
 					endif
 				endif	
 			enddo !zone		
 			!Tout volum ave
 			Tout=0.0
-			do i=1,nr,1
-				density=get_density(assm1(i)%th_boundary%T%inlet)
-				flowrate=assm1(i)%th_boundary%u%inlet*(assm1(i)%geom%n_pin*assm1(i)%hydrau%aflow*density)
-				Tout=Tout+assm1(i)%th_boundary%T%outlet*flowrate/Qin	
+			do i=1,Nzone,1
+				density=get_density(assm1(izone)%th_boundary%T%inlet)
+				flowrate=assm1(izone)%th_boundary%u%inlet*(assm1(izone)%geom%n_pin*assm1(izone)%hydrau%aflow*density)
+				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qin	
 			enddo
 			core%Tfout=Tout
 		end subroutine driving_TH_core

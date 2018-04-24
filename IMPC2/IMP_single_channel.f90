@@ -4,6 +4,7 @@ module imp_single_channel
     use imp_assm_global
     use imp_single_kernel
     use imp_assembly_header
+    use imp_loop_global
     implicit none
      private
      public::driving_imp_steady
@@ -35,27 +36,34 @@ module imp_single_channel
 		!local
 		real(KREAL),allocatable::flowrate(:)
 		real(KREAL)::fuelArea,density!flow area of pin
-		integer zone,n_pin,layer,nr
+        real(KREAL)::Qave
+		integer zone,n_pin,layer,nr,izone
 		integer i,j
-		zone=size(assm)
+		zone=size(core%fzone)
 		layer=size(assm(1)%thermal%velocity)
 		nr=size(assm(1)%thermal%temperature,2)
 		allocate(flowrate(zone))
-		
+        !以zone为统计，而非SA
+		Qave=Qin*(1-core%sigmaPass)/(core%Nflow+core%Nflowsemi/2)!average
 		do i=1,zone,1
-			flowrate(i)=Qin/zone!average
+            if (i<=core%Nflow) then
+                flowrate(i)=Qave
+            else
+                flowrate(i)=Qave/2.0
+            endif
 		enddo
 		
-		do  i=1,zone,1			
-				n_pin=assm(i)%geom%n_pin
-				fuelArea=assm(i)%hydrau%aflow
-				density=get_density(assm(i)%th_boundary%T%inlet)
-				assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
-				density=get_density(assm(i)%th_boundary%T%outlet)
-				assm(i)%th_boundary%u%outlet=flowrate(i)/(n_pin*fuelArea*density)			
+		do  i=1,zone,1
+            izone=core%fzone(i)
+			n_pin=assm(izone)%geom%n_pin
+			fuelArea=assm(izone)%hydrau%aflow
+			density=get_density(assm(izone)%th_boundary%T%inlet)
+			assm(izone)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
+			density=get_density(assm(izone)%th_boundary%T%outlet)
+			assm(izone)%th_boundary%u%outlet=flowrate(i)/(n_pin*fuelArea*density)			
 			do j=1,layer,1
-				density=get_density(assm(i)%thermal%temperature(j,nr))
-				assm(i)%thermal%velocity(j)=flowrate(i)/(n_pin*fuelArea*density)
+				density=get_density(assm(izone)%thermal%temperature(j,nr))
+				assm(izone)%thermal%velocity(j)=flowrate(i)/(n_pin*fuelArea*density)
 			enddo
 		enddo
 		!velocity
