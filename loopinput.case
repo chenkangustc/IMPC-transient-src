@@ -2,8 +2,8 @@
       pump	    1.0  10.0  158.844  1000.0      0.75					
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
         pipePR	    10.0	    0.05	 0.005	     0	    158.844	   493	 200
-!Reactor:device   	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny
-		    reactor	    0.8	    0.05	 0.005	     0	    158.844	   493	 50
+!keyword	Nflow	Nflowsemi	Nsplit	sigmaPass	ltotal	Rtube	thicks	theta	Q	Ti	Ny
+reactor	    11	    6	        6	        0.1	        0	 0	        0	    0	0	0	1
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny
         pipeRI	    10.0	    0.05	 0.005	     0	    158.844	   493	 200
 !IHX:device 	Lsingle 	Rtube   thickt Plength AreaP	thickv    QP 	    Qs   Ti  Ntube	Ny   
