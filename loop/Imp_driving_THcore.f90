@@ -35,8 +35,8 @@
 			enddo
 			
 			call driving_loop_flowAlloc(assm1,Qin)
-			!全组件计算
-			do i=1,core%Nflow,1!zone start
+
+			do i=1,Nzone,1!zone start
                 izone=core%fzone(i)
 				do j=1,assm1(izone)%mesh%ny,1!dy
 					do k=1,N,1
@@ -44,19 +44,19 @@
 					enddo
 				enddo
 
-				if (assm1(izone)%th_boundary%u%inlet==0.0) then
-					assm1(izone)%thermal%velocity=0.0
-					assm1(izone)%th_boundary%u%outlet=0.0
-					assm1(izone)%thermal%temperature=assm1(izone)%th_boundary%T%inlet
-					assm1(izone)%th_boundary%T%outlet=assm1(izone)%th_boundary%T%inlet
-					assm1(izone)%property%rho=get_density(assm1(izone)%th_boundary%T%inlet)
-				else
-					if (transient_flag)then
-						if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(izone),pow,fq_core,last,current)
-					else
-						call driving_imp_THsteady(assm1(izone),pow,fq_core)					
-					endif
-				endif	
+				! if (assm1(izone)%th_boundary%u%inlet==0.0) then
+					! assm1(izone)%thermal%velocity=0.0
+					! assm1(izone)%th_boundary%u%outlet=0.0
+					! assm1(izone)%thermal%temperature=assm1(izone)%th_boundary%T%inlet
+					! assm1(izone)%th_boundary%T%outlet=assm1(izone)%th_boundary%T%inlet
+					! assm1(izone)%property%rho=get_density(assm1(izone)%th_boundary%T%inlet)
+				! else
+                if (transient_flag)then
+                    if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(izone),pow,fq_core,last,current)
+                else
+                    call driving_imp_THsteady(assm1(izone),pow,fq_core)					
+                endif
+				! endif	
 			enddo !zone		
 			!Tout volum ave
 			Tout=0.0

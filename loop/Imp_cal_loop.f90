@@ -24,7 +24,7 @@ module Imp_cal_loop
 		coreQin=0.0
 		powinput=0.0
         num=0
-		!cal total input power
+		!cal total input power for output
 		call cal_total_inputpow(assembly,powinput)
 		!write(*,*)'driving loop steady:'
         do while(sigma.gt.1.0D-6)
