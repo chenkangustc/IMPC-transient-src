@@ -8,7 +8,8 @@ module Imp_coremodle_header
     type coremodle
         !useful
         integer::Nflow
-        integer,allocatables::fzone(:)!zones which should be allocated flow
+        integer::Nflowsemi!缩略模型半组件
+        integer,allocatable::fzone(:)!zones which should be allocated flow
         real(KREAL)::sigmaPass
 	    !geom 
         real(KREAL)::Ltotal
@@ -69,8 +70,6 @@ module Imp_coremodle_header
       Ny=this%Ny
 	  Aflow=this%Q
 	  rcoremodle=this%Rtube
-      this%sigmaPass=0.0
-      this%fzone=0
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
       do i=1,Ny,1
@@ -96,9 +95,10 @@ module Imp_coremodle_header
       implicit none
       class(coremodle),intent(in out)::this
       !local
-      integer::Ny,Nflow
+      integer::Ny,Nflow,Nsemi
       Ny=this%Ny
       Nflow=this%Nflow
+      Nsemi=this%Nflowsemi
       !integer,intent(in)::N
       !check allocated first
       call Free_coremodle(this)
@@ -110,7 +110,7 @@ module Imp_coremodle_header
 	  allocate(this%shcf(Ny))
 	  allocate(this%visf(Ny))
 	  allocate(this%kf(Ny))
-      allocate(this%fzone(Nflow))
+      allocate(this%fzone(Nflow+Nsemi))
       !allocate(this%rhof(Ny))
       !allocate(this%T(Ny))
     end subroutine alloc_coremodle
