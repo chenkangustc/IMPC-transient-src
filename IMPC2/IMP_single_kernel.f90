@@ -501,7 +501,9 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
     real(KREAL),allocatable::RHO(:,:),SHC(:,:),CTC(:,:),DVS(:,:)
     real(KREAL),allocatable::aw(:,:),ae(:,:),ap(:,:),as(:,:),an(:,:),api(:,:),bs(:,:),q(:,:)
     real(KREAL)::kw,kn,ks 
+    real(KREAL)::Qin
 	 Area=assm%hydrau%aflow
+     Qin=assm%hydrau%Qf
      uin=assm%th_boundary%u%inlet
      Tin=assm%th_boundary%T%inlet
      xf=assm%geom%pellet
@@ -628,12 +630,12 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
            as(i,j)=0.0
            an(i,j)=0.0
            if(flag==1.0) api(i,j)=RHO(i,j)*Area*Dy*SHC(i,j)/dt
-           ap(i,j)=aw(i,j)+api(i,j)+RHO(i,j)*uin*Area*SHC(i,j)
-           bs(i,j)=RHO(i,j)*uin*Area*SHC(i,j)*assm%th_boundary%T%inlet
+           ap(i,j)=aw(i,j)+api(i,j)+Qin*SHC(i,j)
+           bs(i,j)=Qin*SHC(i,j)*assm%th_boundary%T%inlet
            elseif(i==M-1)then!流体出口
 		   aw(i,j)=assm%property%htc(i)*2.0*PI*Xt*Dy
            ae(i,j)=0.0
-           as(i,j)=RHO(i,j)*uin*Area*SHC(i,j)
+           as(i,j)=Qin*SHC(i,j)
            an(i,j)=0.0
            if(flag==1.0) api(i,j)=RHO(i,j)*Area*Dy*SHC(i,j)/dt
            ap(i,j)=as(i,j)+aw(i,j)+api(i,j)
@@ -643,7 +645,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
 		   ks=2*CTC(i-1,j)*CTC(i,j)/(CTC(i-1,j)+CTC(i,j))
 		   aw(i,j)=assm%property%htc(i)*2.0*PI*Xt*Dy
            ae(i,j)=0.0
-           as(i,j)=RHO(i,j)*uin*Area*SHC(i,j)+area*ks/Dy
+           as(i,j)=Qin*SHC(i,j)+area*ks/Dy
            an(i,j)=Area*kn/Dy
            if(flag==1.0) api(i,j)=RHO(i,j)*Area*Dy*SHC(i,j)/dt
            ap(i,j)=an(i,j)+as(i,j)+aw(i,j)+api(i,j)
