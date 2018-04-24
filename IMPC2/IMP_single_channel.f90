@@ -51,7 +51,7 @@ module imp_single_channel
             else
                 flowrate=Qave/2.0
             endif
-            assm(izone)%hydrau%Qf=flowrate
+            assm(izone)%hydrau%Qf=flowrate/assm(izone)%geom%N_pin
 		enddo
 	end subroutine driving_loop_flowAlloc
 	

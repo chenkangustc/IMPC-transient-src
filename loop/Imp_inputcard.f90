@@ -91,18 +91,17 @@ module Imp_inputcard
 					pipeRI%Ny=dummy_int(1)
 					
 					case('IHX')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_int(1:2)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:10),dummy_int(1:2)
 					IHX1%Lsingle=dummy_real(1)
 					IHX1%Rtube=dummy_real(2)
 					IHX1%thickt=dummy_real(3)
 					IHX1%Plength=dummy_real(4)
 					IHX1%AreaP=dummy_real(5)
 					IHX1%thickv=dummy_real(6)
-					
 					IHX1%Qp=dummy_real(7)
-					!IHX1%AreaS=dummy_real(7)
 					IHX1%Qs=dummy_real(8)
-					IHX1%Ti=dummy_real(9)
+                    IHX1%Tsin=dummy_real(9)
+					IHX1%Ti=dummy_real(10)
 					IHX1%Ntube=dummy_int(1)
 					IHX1%N=dummy_int(2)
 					

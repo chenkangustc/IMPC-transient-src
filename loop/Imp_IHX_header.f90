@@ -97,7 +97,6 @@ module Imp_IHX_header
 		this%AreaTubeTotal=Ntube*this%AreaTubeSingle
 		
 		this%Tpin=663.15!K
-		this%Tsin=303!K
         this%Tpout=this%Ti
         this%Tsout=this%Ti
 		

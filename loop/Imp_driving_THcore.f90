@@ -18,7 +18,7 @@
             integer  :: Nzone,izone
 			real(KREAL),allocatable::pow(:,:),fq_core(:,:)
 			real(KREAL)::density,flowrate,Qinpart
-            
+            real(KREAL),allocatable::powersingle(:)
 
             fq_core=1.0D0
             Nzone=core%Nflow+core%Nflowsemi!需要计算的zone的数量
@@ -28,6 +28,7 @@
 			M=size(assm1(1)%thermal%temperature,dim=1)
 			N=size(assm1(1)%thermal%temperature,dim=2)		
             allocate(pow(na,N),fq_core(na,N))
+            allocate(powersingle(Nzone))
 			pow=0.0
 			fq_core=1.0
 		
@@ -36,13 +37,14 @@
 			enddo
 			Qinpart=Qin/core%Nsplit
 			call driving_loop_flowAlloc(assm1,Qinpart)
-
+            !powertotal=0.0
 			do i=1,Nzone,1!zone start
                 izone=core%fzone(i)
 				do j=1,assm1(izone)%mesh%ny,1!dy
 					do k=1,N,1
 						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)
-					enddo
+                    enddo
+                    !powertotal=powertotal+assembly(izone,j)
 				enddo
 
 				! if (assm1(izone)%th_boundary%u%inlet==0.0) then
@@ -58,13 +60,14 @@
                     call driving_imp_THsteady(assm1(izone),pow,fq_core)					
                 endif
 				! endif	
+                powersingle(i)=151.0*assm1(izone)%hydrau%Qf*(assm1(izone)%th_boundary%T%outlet-assm1(izone)%th_boundary%T%inlet)
 			enddo !zone		
 			!Tout volum ave
 			Tout=0.0
 			do i=1,Nzone,1
                 izone=core%fzone(i)
 				density=get_density(assm1(izone)%th_boundary%T%inlet)
-				flowrate=assm1(izone)%hydrau%Qf
+				flowrate=assm1(izone)%hydrau%Qf*assm1(izone)%geom%N_pin
 				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qinpart
 			enddo
             Tout=Tout+core%sigmaPass*Qinpart*Tin/Qinpart
