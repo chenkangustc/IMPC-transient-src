@@ -67,14 +67,16 @@ module Imp_inputcard
 					pipePR%Ny=dummy_int(1)
 					
 					case('reactor')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
-					core%ltotal=dummy_real(1)
-					core%Rtube=dummy_real(2)
-					core%thicks=dummy_real(3)
-					core%theta=dummy_real(4)
-					core%Q=dummy_real(5)
-					core%Ti=dummy_real(6)
-					core%Ny=dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:7),dummy_int(2)
+                    core%Nflow=dummy_int(1)
+                    core%sigmaPass=dummy_real(1)
+					core%ltotal=dummy_real(2)
+					core%Rtube=dummy_real(3)
+					core%thicks=dummy_real(4)
+					core%theta=dummy_real(5)
+					core%Q=dummy_real(6)
+					core%Ti=dummy_real(7)
+					core%Ny=dummy_int(2)
 					
 					case('pipeRI')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
@@ -135,7 +137,40 @@ module Imp_inputcard
 		end do
         close(file_i)
 	end subroutine driving_input_read
-	
+    
+	subroutine driving_input_read_after()
+        !local
+        integer::io_error
+		real::dummy_real(MAX_REAL_PARAMETER)
+		integer::dummy_int(MAX_INT_PARAMETER)
+		character(len=MAX_WORD_LEN)::aline
+		character(len=MAX_WORD_LEN)::section_name,keyword
+        
+        open(newunit=file_i,file=FILE_IN,status='old',action='read',iostat=io_error)   		
+        !read(unit=file_i,fmt='(A)',iostat=io_error) aline
+		do
+			read(unit=file_i,fmt='(A)',iostat=io_error) aline
+            if(io_error==IOSTAT_END) exit
+			read(unit=aline,fmt=*,iostat=io_error) section_name       
+    
+			if(is_keyword(INP_SECTION,section_name)) then
+				select case(trim(adjustl(section_name)))
+					case('reactor')
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:core%Nflow+7),dummy_int(2)
+                    core%Nflow=dummy_int(1)
+                    core%fzone=dummy_real(1:core%Nflow)
+                    core%sigmaPass=dummy_real(core%Nflow+1)
+					core%ltotal=dummy_real(core%Nflow+2)
+					core%Rtube=dummy_real(core%Nflow+3)
+					core%thicks=dummy_real(core%Nflow+4)
+					core%theta=dummy_real(core%Nflow+5)
+					core%Q=dummy_real(core%Nflow+6)
+					core%Ti=dummy_real(core%Nflow+7)
+					core%Ny=dummy_int(2)
+                end select
+            endif
+        end do
+    end subroutine
     subroutine Set_section_keyword()
         implicit none
         INP_SECTION(1:N_keyword)=['pump   ',   &

@@ -51,7 +51,6 @@
         N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer  
 		Nave=2*nr
 		allocate(aveT(Nave))
-		!=========================================================
 		!热工水力计算
 		if (transient_flag)  then
            call driving_loop_transient(assembly,last_, current_)
@@ -61,33 +60,27 @@
 		!output
 		if(.NOT.transient_flag) call loop_output_steady()
 		call loop_output_transient(current)
-		! do i=1,nr,1
-			! aveT(2*i-1)=assm1(i)%thermal%Tfave
-			! aveT(2*i)=assm1(i)%thermal%Tcave
-		! enddo
-		! write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current_,(aveT(i),i=1,Nave)
-	    !==========================================================
-		!热工反馈
+		!热工feedback:Tfuel,Tcoolant,Rhocoolant,max_Tfuel,max_Tcoolant,min_Rhocoolant
         do i=1,nr,1
-		dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
-		do j=1,assm1(i)%mesh%Ny,1
-			volumn=0.0
-			TVtotal=0.0
-			do k=1,assm1(i)%mesh%Nf,1 !rod average		
-				if (k==1) then
-					TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*(k*dr)**2*assm1(i)%geom%height(j)
-					volumn=volumn+3.14*(k*dr)**2*assm1(i)%geom%height(j)
-				else
-					TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
-					volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
-				endif
-			enddo
-			Tfuel(i,j+assm1(i)%mesh%layer_bottom)=TVtotal/volumn
-			Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
-			Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
-		enddo
-		enddo	
-
+            dr=assm1(i)%geom%pellet/assm1(i)%mesh%Nf
+            do j=1,assm1(i)%mesh%Ny,1
+                volumn=0.0
+                TVtotal=0.0
+                do k=1,assm1(i)%mesh%Nf,1 !rod average		
+                    if (k==1) then
+                        TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*(k*dr)**2*assm1(i)%geom%height(j)
+                        volumn=volumn+3.14*(k*dr)**2*assm1(i)%geom%height(j)
+                    else
+                        TVtotal=TVtotal+assm1(i)%thermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
+                        volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(i)%geom%height(j)
+                    endif
+                enddo!radiau
+                Tfuel(i,j+assm1(i)%mesh%layer_bottom)=TVtotal/volumn
+                Tcoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%thermal%temperature(j,N)
+                Rhocoolant(i,j+assm1(i)%mesh%layer_bottom)=assm1(i)%property%rho(j,N)
+            enddo!layer
+		enddo!zone
+        ! max_Tfuel,max_Tcoolant,min_Rhocoolant
 		toutlet=core%Tfout
         
 		max_Tcoolant=0.0

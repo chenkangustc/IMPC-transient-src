@@ -4,7 +4,6 @@ module imp_assm_header
 	use constants
     implicit none
     type,public::AssmGeom
-      
 	  !real(KREAL):: rod           !元件半径
       real(KREAL):: pellet         !芯块半径
       real(KREAL):: Bond           !元件气隙厚度

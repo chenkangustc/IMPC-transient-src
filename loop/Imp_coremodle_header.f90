@@ -6,6 +6,10 @@ module Imp_coremodle_header
     use Imp_coremodle_pow
   
     type coremodle
+        !useful
+        integer::Nflow
+        integer,allocatables::fzone(:)!zones which should be allocated flow
+        real(KREAL)::sigmaPass
 	    !geom 
         real(KREAL)::Ltotal
 		real(KREAL),allocatable::Length(:)
@@ -65,6 +69,8 @@ module Imp_coremodle_header
       Ny=this%Ny
 	  Aflow=this%Q
 	  rcoremodle=this%Rtube
+      this%sigmaPass=0.0
+      this%fzone=0
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
       do i=1,Ny,1
@@ -90,8 +96,9 @@ module Imp_coremodle_header
       implicit none
       class(coremodle),intent(in out)::this
       !local
-      integer::Ny
+      integer::Ny,Nflow
       Ny=this%Ny
+      Nflow=this%Nflow
       !integer,intent(in)::N
       !check allocated first
       call Free_coremodle(this)
@@ -103,6 +110,7 @@ module Imp_coremodle_header
 	  allocate(this%shcf(Ny))
 	  allocate(this%visf(Ny))
 	  allocate(this%kf(Ny))
+      allocate(this%fzone(Nflow))
       !allocate(this%rhof(Ny))
       !allocate(this%T(Ny))
     end subroutine alloc_coremodle
@@ -118,6 +126,7 @@ module Imp_coremodle_header
 	  if(allocated(this%shcf)) deallocate(this%shcf)
 	  if(allocated(this%kf)) deallocate(this%kf)
 	  if(allocated(this%visf)) deallocate(this%visf)
+      if(allocated(this%fzone)) deallocate(this%fzone)
     end subroutine free_coremodle
 	
 	subroutine cal_htc(this)

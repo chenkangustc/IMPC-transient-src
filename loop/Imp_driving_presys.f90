@@ -4,22 +4,20 @@ module Imp_driving_presys
 	contains
 	subroutine driving_presys()
 		implicit none
-        !scan & read Ny
-		call driving_input_read()
+        !scan & read Ny,Nflow
+        call driving_input_read()		
 		!alloc
 		call driving_alloc_loop()
-		!call loop%alloc()
-		call driving_init_loop()
-		!read after alloc
-		!call driving_plain_read()
 		!init
-		!call loop%init()
+		call driving_init_loop()
+		!read after alloc       
+        call driving_input_read_after()
 	end subroutine driving_presys
 	
-	subroutine driving_plain_scan()
-		implicit none
+	! subroutine driving_plain_scan()
+		! implicit none
 		
-	end subroutine driving_plain_scan
+	! end subroutine driving_plain_scan
 	
 	subroutine driving_init_loop()
 		implicit none
