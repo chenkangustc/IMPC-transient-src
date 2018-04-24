@@ -12,6 +12,7 @@ module imp_single_kernel
      public::solve_pmodifyA
      public::modify_PV
      public::cal_th_convection
+     public::cal_th_convection_rhoi
      public::cal_th_temperature
 	 public::cal_th_temperature_rhoi
      public::solve_temperature
@@ -711,17 +712,19 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
      enddo
 	 assm%th_boundary%T%outlet=assm%thermal%Temperature(M-1,N)
 end subroutine cal_th_temperature_RHOi
+
 subroutine solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
- implicit none
- type(sys_assembly),intent(in out)::assm
- real(KREAL),intent(in)::flag
- real(KREAL),intent(in)::Ti(:,:)
- real(KREAL),intent(in)::rhoi(:,:)
- real(KREAL):: dt
- !local
- call cal_th_convection(assm)
- call cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+    implicit none
+    type(sys_assembly),intent(in out)::assm
+    real(KREAL),intent(in)::flag
+    real(KREAL),intent(in)::Ti(:,:)
+    real(KREAL),intent(in)::rhoi(:,:)
+    real(KREAL):: dt
+    !local
+    call cal_th_convection_rhoi(assm)
+    call cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
 end subroutine solve_temperature_rhoi
+
 subroutine solve_temperature(assm,flag,Ti,rhoi,dt)
  implicit none
  type(sys_assembly),intent(in out)::assm
@@ -805,4 +808,29 @@ subroutine solve_pmodifyA(A,b,pmodify)
       endif
    enddo
 end subroutine solve_pmodifyA
+
+subroutine cal_th_convection_rhoi(assm)
+    implicit none
+    type(sys_assembly),intent(in out)::assm
+    !lcoal
+    integer i,Ny,nr
+    real(KREAL):: De,Area,wet,velocity!
+    real(KREAL),allocatable::rho(:),dvs(:),shc(:),ctc(:)
+    Ny=assm%mesh%Ny
+    nr=assm%mesh%nf+assm%mesh%ng+assm%mesh%ns
+    allocate(rho(0:Ny+1),dvs(0:Ny+1),shc(0:Ny+1),ctc(0:Ny+1))
+    de=assm%hydrau%de
+    Area=assm%hydrau%aflow
+    wet=assm%hydrau%wet
+    rho=assm%property%rho(:,nr+1)
+    dvs=assm%property%dvs(:,nr+1)
+    shc=assm%property%shc(:,nr+1)
+    ctc=assm%property%ctc(:,nr+1)
+    do i=1,Ny,1
+        velocity=assm%hydrau%Qf/(area*rho(i))
+        call get_convection(De,Area,wet,RHO(i),velocity,DVS(i),SHC(i),CTC(i),assm%property%htc(i))!DVS(i,N)动力粘度 Pa*s
+    enddo
+    assm%property%htc(0)=assm%property%htc(1)!边界上的对流换热系数
+    assm%property%htc(Ny+1)=assm%property%htc(Ny)
+end subroutine cal_th_convection_rhoi
 end module imp_single_kernel

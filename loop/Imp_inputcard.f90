@@ -67,7 +67,7 @@ module Imp_inputcard
 					pipePR%Ny=dummy_int(1)
 					
 					case('reactor')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_int(4:core%Nflow+core%Nflowsemi+3),dummy_real(1:7),dummy_int(core%Nflow+core%Nflowsemi+4)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1:7)
                     core%Nflow=dummy_int(1)
                     core%Nflowsemi=dummy_int(2)
                     core%Nsplit=dummy_int(3)
@@ -78,7 +78,7 @@ module Imp_inputcard
 					core%theta=dummy_real(5)
 					core%Q=dummy_real(6)
 					core%Ti=dummy_real(7)
-					core%Ny=dummy_int(core%Nflow+core%Nflowsemi+4)
+					core%Ny=dummy_int(4)
 					
 					case('pipeRI')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
@@ -158,8 +158,8 @@ module Imp_inputcard
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
 					case('reactor')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_int(4:core%Nflow+core%Nflowsemi+3)
-                    core%fzone=dummy_int(4:core%Nflow+core%Nflowsemi+3)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1:7),dummy_int(5:core%Nflow+core%Nflowsemi+4)
+                    core%fzone=dummy_int(5:core%Nflow+core%Nflowsemi+4)
                 end select
             endif
         end do

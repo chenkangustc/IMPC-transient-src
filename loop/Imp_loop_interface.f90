@@ -42,7 +42,7 @@
 		integer  :: nf,ng,ns,nRadial,ny
         integer  :: nr, na,M,N,Nave
 		integer  :: i,j,k
-        
+        integer  :: Nzone,izone
         last_ = last
         current_ = current
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
@@ -85,39 +85,43 @@
         
 		max_Tcoolant=0.0
 		max_Tfuel=0.0
+        Nzone=core%Nflow+core%Nflowsemi
 		!calculate max_Tcoolant max_Tfuel
-		do i=1,nr,1
-			do j=1,assm1(i)%mesh%Ny,1
-				if(Tfuel(i,j)>max_Tfuel) 		max_Tfuel=Tfuel(i,j)
-				if(Tcoolant(i,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(i,j)
+		do i=1,Nzone,1
+            izone=core%fzone(i)
+			do j=1,assm1(izone)%mesh%Ny,1
+				if(Tfuel(izone,j)>max_Tfuel) 		max_Tfuel=Tfuel(izone,j)
+				if(Tcoolant(izone,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(izone,j)
 			enddo
 		enddo
 		!calculate the surface temperature
-		do i=1,nr,1
-			Nf=assm1(i)%mesh%Nf
-			Ng=assm1(i)%mesh%Ng
-			Ns=assm1(i)%mesh%Ns
-			Ny=assm1(i)%mesh%Ny
+		do i=1,Nzone,1
+            izone=core%fzone(i)
+			Nf=assm1(izone)%mesh%Nf
+			Ng=assm1(izone)%mesh%Ng
+			Ns=assm1(izone)%mesh%Ns
+			Ny=assm1(izone)%mesh%Ny
 			Nradial=Nf+Ng+Ns+1
-			xf=assm1(i)%geom%pellet
-			xg=assm1(i)%geom%bond
-			xs=assm1(i)%geom%cladth		
-			do j=1,assm1(i)%mesh%Ny,1
-				assm1(i)%thermal%Tcoolant(j)=Tcoolant(i,j)
-				assm1(i)%thermal%Tfuel(j)=Tfuel(i,j)
-				assm1(i)%thermal%Tfuel_center(j)=assm1(i)%thermal%temperature(j,1)
-				assm1(i)%thermal%Tfg(j)=(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(i)%thermal%temperature(j,Nf+1))/(assm1(i)%property%ctc(j,Nf)*(Xg/Ng)+assm1(i)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
-				assm1(i)%thermal%Tgs(j)=(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(i)%thermal%temperature(j,Nf+Ng)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(i)%thermal%temperature(j,Nf+Ng+1))/(assm1(i)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(i)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
-				assm1(i)%thermal%Tsc(j)=(assm1(i)%property%htc(j)*assm1(i)%thermal%temperature(j,Nradial)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(i)%thermal%temperature(j,Nradial-1))/(assm1(i)%property%htc(j)+2*assm1(i)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
+			xf=assm1(izone)%geom%pellet
+			xg=assm1(izone)%geom%bond
+			xs=assm1(izone)%geom%cladth		
+			do j=1,assm1(izone)%mesh%Ny,1
+				assm1(izone)%thermal%Tcoolant(j)=Tcoolant(izone,j)
+				assm1(izone)%thermal%Tfuel(j)=Tfuel(izone,j)
+				assm1(izone)%thermal%Tfuel_center(j)=assm1(izone)%thermal%temperature(j,1)
+				assm1(izone)%thermal%Tfg(j)=(assm1(izone)%property%ctc(j,Nf)*(Xg/Ng)*assm1(izone)%thermal%temperature(j,Nf)+assm1(izone)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(izone)%thermal%temperature(j,Nf+1))/(assm1(izone)%property%ctc(j,Nf)*(Xg/Ng)+assm1(izone)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
+				assm1(izone)%thermal%Tgs(j)=(assm1(izone)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(izone)%thermal%temperature(j,Nf+Ng)+assm1(izone)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(izone)%thermal%temperature(j,Nf+Ng+1))/(assm1(izone)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(izone)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
+				assm1(izone)%thermal%Tsc(j)=(assm1(izone)%property%htc(j)*assm1(izone)%thermal%temperature(j,Nradial)+2*assm1(izone)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(izone)%thermal%temperature(j,Nradial-1))/(assm1(izone)%property%htc(j)+2*assm1(izone)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
 			enddo
 		enddo!surface zone end
 		!write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
 		max_T_inner=0.0
 		max_T_outer=0.0
-		do i=1,nr,1
-			do j=1,assm1(i)%mesh%Ny,1
-				if(max_T_inner<assm1(i)%thermal%Tgs(j)) max_T_inner=assm1(i)%thermal%Tgs(j)
-				if(max_T_outer<assm1(i)%thermal%Tsc(j)) max_T_outer=assm1(i)%thermal%Tsc(j)
+		do i=1,Nzone,1
+            izone=core%fzone(i)
+			do j=1,assm1(izone)%mesh%Ny,1
+				if(max_T_inner<assm1(izone)%thermal%Tgs(j)) max_T_inner=assm1(izone)%thermal%Tgs(j)
+				if(max_T_outer<assm1(izone)%thermal%Tsc(j)) max_T_outer=assm1(izone)%thermal%Tsc(j)
 			enddo
         enddo
 	write(unit=file_maxT,fmt="(F6.1,'',4F9.2)")current,max_Tfuel,max_Tcoolant,max_T_inner,max_T_outer	

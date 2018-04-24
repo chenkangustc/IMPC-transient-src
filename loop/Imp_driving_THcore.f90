@@ -19,7 +19,8 @@
 			real(KREAL),allocatable::pow(:,:),fq_core(:,:)
 			real(KREAL)::density,flowrate,Qinpart
             
-			fq_core=1.0D0
+
+            fq_core=1.0D0
             Nzone=core%Nflow+core%Nflowsemi!需要计算的zone的数量
             
 			nr = SIZE(assembly, dim=1)!zone                           
@@ -40,7 +41,7 @@
                 izone=core%fzone(i)
 				do j=1,assm1(izone)%mesh%ny,1!dy
 					do k=1,N,1
-						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(i,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*3.14159*assm1(izone)%geom%pellet**2)
+						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)
 					enddo
 				enddo
 
@@ -61,6 +62,7 @@
 			!Tout volum ave
 			Tout=0.0
 			do i=1,Nzone,1
+                izone=core%fzone(i)
 				density=get_density(assm1(izone)%th_boundary%T%inlet)
 				flowrate=assm1(izone)%hydrau%Qf
 				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qinpart
