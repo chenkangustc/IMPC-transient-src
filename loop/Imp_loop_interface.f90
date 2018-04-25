@@ -60,6 +60,9 @@
 		end if
 		!outpu		if(.NOT.transient_flag) call loop_output_steady()
 		call loop_output_transient(current)
+        !Tfuel,Tcoolant init
+        Tfuel=525.0!K
+        Tcoolant=525.0!K
 		!热工feedback:Tfuel,Tcoolant,Rhocoolant,max_Tfuel,max_Tcoolant,min_Rhocoolant
         do i=1,Nzone,1!反射层之类不计算的温度不去改变
             izone=core%fzone(i)
