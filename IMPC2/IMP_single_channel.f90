@@ -13,6 +13,7 @@ module imp_single_channel
 	 public::driving_imp_THtransient!no pv step ,not simple
 	 public::driving_imp_flowAlloc
 	 public::driving_loop_flowAlloc
+     public::update_property_rhoi
     contains
 	subroutine driving_imp_flowAlloc(assm,flowrate)
 		type(sys_assembly),allocatable::assm(:)
@@ -183,6 +184,7 @@ subroutine driving_imp_THsteady(assm,power,fq_core)
     drho=1.0
     call assm%pow%set(power,fq_core)
     call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+    call update_property_rhoi(assm)
 	!cal Tfave & Tcave
 	call cal_Tave(assm)
 end subroutine driving_imp_THsteady
@@ -221,6 +223,7 @@ subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     drho=1.0   
     call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
 	call cal_Tave(assm)
+    call update_property_rhoi(assm)
 end subroutine driving_imp_THtransient
 
 subroutine cal_Tave(assm)
@@ -276,5 +279,29 @@ subroutine cal_Tave(assm)
 		assm%thermal%Tfuel(j)=TVtotal/volumn
 	enddo
 end subroutine cal_Tave
+
+subroutine update_property_rhoi(assm)
+    type(sys_assembly),intent(in out)::assm
+        ! real(KREAL),allocatable::rho(:,:)!»»ŒÔ–‘
+        ! real(KREAL),allocatable::shc(:,:)
+        ! real(KREAL),allocatable::ctc(:,:)
+    !local 
+    integer::Ny,Nr,j
+    Ny=size(assm%thermal%temperature,dim=1)
+    Nr=size(assm%thermal%temperature,dim=2)
+    do j=1,Ny,1
+        assm%property%rho(j,Nr)=get_density(assm%thermal%temperature(j,Nr))
+        assm%property%shc(j,Nr)=get_shc_LBE(assm%thermal%temperature(j,Nr))
+        assm%property%ctc(j,Nr)=get_conductivity_LBE(assm%thermal%temperature(j,Nr))
+    enddo
+    assm%property%rho(0,Nr)=assm%property%rho(1,Nr)
+    assm%property%shc(0,Nr)=assm%property%shc(1,Nr)
+    assm%property%ctc(0,Nr)=assm%property%ctc(1,Nr)
+    
+    assm%property%rho(Ny+1,Nr)=assm%property%rho(Ny,Nr)
+    assm%property%shc(Ny+1,Nr)=assm%property%shc(Ny,Nr)
+    assm%property%ctc(Ny+1,Nr)=assm%property%ctc(Ny,Nr)
+    
+end subroutine update_property_rhoi
 
 end module imp_single_channel
