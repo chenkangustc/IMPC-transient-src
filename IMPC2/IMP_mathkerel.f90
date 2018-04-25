@@ -111,6 +111,7 @@ contains
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
 		Nu=7.55*P/D-20.*(P/D)**(-13)+3.67/(90.*(P/D)**2)*Pe**(0.56+0.19*P/D)
+        if (Nu<0) print*,'Nu is .lt. 0.0,the Nu equation cannot be used here'
 	end function get_Nusselt_IHX_shell
 	
 	function get_Nusselt_PIPE_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
