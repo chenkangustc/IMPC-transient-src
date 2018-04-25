@@ -9,7 +9,7 @@ data3=np.loadtxt('..\\Tdis.txt')
 #FIG1 sub0 control
 zone=12
 #FIG2 sub[1,5]control
-tlist=[0,10,50,100,200]
+tlist=[0,100,500,1500,2100]
 
 time=loopdat[:,0]
 flowrate=loopdat[:,2]
@@ -110,6 +110,6 @@ for idx,it in enumerate(tlist):
     ax1[idx+1].set_xlabel('zz/m')
     ax1[idx+1].set_title('zone='+str(zone)+',t='+str(it)+' Temperature')
     ax1[idx+1].legend()
-    ax1[idx+1].set_ylim(330.0,900.0)
+    ax1[idx+1].set_ylim(480.0,1300.0)
     
 plt.show()
