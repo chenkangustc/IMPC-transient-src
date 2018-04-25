@@ -1,5 +1,5 @@
-!pump:device   	I	    He	  Qe	   omegae	     yita		
-      pump	    1.0  10.0  496.689  1000.0      0.75					
+!pump:device   	I	    He	  Qe	   omegae	     yita	 Nbranch	
+      pump	    1.0  10.0  496.689  1000.0      0.75			1		
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
         pipePR	    10.0	    0.05	 0.005	     0	    496.689	   493	 200
 !keyword	Nflow	Nflowsemi	Nsplit	Ny	sigmaPass	ltotal	Rtube	thicks	theta	Q	Ti	   flowzone																

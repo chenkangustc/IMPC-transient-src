@@ -49,12 +49,13 @@ module Imp_inputcard
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
 					case('pump')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:5)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:5),dummy_int(1)
 					pump1%I=dummy_real(1)
 					pump1%He=dummy_real(2)
 					pump1%Qe=dummy_real(3)
 					pump1%omegae=dummy_real(4)
 					pump1%yita=dummy_real(5)
+                    pump1%Nbranch=dummy_int(1)
 					
 					case('pipePR')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)

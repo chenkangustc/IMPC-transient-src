@@ -30,7 +30,7 @@ module Imp_cal_loop
         do while(sigma.gt.1.0D-6)
             num=num+1
             coreTin=PipePR%Tfout
-			coreQin=Pump1%Qe
+			coreQin=pump1%Nbranch*Pump1%Qe
             !print *,'core cal'
 			!	 driving_THcore_steady(Qin,Tin,assembly,Tout)
 		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout)
@@ -64,22 +64,22 @@ module Imp_cal_loop
 		
 		call cal_total_inputpow(assembly,powinput)
 		
-            call cal_loop_hydraulic(current,Qloop)						
-			coreQin=Qloop
-			coreTin=PipePR%Tfout			
-            print *,'core cal'
-			!driving_THcore_steady(Qin,Tin,assembly,Tout)
-		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout,last,current)
-		    pipeRI%Tfin=coreTout
-            print*,'pipe cal transient'
-		    call PipeRI%thCalt(last,current)
-		    IHX1%Tpin=PipeRI%Tfout
-		    call IHX1%thCalt(last,current)
-		    PipeIP%Tfin=IHX1%Tpout
-		    call PipeIP%thCalt(last,current)
-            PipePR%Tfin=PipeIP%Tfout
-            call PipePR%thCalt(last,current) 
-		    write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
+        call cal_loop_hydraulic(current,Qloop)						
+        coreQin=pump1%Nbranch*Qloop
+        coreTin=PipePR%Tfout			
+        print *,'core cal'
+        !driving_THcore_steady(Qin,Tin,assembly,Tout)
+        call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout,last,current)
+        pipeRI%Tfin=coreTout
+        print*,'pipe cal transient'
+        call PipeRI%thCalt(last,current)
+        IHX1%Tpin=PipeRI%Tfout
+        call IHX1%thCalt(last,current)
+        PipeIP%Tfin=IHX1%Tpout
+        call PipeIP%thCalt(last,current)
+        PipePR%Tfin=PipeIP%Tfout
+        call PipePR%thCalt(last,current) 
+        write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
           
 	end subroutine driving_loop_transient
 	
@@ -151,7 +151,7 @@ module Imp_cal_loop
         real(KREAL),intent(in)::flowrate
             pump1%Q=flowrate
             PipePR%Q=flowrate
-            core%Q=flowrate
+            !core%Q=flowrate
             PipeRI%Q=flowrate
             IHX1%Qp=flowrate
             PipeIP%Q=flowrate

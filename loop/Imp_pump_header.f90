@@ -16,6 +16,8 @@ module  Imp_pump_header
 		real(KREAL)::rho
 		!thermal
 		real(KREAL)::T
+        !branch
+        integer::Nbranch
 	  contains
 		procedure,public::init=>init_pump
 	end type pump
