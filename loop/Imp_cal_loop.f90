@@ -91,15 +91,15 @@ module Imp_cal_loop
 		real(KREAL)::alpha,beta,LAsum
 		integer i!i is the num of the device
 		
-		! if(pump1%Q>=0.15*pump1%Qe) then
-			! LAsum=PipePR%ltotal/PipePR%Area+core%Ltotal/core%Area+PipeRI%ltotal/PipeRI%Area+IHX1%Lsingle/IHX1%Areap+PipeIP%ltotal/PipeIP%Area
-			! alpha=LAsum+pump1%rho*pump1%yita*pump1%I*pump1%omegae**2/pump1%Qe**2
-			! call cal_beta(beta,0)
-			! flowrate=alpha/(beta*current+alpha/pump1%Qe)
-		! else
-			! flowrate=pump1%Q
-		! endif
-		flowrate=pump1%Qe
+		if(pump1%Q>=0.10*pump1%Qe) then
+			LAsum=PipePR%ltotal/PipePR%Area+core%Ltotal/core%Area+PipeRI%ltotal/PipeRI%Area+IHX1%Lsingle/IHX1%Areap+PipeIP%ltotal/PipeIP%Area
+			alpha=LAsum+pump1%rho*pump1%yita*pump1%I*pump1%omegae**2/pump1%Qe**2
+			call cal_beta(beta,0)
+			flowrate=alpha/(beta*current+alpha/pump1%Qe)
+		else
+			flowrate=pump1%Q
+		endif
+		!flowrate=pump1%Qe
 		call set_flowrate(flowrate)
 
 	end subroutine cal_loop_hydraulic

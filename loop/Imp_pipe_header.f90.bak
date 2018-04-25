@@ -389,10 +389,11 @@ module Imp_pipe_header
 		class(pipe),intent(in out)::this
 		!real(KREAL),intent(in)::Q,Tfin
 		real(KREAL),intent(in)::last,current
+		
+		call this%updatep()!update property
 		call this%calhtc()
 		!call this%updateb(Q,Tfin)
 		call this%kerelt(last,current)	
-        call this%updatep()!update property
 	end subroutine cal_thermal_transient
     
 

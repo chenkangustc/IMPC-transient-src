@@ -405,7 +405,6 @@ module Imp_IHX_header
 		class(IHX),intent(in out)::this
 		!real(KREAL),intent(in)::Qp,Qs,Tpin,Tsin
 		real(KREAL),intent(in)::last,current
-
 		call this%calhtc()
 		!call this%updateBoundary(Qp,Qs,Tpin,Tsin)
 		call this%kerelTransient(last,current)	

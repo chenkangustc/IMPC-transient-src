@@ -58,8 +58,7 @@
 		else
            call driving_loop_steady(assembly)		   
 		end if
-		!output
-		if(.NOT.transient_flag) call loop_output_steady()
+		!outpu		if(.NOT.transient_flag) call loop_output_steady()
 		call loop_output_transient(current)
 		!热工feedback:Tfuel,Tcoolant,Rhocoolant,max_Tfuel,max_Tcoolant,min_Rhocoolant
         do i=1,Nzone,1!反射层之类不计算的温度不去改变

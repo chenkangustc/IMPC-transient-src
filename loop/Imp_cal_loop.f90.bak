@@ -65,7 +65,7 @@ module Imp_cal_loop
 		call cal_total_inputpow(assembly,powinput)
 		
         call cal_loop_hydraulic(current,Qloop)						
-        coreQin=Qloop
+        coreQin=pump1%Nbranch*Qloop
         coreTin=PipePR%Tfout			
         print *,'core cal'
         !driving_THcore_steady(Qin,Tin,assembly,Tout)
