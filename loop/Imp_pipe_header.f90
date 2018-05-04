@@ -76,7 +76,7 @@ module Imp_pipe_header
           this%rhof(i)=get_density_Na(this%Tf(i))
 		  this%shcf(i)=get_shc_Na(this%Tf(i))
 		  this%kf(i)=get_conductivity_Na(this%Tf(i))
-		  this%visf(i)=get_vis_Na()
+		  this%visf(i)=get_vis_Na(this%Tf(i),this%rhof(i))
       end do
 	  !area
 	  this%area=PI*rpipe*rpipe
@@ -154,7 +154,7 @@ module Imp_pipe_header
 			this%rhof(i)=get_density_Na(this%Tf(i))
 			this%shcf(i)=get_shc_Na(this%Tf(i))
 			this%kf(i)=get_conductivity_Na(this%Tf(i))
-			this%visf(i)=get_vis_Na()
+			this%visf(i)=get_vis_Na(this%Tf(i),this%rhof(i))
 		enddo
 	end subroutine update_property
 	

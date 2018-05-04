@@ -309,7 +309,7 @@ subroutine update_property_rhoi(assm)
                 assm%property%rho(j,Nr)=get_density_Na(assm%thermal%temperature(j,Nr))
                 assm%property%shc(j,Nr)=get_shc_Na(assm%thermal%temperature(j,Nr))
                 assm%property%ctc(j,Nr)=get_conductivity_Na(assm%thermal%temperature(j,Nr))
-                assm%property%dvs(j,Nr)=get_vis_Na(assm%thermal%temperature(j,Nr))
+                assm%property%dvs(j,Nr)=get_vis_Na(assm%thermal%temperature(j,Nr),assm%property%rho(j,Nr))
             endif
         enddo
     enddo

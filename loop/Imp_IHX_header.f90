@@ -35,8 +35,8 @@ module Imp_IHX_header
 		!material
 		real(KREAL),allocatable::rhop(:),rhos(:)
 		real(KREAL),allocatable::shcp(:),shcs(:)
+        real(KREAL),allocatable::visp(:),viss(:)
 		real(KREAL),allocatable::kp(:),ks(:)
-        real(KREAL)::visp,viss
 		real(KREAL)::rhot,rhov
 		real(KREAL)::shct,shcv
 		!thermal
@@ -112,16 +112,17 @@ module Imp_IHX_header
         this%shct=get_shc_304()
         this%rhov=get_density_304()
         this%shcv=get_shc_304()
-		this%visp=get_vis_Na()
-		this%viss=get_vis_Na()
+
 		do i=1,N,1
 			Tp=this%Tp(i)
             Ts=this%Ts(i)
 			this%rhop(i)=get_density_Na(Tp)
 			this%shcp(i)=get_shc_Na(Tp)
+            this%visp(i)=get_vis_Na(Tp,this%rhop(i))
 			this%kp(i)=get_conductivity_Na(Tp)		
 			this%rhos(i)=get_density_Na(Ts)
 			this%shcs(i)=get_shc_Na(Ts)
+		    this%viss=get_vis_Na(Ts,this%rhos(i))
 			this%ks(i)=get_conductivity_Na(Ts)
 			this%Length(i)=Lsingle/N
 			if(i==1)then
@@ -149,9 +150,11 @@ module Imp_IHX_header
 	  allocate(this%zz(1:N))
       allocate(this%rhop(1:N))
 	  allocate(this%shcp(1:N))
+      allocate(this%visp(1:N))
 	  allocate(this%kp(1:N))
 	  allocate(this%rhos(1:N))
 	  allocate(this%shcs(1:N))
+      allocate(this%viss(1:N))
 	  allocate(this%ks(1:N))
       allocate(this%Tp(1:N))
 	  allocate(this%Ts(1:N))
@@ -171,9 +174,11 @@ module Imp_IHX_header
 	  if(allocated(this%zz)) deallocate(this%zz)
       if(allocated(this%rhop)) deallocate(this%rhop)
 	  if(allocated(this%shcp)) deallocate(this%shcp)
+      if(allocated(this%visp)) deallocate(this%visp)
 	  if(allocated(this%kp)) deallocate(this%kp)
 	  if(allocated(this%rhos)) deallocate(this%rhos)
 	  if(allocated(this%shcs)) deallocate(this%shcs)
+      if(allocated(this%viss)) deallocate(this%viss)
 	  if(allocated(this%ks)) deallocate(this%ks)
       if(allocated(this%Tp)) deallocate(this%Tp)
 	  if(allocated(this%Ts)) deallocate(this%Ts)
@@ -194,11 +199,12 @@ module Imp_IHX_header
 			this%rhop(i)=get_density_Na(this%Tp(i))
 			this%shcp(i)=get_shc_Na(this%Tp(i))
 			this%kp(i)=get_conductivity_Na(this%Tp(i))
-			!this%visp(i)=get_conductivity_Na()
-			this%rhos(i)=get_density_Na(this%Ts(i))
+			this%visp(i)=get_vis_Na(this%Tp(i),this%rhop(i))
+			
+            this%rhos(i)=get_density_Na(this%Ts(i))
 			this%shcs(i)=get_shc_Na(this%Ts(i))
 			this%ks(i)=get_conductivity_Na(this%Ts(i))
-			!this%viss(i)=get_conductivity_Na(this%Ts(i))
+			this%viss(i)=get_vis_Na(this%Ts(i),this%rhos(i))
 		enddo
 	end subroutine update_property
     
@@ -250,9 +256,9 @@ module Imp_IHX_header
 		Dtubeo=(this%Rtube+this%thickt)*2.0
 		!get_Nusselt_IHX_shell(flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
 		do i=1,N,1
-			Nust=get_Nusselt_IHX_tube(Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss,this%shcs(i),this%ks(i))!secondary
-			Nupt=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp,this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
-			Nupv=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp,this%shcp(i),this%kp(i))	
+			Nust=get_Nusselt_IHX_tube(Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss(i),this%shcs(i),this%ks(i))!secondary
+			Nupt=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
+			Nupv=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))	
 			this%hts(i)=Nust*this%ks(i)/this%Des
 			this%htp(i)=Nupt*this%kp(i)/this%Dep
 			this%hvp(i)=Nupv*this%kp(i)/this%Dep
