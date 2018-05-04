@@ -1,4 +1,5 @@
 module Imp_inputcard
+    use imp_re_input_global
 	use Imp_loop_global
 	use Imp_timer_global
     use,intrinsic::ISO_FORTRAN_ENV
@@ -18,6 +19,18 @@ module Imp_inputcard
     
 	
 	contains
+    subroutine Set_section_keyword()
+        implicit none
+        INP_SECTION(1:N_keyword)=['pump   ',   &
+                                & 'pipePR ',   &
+                                & 'reactor',   &        
+                                & 'pipeRI ',   &
+                                & 'IHX    ',   &
+                                & 'pipeIP ',   &
+                                & 'assembly',  &
+								& 'time   '     ]
+    end subroutine Set_section_keyword
+    
 	subroutine driving_input_read()
 		implicit none
 		!local
@@ -127,6 +140,15 @@ module Imp_inputcard
 					! pipeRI%shcs=dummy_real(4)
 					! pipeIP%rhos=dummy_real(3)
 					! pipeIP%shcs=dummy_real(4)
+                    case('assembly')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(4),dummy_int(2)
+                    reInputdata%npin = dummy_int(1)
+                    reInputdata%nFuelPin = dummy_int(2)
+                    reInputdata%xf = dummy_real(1)*0.001D0
+                    reInputdata%xg = dummy_real(2)*0.001D0
+                    reInputdata%xs = dummy_real(3)*0.001D0
+                    reInputdata%pd = dummy_real(4)
+                    
 					case('time')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)
 					timer1%ttotal=dummy_real(1)
@@ -163,17 +185,7 @@ module Imp_inputcard
             endif
         end do
     end subroutine
-    subroutine Set_section_keyword()
-        implicit none
-        INP_SECTION(1:N_keyword)=['pump   ',   &
-                                & 'pipePR ',   &
-                                & 'reactor',   &        
-                                & 'pipeRI ',   &
-                                & 'IHX    ',   &
-                                & 'pipeIP ',   &
-								& 'solid  ',   &
-								& 'time   '     ]
-    end subroutine Set_section_keyword
+
 	
 	function is_keyword(input,key) result(is_true)
         implicit none

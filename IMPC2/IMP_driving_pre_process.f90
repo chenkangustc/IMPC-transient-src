@@ -166,7 +166,7 @@ contains
       !设置几何参数
 	  !print*,geom%height
       call assm%geom%set(reInputdata%xf,reInputdata%xg,reInputdata%xs,reInputdata%acf,Height,reInputdata%pd,reInputdata%nFuelPin,reInputdata%npin)
-      print*,'assm height(1)=',assm%geom%height(1)
+      ! print*,'assm height(1)=',assm%geom%height(1)
 	  !设置网格参数
       call assm%mesh%set(reInputdata%nf,reInputdata%ng,reInputdata%ns,zone,layer_core,layer_bottom,layer_top)
       !设置初始值
