@@ -66,14 +66,17 @@ module Imp_pipe_header
 	  rpipe=this%Rtube
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
+      !property
+      this%rhos=get_density_304()
+      this%shcs=get_shc_304()
       do i=1,Ny,1
           this%length(i)=this%ltotal/Ny
 		  this%Tf(i)=this%Ti
 		  this%Ts(i)=this%Ti
-          this%rhof(i)=get_density(this%Tf(i))
-		  this%shcf(i)=get_shc_LBE(this%Tf(i))
-		  this%kf(i)=get_conductivity_LBE(this%Tf(i))
-		  this%visf(i)=get_vis_LBE()
+          this%rhof(i)=get_density_Na(this%Tf(i))
+		  this%shcf(i)=get_shc_Na(this%Tf(i))
+		  this%kf(i)=get_conductivity_Na(this%Tf(i))
+		  this%visf(i)=get_vis_Na()
       end do
 	  !area
 	  this%area=PI*rpipe*rpipe
@@ -148,10 +151,10 @@ module Imp_pipe_header
 		integer::i,Ny
 		Ny=this%Ny
 		do i=1,Ny,1
-			this%rhof(i)=get_density(this%Tf(i))
-			this%shcf(i)=get_shc_LBE(this%Tf(i))
-			this%kf(i)=get_conductivity_LBE(this%Tf(i))
-			this%visf(i)=get_vis_LBE()
+			this%rhof(i)=get_density_Na(this%Tf(i))
+			this%shcf(i)=get_shc_Na(this%Tf(i))
+			this%kf(i)=get_conductivity_Na(this%Tf(i))
+			this%visf(i)=get_vis_Na()
 		enddo
 	end subroutine update_property
 	

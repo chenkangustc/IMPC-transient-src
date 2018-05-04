@@ -282,28 +282,28 @@ module imp_assm_header
              Do j=0,N,1
                  if (j>=0.and.j<=Nf)then !芯块热物性 UO2
                   !RHOI(i,j)=10980
-                  this%RHO(i,j)=10980
-                  this%SHC(i,j)=300.0
-                  this%CTC(i,j)=4.33
+                  this%RHO(i,j)=get_density_U5Fs(493.)
+                  this%SHC(i,j)=get_shc_U5Fs(493.)
+                  this%CTC(i,j)=get_conductivity_U5Fs(493.)
                   this%DVS(i,j)=0.0
                  elseif (j>Nf.and.j<=Nf+Ng) then!气隙热物性 He
                   !RHOI(i,j)=1.785
-                  this%RHO(i,j)=1.785
-                  this%SHC(i,j)=1.260
-                  this%CTC(i,j)=0.124
-                  this%DVS(i,j)=0.0
+                  this%RHO(i,j)=get_density_Na(493.)
+                  this%SHC(i,j)=get_shc_Na(493.)
+                  this%CTC(i,j)=get_conductivity_Na(493.)
+                  this%DVS(i,j)=get_vis_Na(493.)
                  elseif (j>Nf+Ng.and.j<=Nf+Ng+Ns)then!包壳热物性 Ti
                   !RHOI(i,j)=7900
-                  this%RHO(i,j)=7900
-                  this%SHC(i,j)=502.42
-                  this%CTC(i,j)=18.84
+                  this%RHO(i,j)=get_density_316L(493.)
+                  this%SHC(i,j)=get_shc_316L(493.)
+                  this%CTC(i,j)=get_conductivity_316L(493.)
                   this%DVS(i,j)=0.0
                  else!流体物性
                   !RHOI(i,j)=10470  
-                  this%RHO(i,j)=10470
-                  this%SHC(i,j)=159
-                  this%CTC(i,j)=3.61
-                  this%DVS(i,j)=5.0 !动力粘度，而非运动粘度
+                  this%RHO(i,j)=get_density_Na(493.)
+                  this%SHC(i,j)=get_shc_Na(493.)
+                  this%CTC(i,j)=get_conductivity_Na(493.)
+                  this%DVS(i,j)=get_vis_Na(493.)!动力粘度，而非运动粘度
                  endif                 
              enddo
          enddo    

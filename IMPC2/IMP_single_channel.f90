@@ -188,6 +188,7 @@ subroutine driving_imp_THsteady(assm,power,fq_core)
 	!cal Tfave & Tcave
 	call cal_Tave(assm)
 end subroutine driving_imp_THsteady
+
 subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     type(sys_assembly),intent(in out)::assm
     real(KREAL),intent(in)::power(:,:)
@@ -286,22 +287,40 @@ subroutine update_property_rhoi(assm)
         ! real(KREAL),allocatable::shc(:,:)
         ! real(KREAL),allocatable::ctc(:,:)
     !local 
-    integer::Ny,Nr,j
+    integer::Ny,Nr,i,j
     Ny=size(assm%thermal%temperature,dim=1)
     Nr=size(assm%thermal%temperature,dim=2)
+
     do j=1,Ny,1
-        assm%property%rho(j,Nr)=get_density(assm%thermal%temperature(j,Nr))
-        assm%property%shc(j,Nr)=get_shc_LBE(assm%thermal%temperature(j,Nr))
-        assm%property%ctc(j,Nr)=get_conductivity_LBE(assm%thermal%temperature(j,Nr))
+        do i=1,Nr,1
+            if(i<=assm%mesh%Nf) then!fuel
+                assm%property%rho(j,i)=get_density_U5Fs(assm%thermal%temperature(j,i))
+                assm%property%shc(j,i)=get_shc_U5Fs(assm%thermal%temperature(j,i))
+                assm%property%ctc(j,i)=get_conductivity_U5Fs(assm%thermal%temperature(j,i))
+            elseif(i<=assm%mesh%Nf+assm%mesh%Ng) then!gap
+                assm%property%rho(j,i)=get_density_Na(assm%thermal%temperature(j,i))
+                assm%property%shc(j,i)=get_shc_Na(assm%thermal%temperature(j,i))
+                assm%property%ctc(j,i)=get_conductivity_Na(assm%thermal%temperature(j,i))  
+            elseif(i<=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns) then!clad
+                assm%property%rho(j,i)=get_density_316L()
+                assm%property%shc(j,i)=get_shc_316L()
+                assm%property%ctc(j,i)=get_conductivity_316L()  
+            else!fluid
+                assm%property%rho(j,Nr)=get_density_Na(assm%thermal%temperature(j,Nr))
+                assm%property%shc(j,Nr)=get_shc_Na(assm%thermal%temperature(j,Nr))
+                assm%property%ctc(j,Nr)=get_conductivity_Na(assm%thermal%temperature(j,Nr))
+                assm%property%dvs(j,Nr)=get_vis_Na(assm%thermal%temperature(j,Nr))
+            endif
+        enddo
     enddo
-    assm%property%rho(0,Nr)=assm%property%rho(1,Nr)
-    assm%property%shc(0,Nr)=assm%property%shc(1,Nr)
-    assm%property%ctc(0,Nr)=assm%property%ctc(1,Nr)
+    !up and down boundary
+    assm%property%rho(0,:)=assm%property%rho(1,:)
+    assm%property%shc(0,:)=assm%property%shc(1,:)
+    assm%property%ctc(0,:)=assm%property%ctc(1,:)
     
-    assm%property%rho(Ny+1,Nr)=assm%property%rho(Ny,Nr)
-    assm%property%shc(Ny+1,Nr)=assm%property%shc(Ny,Nr)
-    assm%property%ctc(Ny+1,Nr)=assm%property%ctc(Ny,Nr)
-    
+    assm%property%rho(Ny+1,:)=assm%property%rho(Ny,:)
+    assm%property%shc(Ny+1,:)=assm%property%shc(Ny,:)
+    assm%property%ctc(Ny+1,:)=assm%property%ctc(Ny,:)
 end subroutine update_property_rhoi
 
 end module imp_single_channel
