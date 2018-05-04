@@ -9,6 +9,8 @@ module imp_mathkerel
     public::get_nusselt_IHX_tube
     public::get_nusselt_IHX_shell
 	public::get_nusselt_PIPE_tube
+    public::get_nusselt_Na_tube
+    public::get_nusselt_Na_bundle
     
 contains
     subroutine tdma(N,A,B,u)
@@ -63,6 +65,7 @@ contains
      real(KREAL):: Pr,Re,Pe,Nu
      
      call get_Nusselt(flow_area,wetted_perimeter,density,velocity,viscosity,capacity,conductivity,Nu)  
+     !Nu=get_Nusselt_Na_bundle(flow_area,wetted_perimeter,density,velocity,viscosity,capacity,conductivity)
      convection=Nu*conductivity/lenth
     end subroutine get_convection
     
@@ -125,6 +128,43 @@ contains
 		Pe=Re*Pr
 		Nu=4.8+0.0156*Re**0.85*Pr**0.93
 	end function get_Nusselt_PIPE_tube
+    
+    function get_Nusselt_Na_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+		!local
+		real(KREAL)::Re,Pr,Pe,Nu
+		Re=4*flowrate*De/(vis*flowarea)
+		Pr=vis*shc/conductivity
+		Pe=Re*Pr
+		Nu=4.5+0.018*Pe**0.8
+	end function get_Nusselt_Na_tube
+    
+    function get_Nusselt_Na_bundle(pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		real(KREAL),intent(in)::pd
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+        !local
+		real(KREAL)::Re,Pr,Pe,Nu
+		Re=4*flowrate*De/(vis*flowarea)
+		Pr=vis*shc/conductivity
+		Pe=Re*Pr
+        if(pd>=1.05.and.pd<=1.15) then
+            if(Pe<=150.)then
+                Nu=4.496*(-16.15+24.96*pd-8.55*pd**2)
+            elseif(Pe>=150.0.and.Pe<=1000.)then
+                Nu=(-16.15+24.96*pd-8.55*pd**2)*Pe**0.3
+            else
+                print*,'Pe is out of range of Nu'
+            endif
+        elseif(pd>=1.15.and.pd<=1.30)then
+            Nu=4.0+0.16*pd**5.+0.33*pd**3.8*(Pe/100.)**0.86
+        else
+            print*,'PD is out of range of Nu'
+        endif
+	end function get_Nusselt_Na_bundle
     !
     subroutine get_hyconstant(rc,pd,Aflow,wet,de)
        real(KREAL):: rc,p,pd !r是包壳外半径 p是对边距

@@ -1,5 +1,3 @@
-!
-!value
 !type::IHX
 !
 !type subroutine
@@ -256,9 +254,9 @@ module Imp_IHX_header
 		Dtubeo=(this%Rtube+this%thickt)*2.0
 		!get_Nusselt_IHX_shell(flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
 		do i=1,N,1
-			Nust=get_Nusselt_IHX_tube(Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss(i),this%shcs(i),this%ks(i))!secondary
-			Nupt=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
-			Nupv=get_Nusselt_IHX_shell(this%Plength,Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))	
+			Nust=get_Nusselt_Na_tube(Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss(i),this%shcs(i),this%ks(i))!secondary
+			Nupt=get_Nusselt_Na_bundle(this%Plength/Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
+			Nupv=get_Nusselt_Na_bundle(this%Plength/Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))	
 			this%hts(i)=Nust*this%ks(i)/this%Des
 			this%htp(i)=Nupt*this%kp(i)/this%Dep
 			this%hvp(i)=Nupv*this%kp(i)/this%Dep

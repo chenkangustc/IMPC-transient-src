@@ -138,7 +138,7 @@ module Imp_pipe_header
 				  kf=>this%kf,    &
 				  visf=>this%visf)
 		do i=1,Ny,1
-			Nu=get_Nusselt_PIPE_tube(area,wet,De,rhof(i),Q,visf(i),shcf(i),kf(i))!secondary
+			Nu=get_Nusselt_Na_tube(area,wet,De,rhof(i),Q,visf(i),shcf(i),kf(i))!secondary
 			this%htc(i)=Nu*kf(i)/De
 		end do
 		end associate

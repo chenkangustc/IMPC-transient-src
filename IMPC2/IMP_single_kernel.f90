@@ -814,6 +814,7 @@ subroutine cal_th_convection_rhoi(assm)
     type(sys_assembly),intent(in out)::assm
     !lcoal
     integer i,Ny,nr
+    real(KREAL):: Nu,flowrate,pd!
     real(KREAL):: De,Area,wet,velocity!
     real(KREAL),allocatable::rho(:),dvs(:),shc(:),ctc(:)
     Ny=assm%mesh%Ny
@@ -826,9 +827,14 @@ subroutine cal_th_convection_rhoi(assm)
     dvs=assm%property%dvs(:,nr+1)
     shc=assm%property%shc(:,nr+1)
     ctc=assm%property%ctc(:,nr+1)
+    pd=assm%geom%pd
     do i=1,Ny,1
-        velocity=assm%hydrau%Qf/(area*rho(i))
-        call get_convection(De,Area,wet,RHO(i),velocity,DVS(i),SHC(i),CTC(i),assm%property%htc(i))!DVS(i,N)动力粘度 Pa*s
+        !velocity=assm%hydrau%Qf/(area*rho(i))
+        !call get_convection(De,Area,wet,RHO(i),velocity,DVS(i),SHC(i),CTC(i),assm%property%htc(i))!DVS(i,N)动力粘度 Pa*s
+        !get_Nusselt_Na_bundle(p,d,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
+        flowrate=assm%hydrau%Qf
+        Nu=get_Nusselt_Na_bundle(pd,Area,wet,De,RHO(i),flowrate,DVS(i),SHC(i),CTC(i))
+        assm%property%htc(i)=Nu*ctc(i)/De
     enddo
     assm%property%htc(0)=assm%property%htc(1)!边界上的对流换热系数
     assm%property%htc(Ny+1)=assm%property%htc(Ny)
