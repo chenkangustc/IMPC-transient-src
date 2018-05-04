@@ -107,17 +107,22 @@ module Imp_IHX_header
 		this%betap=0.0	
 		this%Wets=2*PI*(this%Rtube+this%thickt)
 		this%Des=4*this%AreaTubeSingle/this%Wets
-		this%visp=get_vis_LBE()
-		this%viss=get_vis_water()
+        !property
+        this%rhot=get_density_304()
+        this%shct=get_shc_304()
+        this%rhov=get_density_304()
+        this%shcv=get_shc_304()
+		this%visp=get_vis_Na()
+		this%viss=get_vis_Na()
 		do i=1,N,1
 			Tp=this%Tp(i)
             Ts=this%Ts(i)
-			this%rhop(i)=get_density(Tp)
-			this%shcp(i)=get_shc_LBE(Tp)
-			this%kp(i)=get_conductivity_LBE(Tp)		
-			this%rhos(i)=get_density_water(Ts)
-			this%shcs(i)=get_shc_water(Ts)
-			this%ks(i)=get_conductivity_water(Ts)
+			this%rhop(i)=get_density_Na(Tp)
+			this%shcp(i)=get_shc_Na(Tp)
+			this%kp(i)=get_conductivity_Na(Tp)		
+			this%rhos(i)=get_density_Na(Ts)
+			this%shcs(i)=get_shc_Na(Ts)
+			this%ks(i)=get_conductivity_Na(Ts)
 			this%Length(i)=Lsingle/N
 			if(i==1)then
 				this%zz(i)=this%Length(i)/2
@@ -186,14 +191,14 @@ module Imp_IHX_header
 		integer::i,N
 		N=this%N
 		do i=1,N,1
-			this%rhop(i)=get_density(this%Tp(i))
-			this%shcp(i)=get_shc_LBE(this%Tp(i))
-			this%kp(i)=get_conductivity_LBE(this%Tp(i))
-			!this%visp(i)=get_conductivity_LBE()
-			this%rhos(i)=get_density_water(this%Ts(i))
-			this%shcs(i)=get_shc_water(this%Ts(i))
-			this%ks(i)=get_conductivity_water(this%Ts(i))
-			!this%viss(i)=get_conductivity_water(this%Ts(i))
+			this%rhop(i)=get_density_Na(this%Tp(i))
+			this%shcp(i)=get_shc_Na(this%Tp(i))
+			this%kp(i)=get_conductivity_Na(this%Tp(i))
+			!this%visp(i)=get_conductivity_Na()
+			this%rhos(i)=get_density_Na(this%Ts(i))
+			this%shcs(i)=get_shc_Na(this%Ts(i))
+			this%ks(i)=get_conductivity_Na(this%Ts(i))
+			!this%viss(i)=get_conductivity_Na(this%Ts(i))
 		enddo
 	end subroutine update_property
     
