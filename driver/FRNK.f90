@@ -60,10 +60,10 @@ program DAISY
     call Run_pre_process ()
     
     call Driving_th_pre_process ()
-	
-	call Sys_pre_process()
     
     call driving_presys()
+    
+    call Sys_pre_process()
 	
 	! --------------------------------------------------------------------------
 	if (tNK2TH) then 

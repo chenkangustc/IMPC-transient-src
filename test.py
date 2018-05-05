@@ -9,7 +9,7 @@ data3=np.loadtxt('..\\Tdis.txt')
 #FIG1 sub0 control
 zone=12
 #FIG2 sub[1,5]control
-tlist=[0,10,50,10,21]
+tlist=[0,1,5,1,2]
 
 time=loopdat[:,0]
 flowrate=loopdat[:,2]

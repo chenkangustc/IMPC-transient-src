@@ -141,7 +141,7 @@ module Imp_inputcard
 					! pipeIP%rhos=dummy_real(3)
 					! pipeIP%shcs=dummy_real(4)
                     case('assembly')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(4),dummy_int(2)
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:4),dummy_int(1:2)
                     reInputdata%npin = dummy_int(1)
                     reInputdata%nFuelPin = dummy_int(2)
                     reInputdata%xf = dummy_real(1)*0.001D0
