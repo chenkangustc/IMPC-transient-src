@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=8
+	integer,parameter,private::N_keyword=9
     integer,parameter,private::MAX_REAL_PARAMETER=50
 	integer,parameter,private::MAX_INT_PARAMETER=50
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
@@ -28,6 +28,7 @@ module Imp_inputcard
                                 & 'IHX    ',   &
                                 & 'pipeIP ',   &
                                 & 'assembly',  &
+                                & 'reinput ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -148,6 +149,16 @@ module Imp_inputcard
                     reInputdata%xg = dummy_real(2)*0.001D0
                     reInputdata%xs = dummy_real(3)*0.001D0
                     reInputdata%pd = dummy_real(4)
+                    case('reinput')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_real(1:3)
+                    ! this%acf,this%height,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,
+                    ! this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
+                    reInputdata%nf=dummy_int(1)
+                    reInputdata%ng=dummy_int(2)
+                    reInputdata%ns=dummy_int(3)
+                    reInputdata%f=dummy_real(1)
+                    reInputdata%Tin=dummy_real(2)
+                    reInputdata%Ti=dummy_real(3)
                     
 					case('time')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)

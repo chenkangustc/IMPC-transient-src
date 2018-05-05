@@ -14,3 +14,6 @@ reactor	    11	        6       	6   1     0.1	      3.66	    0.42	    0       0 
       time     50.0    50
 !assembly:device pellet(mm) gap(mm) cladth(mm) p2d  npin nfuelpin
         assembly  5.2       0.1       0.5      1.20 61   61
+!reinput:device  nf ng ns fric Tin Ti
+         reinput 5   3  3  0.3  493 493
+       
