@@ -1,6 +1,7 @@
 module Imp_driving_presys
 	use Imp_loop_global
 	use Imp_inputcard
+    use imp_re_input_global
 	contains
 	subroutine driving_presys()
 		implicit none
@@ -36,7 +37,9 @@ module Imp_driving_presys
         call PipeRI%alloc()
 		call PipeIP%alloc()
 		call PipePR%alloc()      
-        call core%alloc()  
+        call core%alloc()
+        !用来临时代替core
+        allocate(reInputdata%height(reInputdata%ny))
 	end subroutine driving_alloc_loop
 	
 	subroutine driving_free_loop()

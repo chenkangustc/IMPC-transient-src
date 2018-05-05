@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=9
+	integer,parameter,private::N_keyword=11
     integer,parameter,private::MAX_REAL_PARAMETER=50
 	integer,parameter,private::MAX_INT_PARAMETER=50
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
@@ -23,12 +23,14 @@ module Imp_inputcard
         implicit none
         INP_SECTION(1:N_keyword)=['pump   ',   &
                                 & 'pipePR ',   &
-                                & 'reactor',   &        
+                                & 'pinflow',   &        
                                 & 'pipeRI ',   &
                                 & 'IHX    ',   &
                                 & 'pipeIP ',   &
-                                & 'assembly',  &
-                                & 'reinput ',  &
+                                & 'pingeom',  &
+                                & 'pinmesh ',  &
+                                & 'axil    ',  &
+                                & 'height  ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -81,19 +83,19 @@ module Imp_inputcard
 					pipePR%Ti=dummy_real(6)
 					pipePR%Ny=dummy_int(1)
 					
-					case('reactor')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1:7)
+					case('pinflow')
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_real(1)
                     core%Nflow=dummy_int(1)
                     core%Nflowsemi=dummy_int(2)
                     core%Nsplit=dummy_int(3)
                     core%sigmaPass=dummy_real(1)
-					core%ltotal=dummy_real(2)
-					core%Rtube=dummy_real(3)
-					core%thicks=dummy_real(4)
-					core%theta=dummy_real(5)
-					core%Q=dummy_real(6)
-					core%Ti=dummy_real(7)
-					core%Ny=dummy_int(4)
+					! core%ltotal=dummy_real(2)
+					! core%Rtube=dummy_real(3)
+					! core%thicks=dummy_real(4)
+					! core%theta=dummy_real(5)
+					! core%Q=dummy_real(6)
+					! core%Ti=dummy_real(7)
+					! core%Ny=dummy_int(4)
 					
 					case('pipeRI')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
@@ -129,37 +131,29 @@ module Imp_inputcard
 					pipeIP%Q=dummy_real(5)
 					pipeIP%Ti=dummy_real(6)
 					pipeIP%Ny=dummy_int(1)
-					! case('solid')
-					! read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:4)
-					! IHX1%rhot=dummy_real(1)
-					! IHX1%shct=dummy_real(2)
-					! IHX1%rhov=dummy_real(3)
-					! IHX1%shcv=dummy_real(4)
-					! pipePR%rhos=dummy_real(3)
-					! pipePR%shcs=dummy_real(4)
-					! pipeRI%rhos=dummy_real(3)
-					! pipeRI%shcs=dummy_real(4)
-					! pipeIP%rhos=dummy_real(3)
-					! pipeIP%shcs=dummy_real(4)
-                    case('assembly')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:4),dummy_int(1:2)
+
+                    case('pingeom')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:7),dummy_int(1:2)
                     reInputdata%npin = dummy_int(1)
                     reInputdata%nFuelPin = dummy_int(2)
                     reInputdata%xf = dummy_real(1)*0.001D0
                     reInputdata%xg = dummy_real(2)*0.001D0
                     reInputdata%xs = dummy_real(3)*0.001D0
                     reInputdata%pd = dummy_real(4)
-                    case('reinput')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_real(1:3)
+                    reInputdata%f=dummy_real(5)
+                    reInputdata%Tin=dummy_real(6)
+                    reInputdata%Ti=dummy_real(7)
+                    
+                    case('pinmesh')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:6)
                     ! this%acf,this%height,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,
                     ! this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
                     reInputdata%nf=dummy_int(1)
                     reInputdata%ng=dummy_int(2)
                     reInputdata%ns=dummy_int(3)
-                    reInputdata%f=dummy_real(1)
-                    reInputdata%Tin=dummy_real(2)
-                    reInputdata%Ti=dummy_real(3)
-                    
+                    reInputdata%ny=dummy_int(4)
+                    reInputdata%ny_bottom=dummy_int(5)
+                    reInputdata%ny_top=dummy_int(6)
 					case('time')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)
 					timer1%ttotal=dummy_real(1)
@@ -189,10 +183,13 @@ module Imp_inputcard
     
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
-					case('reactor')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1:7),dummy_int(5:core%Nflow+core%Nflowsemi+4)
-                    core%fzone=dummy_int(5:core%Nflow+core%Nflowsemi+4)
-                end select
+					case('pinflow')
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_real(1),dummy_int(4:core%Nflow+core%Nflowsemi+3)
+                    core%fzone=dummy_int(4:core%Nflow+core%Nflowsemi+3)
+                    case('height')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:reInputdata%ny)
+                    reInputdata%height=dummy_real*0.01D0
+               end select
             endif
         end do
     end subroutine

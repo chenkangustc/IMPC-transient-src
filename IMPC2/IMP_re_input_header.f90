@@ -4,11 +4,13 @@ module imp_re_input_header
     type,public::sys_re_input
        !public
        !integer nf,ng,ns,ny,npin,ny_start,ny_end
-	   integer nf,ng,ns,npin,nFuelPin
-       real(KREAL):: xf,xg,xs,xos,acf,height,f,pd,pout
+	   integer::ny,ny_bottom,ny_top
+       integer::nf,ng,ns,npin,nFuelPin
+       real(KREAL):: xf,xg,xs,xos,acf,f,pd,pout
        real(KREAL):: Tin,uin,pin
        real(KREAL):: Ti,ui,pi
        real(KREAL):: alpha,sigma
+       real(KREAL),allocatable::height(:)
     contains
      procedure,public::set=>set_inputdata
      procedure,public::publish=>print_inputdata
@@ -20,12 +22,8 @@ module imp_re_input_header
       implicit none
       class(sys_re_input)::this
        open(unit=1,file='.\input\re_input.txt')
-       !read(1,*) xf,xg,xs,height,nf,ng,ns,ny,f,Tin,pout,Tic,uic,tmax,nt,sigma,sigmab,alpha
-       !read(1,*) this%xf,this%xg,this%xs,this%acf,this%height,this%pd,this%npin,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
        read(1,*) this%acf,this%height,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
 	   close(1)
-       !write(*,*)'read the data from the input file:'
-       !write(*,*) this%xf,this%xg,this%xs,this%acf,this%height,this%pd,this%npin,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
      end subroutine set_inputdata
      
      subroutine print_inputdata(this)

@@ -34,12 +34,12 @@ contains
 			enddo
 		endif
      !读取参数
-     call reInputdata%set()
+     !call reInputdata%set()
      !call reInputdata%publish()
      !参数赋值
 	 do i=1,ns%state%zone,1
          !print*,assm1(i)
-		call set_assembly(assm1(i),reInputdata,ns%state%zone,ns%state%layer,ns%state%layer_bottom,ns%state%layer_top,geom%height)
+		call set_assembly(assm1(i),reInputdata,ns%state%zone,reInputdata%ny,reInputdata%ny_bottom,reInputdata%ny_top,reInputdata%height)
 		print*,'set nf ng ns...'
 		print*,'nf=',assm1(i)%mesh%nf,'ng=',assm1(i)%mesh%ng,'ns=',assm1(i)%mesh%ns
 		!ttotal=150.0
