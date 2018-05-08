@@ -1,13 +1,15 @@
-!pump:device   	I	    He	  Qe	   omegae	     yita	 Nbranch	
-      pump	    1.0  10.0  530.0  1000.0      0.75			2		
+!keyword:control is_table
+         control T
+!pump:device     Qe	   Ntime	Nbranch
+      pump	   420.45  	26        2
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
-        pipePR	    10.0	    0.15	 0.005	     0	    530.0	   493	 200
+        pipePR	    10.0	    0.15	 0.005	     0	    420.45	   493	 200
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny
-        pipeRI	    10.0	    0.15	 0.005	     0	    530.0	   493	 200
+        pipeRI	    10.0	    0.15	 0.005	     0	    420.45	   493	 200
 !IHX:device 	Lsingle 	Rtube   thickt Plength AreaP	thickv    QP 	    Qs  Tsin  Ti  Ntube	Ny   
-     	IHX			0.5	   0.0125	0.0025	0.038	0.1	  0.0025	530.0	 44.17	488    493	 142	 100
+     	IHX			0.5	   0.0125	0.0025	0.038	0.1	  0.0025	420.45	 44.17	488    493	 142	 100
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta 	     Q	     T   Ny 
-        pipeIP	     10.0	    0.15	 0.005	     0	    530.0	   493	 200
+        pipeIP	     10.0	    0.15	 0.005	     0	    420.45	   493	 200
 !time:keyword ttotal   Nt
       time     50.0    50
 !=====================================================================================
@@ -19,4 +21,11 @@
          height 35.76 4*31.29 5*17.164 20.06 3*22.23 34.32 4*28.10
 !reactor:keyword	Nflow	Nflowsemi	Nsplit	sigmaPass	   flowzone																
          pinflow	  11	   6        6        0.1	        26  27  32  33  34  38  39  44  45  50  51  19  20  21  12  13  14  
-
+!=========================================================================================
+!pump   table
+rotate   0       2          4     6.5   9    12.5    17.5 24.5   33      42  51   90  120   180 240   300 360  420  480  540  600  660   720 780  840  900  799.03  727.77  566.79 407.49 323.18 244.06 172.5 109.25 56.46 0.69 0.76 0.76 0.61 0.76 0.84 0.61 0.61 0.61 0.61 0.76 0.76 0.69 0.69 0.76 0.76 0.92
+!==========================================
+!example
+!is_table=.FALSE.
+! !pump:device   	I	    He	  Qe	   omegae	     yita	 Nbranch	
+      ! pump	    1.0  10.0  420.45  1000.0      0.75			2		

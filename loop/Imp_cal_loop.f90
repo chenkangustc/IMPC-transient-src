@@ -58,13 +58,14 @@ module Imp_cal_loop
 		real(KREAL)::coreTin,coreTout,coreQin,Qloop
 		real(KREAL)::powinput
 		integer::i,j,nr,na
-		logical::transient_flag
+		logical::transient_flag,is_table
 		
 		transient_flag=.TRUE.
+        is_table=.TRUE.
 		
 		call cal_total_inputpow(assembly,powinput)
 		
-        call cal_loop_hydraulic(current,Qloop)						
+        call cal_loop_hydraulic(is_table,current,Qloop)						
         coreQin=pump1%Nbranch*Qloop
         coreTin=PipePR%Tfout			
         print *,'core cal'
@@ -83,25 +84,41 @@ module Imp_cal_loop
           
 	end subroutine driving_loop_transient
 	
-	subroutine cal_loop_hydraulic(current,flowrate)
+	subroutine cal_loop_hydraulic(is_table,current,flowrate)
 		implicit none
+        logical,intent(in)::is_table
 		real(KREAL),INTENT(in)::current!time
 		real(KREAL),INTENT(out)::flowrate
 		!local
 		real(KREAL)::alpha,beta,LAsum
 		integer i!i is the num of the device
-		
-		!if(pump1%Q>=0.10*pump1%Qe) then
-		!	LAsum=PipePR%ltotal/PipePR%Area+core%Ltotal/core%Area+PipeRI%ltotal/PipeRI%Area+IHX1%Lsingle/IHX1%Areap+PipeIP%ltotal/PipeIP%Area
-		!	alpha=LAsum+pump1%rho*pump1%yita*pump1%I*pump1%omegae**2/pump1%Qe**2
-		!	call cal_beta(beta,0)
-		!	flowrate=alpha/(beta*current+alpha/pump1%Qe)
-		!else
-		!	flowrate=pump1%Q
-		!endif
-		flowrate=pump1%Qe
-		call set_flowrate(flowrate)
-
+        real(KREAL)::crotate
+		if(is_table.eq..FALSE.)then
+            !if(pump1%Q>=0.10*pump1%Qe) then
+            !	LAsum=PipePR%ltotal/PipePR%Area+core%Ltotal/core%Area+PipeRI%ltotal/PipeRI%Area+IHX1%Lsingle/IHX1%Areap+PipeIP%ltotal/PipeIP%Area
+            !	alpha=LAsum+pump1%rho*pump1%yita*pump1%I*pump1%omegae**2/pump1%Qe**2
+            !	call cal_beta(beta,0)
+            !	flowrate=alpha/(beta*current+alpha/pump1%Qe)
+            !else
+            !	flowrate=pump1%Q
+            !endif
+            flowrate=pump1%Qe
+        else
+            associate(dtime=>pump1%rotate(1,:),&
+                      rotate=>pump1%rotate(2,:),&
+                      Ntime=>pump1%Ntime,&
+                      Qe=>pump1%Qe)
+            do i=1,Ntime-1,1
+                if(current>=dtime(i).and.current<=dtime(i+1)) then
+                    crotate=(rotate(i+1)-rotate(i))/(dtime(i+1)-dtime(i))*(current-dtime(i))+rotate(i)
+                    exit
+                endif
+                if(current>dtime(Ntime)) crotate=rotate(Ntime)
+            enddo
+            flowrate=crotate/rotate(1)*Qe
+            end associate
+        endif
+        call set_flowrate(flowrate)
 	end subroutine cal_loop_hydraulic
 	
 	subroutine cal_beta(beta,formula)

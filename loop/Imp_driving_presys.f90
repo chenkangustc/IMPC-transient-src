@@ -38,6 +38,7 @@ module Imp_driving_presys
 		call PipeIP%alloc()
 		call PipePR%alloc()      
         call core%alloc()
+        if(pump1%is_table==.TRUE.) call pump1%alloc()
         !用来临时代替core
         allocate(reInputdata%height(reInputdata%ny))
 	end subroutine driving_alloc_loop
@@ -45,5 +46,6 @@ module Imp_driving_presys
 	subroutine driving_free_loop()
 		implicit none
 		call IHX1%free()
+        if(pump1%is_table==.TRUE.) call pump1%free()
 	end subroutine driving_free_loop
 end module Imp_driving_presys

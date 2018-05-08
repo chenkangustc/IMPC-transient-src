@@ -6,9 +6,10 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=11
-    integer,parameter,private::MAX_REAL_PARAMETER=50
+	integer,parameter,private::N_keyword=13
+    integer,parameter,private::MAX_REAL_PARAMETER=200
 	integer,parameter,private::MAX_INT_PARAMETER=50
+	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
 	character(len=MAX_WORD_LEN),parameter::FILE_LTIME='looptimelist.txt'
@@ -22,6 +23,7 @@ module Imp_inputcard
     subroutine Set_section_keyword()
         implicit none
         INP_SECTION(1:N_keyword)=['pump   ',   &
+                                & 'control ',   &
                                 & 'pipePR ',   &
                                 & 'pinflow',   &        
                                 & 'pipeRI ',   &
@@ -31,6 +33,7 @@ module Imp_inputcard
                                 & 'pinmesh ',  &
                                 & 'axil    ',  &
                                 & 'height  ',  &
+                                & 'rotate  ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -40,6 +43,7 @@ module Imp_inputcard
 		integer::io_error
 		real::dummy_real(MAX_REAL_PARAMETER)
 		integer::dummy_int(MAX_INT_PARAMETER)
+        logical::dummy_logical(MAX_LOGICAL_PARAMETER)
 		character(len=MAX_WORD_LEN)::aline
 		character(len=MAX_WORD_LEN)::section_name,keyword
 		! Variables
@@ -64,14 +68,25 @@ module Imp_inputcard
 			! end if        
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
-					case('pump')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:5),dummy_int(1)
-					pump1%I=dummy_real(1)
-					pump1%He=dummy_real(2)
-					pump1%Qe=dummy_real(3)
-					pump1%omegae=dummy_real(4)
-					pump1%yita=dummy_real(5)
-                    pump1%Nbranch=dummy_int(1)
+					case('control')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_logical(1)
+                    pump1%is_table=dummy_logical(1)
+					
+                    case('pump')
+                    if(pump1%is_table==.FALSE.)then
+                        read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:5),dummy_int(1)
+                        pump1%I=dummy_real(1)
+                        pump1%He=dummy_real(2)
+                        pump1%Qe=dummy_real(3)
+                        pump1%omegae=dummy_real(4)
+                        pump1%yita=dummy_real(5)
+                        pump1%Nbranch=dummy_int(1)
+                    else
+                        read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1:2)
+                        pump1%Qe=dummy_real(1)
+                        pump1%Ntime=dummy_int(1)
+                        pump1%Nbranch=dummy_int(2)
+                    endif
 					
 					case('pipePR')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
@@ -161,7 +176,7 @@ module Imp_inputcard
 				end select
 			end if
 			!print*,trim(aline)
-			print*,trim(adjustl(section_name))
+			!print*,trim(adjustl(section_name))
 		end do
         close(file_i)
 	end subroutine driving_input_read
@@ -189,6 +204,10 @@ module Imp_inputcard
                     case('height')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:reInputdata%ny)
                     reInputdata%height=dummy_real*0.01D0
+                    case('rotate')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:2*pump1%Ntime)
+                    pump1%rotate(1,:)=dummy_real(1:pump1%Ntime)!time
+                    pump1%rotate(2,:)=dummy_real(pump1%Ntime+1:2*pump1%Ntime)!rotate
                end select
             endif
         end do

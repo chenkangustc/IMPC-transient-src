@@ -18,8 +18,15 @@ module  Imp_pump_header
 		real(KREAL)::T
         !branch
         integer::Nbranch
+        !rotate
+        integer::Ntime
+        real,allocatable::rotate(:,:)
+        !control
+        logical::is_table
 	  contains
 		procedure,public::init=>init_pump
+		procedure,public::alloc=>alloc_pump
+		procedure,public::free=>free_pump
 	end type pump
 	private::init_pump
   contains
@@ -31,6 +38,17 @@ module  Imp_pump_header
 		this%Q=this%Qe
 		this%omega=this%omegae
 		temperature=this%T
-		this%rho=get_density(temperature)
-	end subroutine init_pump
+		this%rho=get_density_Na(temperature)
+	end subroutine init_pump   
+    
+    subroutine free_pump(this)
+        class(pump),intent(in out)::this
+        if(allocated(this%rotate)) deallocate(this%rotate)
+    end subroutine free_pump
+    
+    subroutine alloc_pump(this)
+        class(pump),intent(in out)::this
+        call this%free()
+        allocate(this%rotate(2,this%Ntime))
+    end subroutine alloc_pump
 end module  Imp_pump_header

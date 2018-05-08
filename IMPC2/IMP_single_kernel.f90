@@ -678,7 +678,7 @@ subroutine cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
 				 endif
                 endif
 				if(num.gt.1) Td(i,j)=abs((Tj(i,j)-Tk(i,j))/Tk(i,j))
-		   enddo
+           enddo           
        enddo
 	   if(num.gt.1)  erro=maxval(Td)
 	   Tk=Tj
