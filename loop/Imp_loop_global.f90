@@ -4,6 +4,8 @@ module Imp_loop_global
 	use Imp_pump_header
     use Imp_coremodle_header
 	implicit none
+        logical::is_tNK2TH
+        logical::is_THonly
 		type(coremodle)::core
 		type(IHX)::IHX1
 		type(pipe)::PipeRI

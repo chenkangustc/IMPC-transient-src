@@ -49,11 +49,9 @@ program DAISY
     !test
     !use testNK2TH
     use testNK2loop
-    
+    use Imp_THonly
+    use Imp_loop_global
     implicit none
-	!local
-	logical:: tNK2TH
-    tNK2TH=.TRUE.
     ! --------------------------------------------------------------------------
 	!    call Driving_th_check_model ()
     
@@ -66,9 +64,11 @@ program DAISY
     call Sys_pre_process()
 	
 	! --------------------------------------------------------------------------
-	if (tNK2TH) then 
-        !call driving_testNK2TH()   
+	if (is_tNK2TH) then 
         call driving_testNK2loop()
+    endif
+    if(is_THonly) then
+        call driving_THloop()
     endif
     ! --------------------------------------------------------------------------
     ! perturbation calculation

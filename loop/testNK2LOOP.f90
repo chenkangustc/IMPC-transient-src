@@ -28,15 +28,12 @@ module testNK2loop
         max_Tfuel = 0.0; max_Tcoolant = 0.0; min_Rhocoolant = 0.0; 
         last = 0.0; current = 0.0;
 	    
-	    transient_flag=.TRUE.
+	   transient_flag=.TRUE.
 	   open(unit=1,file='.\output\powDistribution.txt')
-       !read(1,*) xf,xg,xs,height,nf,ng,ns,ny,f,Tin,pout,Tic,uic,tmax,nt,sigma,sigmab,alpha
-       !read(1,*) this%xf,this%xg,this%xs,this%acf,this%height,this%pd,this%npin,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
        read(1,100) power
 	   100 Format(F15.5)
 	   close(1)
-	   !power=50.0*power!72.5MW 
-	   !print*,'power=',power
+
 	   if(transient_flag==.FALSE.) then
             if (ns%feedback%is_loop)  then
 	          call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  

@@ -1,5 +1,5 @@
-!keyword:control is_table
-         control T
+!keyword:control is_THonly is_tNK2TH is_table
+         control    T         F          T
 !pump:device     Qe	   Ntime	Nbranch
       pump	   420.45  	26        2
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
