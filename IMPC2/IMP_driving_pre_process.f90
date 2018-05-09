@@ -3,9 +3,9 @@ module imp_driving_pre_process
 	use global 
     use global_state
 	use imp_assm_global
+    use imp_loop_global
     use imp_re_input_global
-	
-	
+
     implicit none
     private
     public::Sys_pre_process
@@ -26,7 +26,7 @@ contains
      !alloc
 	  layer_core=ns%state%layer-ns%state%layer_bottom-ns%state%layer_top
 		if(ns%feedback%is_feedback .and. (ns%feedback%is_inner.OR.ns%feedback%is_imp.OR.ns%feedback%is_loop)) then
-			allocate(assm1(ns%state%zone))
+			allocate(assm1(core%Nzone))
 			allocate(imp_pow(ns%state%zone,ns%state%layer))
 			do i=1,ns%state%zone,1
 				!if(allocated(assm1(i)%geom%height))  deallocate(assm1(i)%geom%height)

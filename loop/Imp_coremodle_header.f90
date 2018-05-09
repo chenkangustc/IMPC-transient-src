@@ -7,6 +7,7 @@ module Imp_coremodle_header
   
     type coremodle
         !useful
+        integer::Nzone !总组件数
         integer::Nflow
         integer::Nflowsemi!缩略模型半组件
         integer::Nsplit!计算时堆芯分成的份数

@@ -44,7 +44,8 @@ module Imp_cal_loop
             PipePR%Tfin=PipeIP%Tfout
             call PipePR%thCals()
             sigma=abs((PipePR%Tfout-coreTin)/coreTin)
-            print*,'num=',num,'sigma=',sigma,'coreTin=',coreTin,'coreTout=',coreTout
+            ! print*,'num=',num,'sigma=',sigma,'coreTin=',coreTin,'coreTout=',coreTout
+            write(*,fmt="('num=',I4,'  sigma=',F9.7,'  coreTin=',F8.2,'  coreTout=',F8.2)") num,sigma,coreTin,coreTout
         enddo
 		!call driving_output_steady()
 		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
@@ -68,11 +69,11 @@ module Imp_cal_loop
         call cal_loop_hydraulic(is_table,current,Qloop)						
         coreQin=pump1%Nbranch*Qloop
         coreTin=PipePR%Tfout			
-        print *,'core cal'
+        ! print *,'core cal'
         !driving_THcore_steady(Qin,Tin,assembly,Tout)
         call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout,last,current)
         pipeRI%Tfin=coreTout
-        print*,'pipe cal transient'
+        ! print*,'pipe cal transient'
         call PipeRI%thCalt(last,current)
         IHX1%Tpin=PipeRI%Tfout
         call IHX1%thCalt(last,current)

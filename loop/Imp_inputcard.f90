@@ -6,9 +6,9 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=13
+	integer,parameter,private::N_keyword=14
     integer,parameter,private::MAX_REAL_PARAMETER=200
-	integer,parameter,private::MAX_INT_PARAMETER=50
+	integer,parameter,private::MAX_INT_PARAMETER=100
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
@@ -34,6 +34,7 @@ module Imp_inputcard
                                 & 'axil    ',  &
                                 & 'height  ',  &
                                 & 'rotate  ',  &
+                                & 'power   ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -101,11 +102,12 @@ module Imp_inputcard
 					pipePR%Ti=dummy_real(6)
 					pipePR%Ny=dummy_int(1)
 					
-					case('pinflow')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_real(1)
-                    core%Nflow=dummy_int(1)
-                    core%Nflowsemi=dummy_int(2)
-                    core%Nsplit=dummy_int(3)
+					case('pinflow')!径向描述
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1)
+                    core%Nzone=dummy_int(1)
+                    core%Nflow=dummy_int(2)
+                    core%Nflowsemi=dummy_int(3)
+                    core%Nsplit=dummy_int(4)
                     core%sigmaPass=dummy_real(1)
 					! core%ltotal=dummy_real(2)
 					! core%Rtube=dummy_real(3)
@@ -172,6 +174,11 @@ module Imp_inputcard
                     reInputdata%ny=dummy_int(4)
                     reInputdata%ny_bottom=dummy_int(5)
                     reInputdata%ny_top=dummy_int(6)
+                    
+					case('power')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
+                    tpower1%Ntime=dummy_int(1)
+                    
 					case('time')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)
 					timer1%ttotal=dummy_real(1)
@@ -202,8 +209,8 @@ module Imp_inputcard
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
 					case('pinflow')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3),dummy_real(1),dummy_int(4:core%Nflow+core%Nflowsemi+3)
-                    core%fzone=dummy_int(4:core%Nflow+core%Nflowsemi+3)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1),dummy_int(5:core%Nflow+core%Nflowsemi+4)
+                    core%fzone=dummy_int(5:core%Nflow+core%Nflowsemi+4)
                     case('height')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:reInputdata%ny)
                     reInputdata%height=dummy_real*0.01D0
@@ -211,6 +218,10 @@ module Imp_inputcard
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:2*pump1%Ntime)
                     pump1%rotate(1,:)=dummy_real(1:pump1%Ntime)!time
                     pump1%rotate(2,:)=dummy_real(pump1%Ntime+1:2*pump1%Ntime)!rotate
+                    case('power')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*tpower1%Ntime)
+                    tpower1%pow(1,:)=dummy_real(1:tpower1%Ntime)
+                    tpower1%pow(2,:)=dummy_real(tpower1%Ntime+1:2*tpower1%Ntime)
                end select
             endif
         end do
