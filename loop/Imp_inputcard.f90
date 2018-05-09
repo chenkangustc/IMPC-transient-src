@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=14
+	integer,parameter,private::N_keyword=16
     integer,parameter,private::MAX_REAL_PARAMETER=200
 	integer,parameter,private::MAX_INT_PARAMETER=100
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
@@ -35,6 +35,8 @@ module Imp_inputcard
                                 & 'height  ',  &
                                 & 'rotate  ',  &
                                 & 'power   ',  &
+                                & 'IHXsTin ',  &
+                                & 'IHXsflow',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -70,10 +72,12 @@ module Imp_inputcard
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
 					case('control')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_logical(1:3)
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_logical(1:5)
                     is_THonly=dummy_logical(1)
                     is_tNK2TH=dummy_logical(2)
                     pump1%is_table=dummy_logical(3)
+                    IHX1%is_flowtable=dummy_logical(4)
+                    IHX1%is_Tintable=dummy_logical(5)
                     
 					
                     case('pump')
@@ -179,14 +183,20 @@ module Imp_inputcard
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
                     tpower1%Ntime=dummy_int(1)
                     
+                    case('IHXsflow')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
+                    IHX1%Nftime=dummy_int(1)
+                    
+                    case('IHXsTin')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
+                    IHX1%NTtime=dummy_int(1)
+                    
 					case('time')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)
 					timer1%ttotal=dummy_real(1)
 					timer1%Nt=dummy_int(1)
 				end select
 			end if
-			!print*,trim(aline)
-			!print*,trim(adjustl(section_name))
 		end do
         close(file_i)
 	end subroutine driving_input_read
@@ -222,6 +232,14 @@ module Imp_inputcard
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*tpower1%Ntime)
                     tpower1%pow(1,:)=dummy_real(1:tpower1%Ntime)
                     tpower1%pow(2,:)=dummy_real(tpower1%Ntime+1:2*tpower1%Ntime)
+                    case('IHXsflow')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*IHX1%Nftime)
+                    IHX1%flowtable(1,:)=dummy_real(1:IHX1%Nftime)
+                    IHX1%flowtable(2,:)=dummy_real(IHX1%Nftime+1:2*IHX1%Nftime)
+                    case('IHXsTin')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*IHX1%NTtime)
+                    IHX1%Tintable(1,:)=dummy_real(1:IHX1%NTtime)
+                    IHX1%Tintable(2,:)=dummy_real(IHX1%NTtime+1:2*IHX1%NTtime)
                end select
             endif
         end do

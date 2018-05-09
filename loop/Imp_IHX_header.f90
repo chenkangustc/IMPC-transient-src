@@ -45,7 +45,10 @@ module Imp_IHX_header
 		!boundary
 		real(KREAL)::Tpin,Tsin
         real(KREAL)::Tpout,Tsout
-
+        integer::Nftime,NTtime
+        real(KREAL),allocatable::flowtable(:,:),Tintable(:,:)
+        !control
+        logical::is_Tintable,is_flowtable
 	  contains
 		procedure,public::init=>init_IHX
         procedure,public::alloc=>alloc_IHX
@@ -162,6 +165,8 @@ module Imp_IHX_header
 	  allocate(this%htp(1:N))
 	  allocate(this%hvp(1:N))
 	  allocate(this%hts(1:N))
+      if(this%is_flowtable) allocate(this%flowtable(2,this%Nftime))
+      if(this%is_Tintable)  allocate(this%Tintable(2,this%NTtime))
 
     end subroutine alloc_IHX
     
@@ -185,6 +190,8 @@ module Imp_IHX_header
 	  if(allocated(this%htp)) deallocate(this%htp)
 	  if(allocated(this%hvp)) deallocate(this%hvp)
 	  if(allocated(this%hts)) deallocate(this%hts)
+	  if(allocated(this%flowtable)) deallocate(this%flowtable)
+	  if(allocated(this%Tintable)) deallocate(this%Tintable)
     end subroutine free_IHX
 	
     subroutine update_property(this)

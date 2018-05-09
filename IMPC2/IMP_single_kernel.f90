@@ -235,8 +235,6 @@ subroutine cal_pmodifyA(assm,flag,ap,rhoi,dt,A,b,btotal)
       enddo
 end subroutine cal_pmodifyA
 
-
-
 subroutine modify_PV(assm,ap,pmodify)
   implicit none
   type(sys_assembly),intent(in out)::assm
