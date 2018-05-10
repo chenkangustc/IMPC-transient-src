@@ -184,8 +184,8 @@ module imp_assm_header
       implicit none
       class(assmgeom),intent(in out)::this
       write(*,*)'set geom as below:'
-      write(*,100) this%rod,this%Bond,this%Cladth,this%pitch,this%Height(1),this%pd,this%N_fuelpin
-      100 format(1x,'rod=',F8.4,3x,'Bond=',F8.4,3x,'Cladth=',F8.4,3x,1x,'pitch=',F7.3,3x,'Height=',F7.3,3x,'pd=',F7.3,3x,'N_fuelpin=',I3/)
+      write(*,100) this%pellet,this%Bond,this%Cladth,this%pitch,this%Height(1),this%pd,this%N_fuelpin
+      100 format(1x,'pellet=',F8.4,3x,'Bond=',F8.4,3x,'Cladth=',F8.4,3x,1x,'pitch=',F7.3,3x,'Height=',F7.3,3x,'pd=',F7.3,3x,'N_fuelpin=',I3/)
      end subroutine print_assmgeom
      
      subroutine print_assmmesh(this)

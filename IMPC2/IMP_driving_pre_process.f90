@@ -51,7 +51,7 @@ contains
 		!³õÊ¼»¯
 		call init_assembly(assm1(i))
 	 enddo
-	  print*,assm1(1)%geom%rod,assm1(1)%geom%pellet,assm1(1)%geom%bond,assm1(1)%geom%cladth,assm1(1)%geom%pitch,assm1(1)%geom%n_pin,assm1(1)%geom%n_fuelpin
+	 ! print*,assm1(1)%geom%rod,assm1(1)%geom%pellet,assm1(1)%geom%bond,assm1(1)%geom%cladth,assm1(1)%geom%pitch,assm1(1)%geom%n_pin,assm1(1)%geom%n_fuelpin
 
      !    timer1%init(ttotal,Nt,ctime,ltime)
      !ltime=0.0
@@ -75,7 +75,7 @@ contains
       !assm%pow%power=0.0
       !assm%pow%fq_core=0.0
       !Íø¸ñ
-	  assm%geom%pellet=assm%geom%rod-assm%geom%cladth-assm%geom%bond
+	  !assm%geom%pellet=assm%geom%rod-assm%geom%cladth-assm%geom%bond
       call cal_grid(assm)
       call assm%hydrau%cal(assm%geom%pellet,assm%geom%pd)
      endsubroutine init_assembly

@@ -73,11 +73,13 @@ module Imp_cal_loop
         call update_secflow(current)
         call update_Tsin(current)
         coreQin=pump1%Nbranch*Qloop
-        coreTin=PipePR%Tfout			
+        coreTin=PipePR%Tfout
+        core%Tfin=PipePR%Tfout
         ! print *,'core cal'
         !driving_THcore_steady(Qin,Tin,assembly,Tout)
         call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout,last,current)
         pipeRI%Tfin=coreTout
+        core%Tfout=coreTout
         ! print*,'pipe cal transient'
         call PipeRI%thCalt(last,current)
         IHX1%Tpin=PipeRI%Tfout
