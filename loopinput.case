@@ -1,26 +1,26 @@
 !keyword:control is_THonly is_tNK2TH is_table is_flowtable is_Tintable
          control    T         F          T      T             T
 !pump:device     Qe	   Ntime	Nbranch
-      pump	   420.45  	26        2
+      pump	   420.45  	26        1
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
-        pipePR	    10.0	    0.15	 0.005	     0	    420.45	   493	 200
+        pipePR	    5.0	0.15	 0.005	     0	    420.45	   493	 100
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny
-        pipeRI	    10.0	    0.15	 0.005	     0	    420.45	   493	 200
-!IHX:device 	Lsingle 	Rtube   thickt Plength AreaP	thickv    QP 	    Qs  Tsin  Ti  Ntube	Ny   
-     	IHX			0.5	   0.0125	0.0025	0.038	0.1	  0.0025	420.45	 288.35	574.12    493	 142	 100
+        pipeRI	    5.491	0.15	 0.005	     0	    420.45	   493	 100
+!IHX:device 	Lsingle 	Rtube   thickt  Plength AreaP	thickv    QP 	    Qs  Tsin    Ti  Ntube	Ny   
+     	IHX	    3.317	    0.0067	0.00124	0.02064	0.1	    0.0025	420.45	 288.35	574.12  493	3026	100
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta 	     Q	     T   Ny 
-        pipeIP	     10.0	    0.15	 0.005	     0	    420.45	   493	 200
+        pipeIP	     5.0	    0.15	 0.005	     0	    420.45	   493	 100
 !time:keyword ttotal   Nt
       time     50.0    50
 !=====================================================================================
 !assembly:device pellet(mm) gap(mm) cladth(mm) p2d  fric Tin  Ti    npin nfuelpin
-         pingeom  5.2       0.1       0.5      1.20  0.3  493 493    61   61
+         pingeom  1.68       0.21       0.315  1.20 0.3  493  493    91   91
 !reinput:device  nf ng ns ny ny_bottom ny_top
          pinmesh 5   3  3  19  0         0
 !height:device bottom->top(cm)
-         height 35.76 4*31.29 5*17.164 20.06 3*22.23 34.32 4*28.10
+         height 19*3.115
 !reactor:keyword	Nzone Nflow	Nflowsemi	Nsplit	sigmaPass	   flowzone																
-         pinflow	 637    61	   0        1        0.8	        1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61
+         assembly	 637    61	   0        1        0.8	        1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61
 !=========================================================================================
 !pump   table
 rotate   0       2          4     6.5   9    12.5    17.5 24.5   33      42  51   90  120   180 240   300 360  420  480  540  600  660   720 780  840  900  799.03  727.77  566.79 407.49 323.18 244.06 172.5 109.25 56.46 0.69 0.76 0.76 0.61 0.76 0.84 0.61 0.61 0.61 0.61 0.76 0.76 0.69 0.69 0.76 0.76 0.92

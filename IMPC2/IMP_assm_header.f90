@@ -154,10 +154,10 @@ module imp_assm_header
      
      !private::cal_grid
     contains
-    subroutine set_assmgeom(this,rod,Bond,Cladth,pitch,Height,pd,N_fuelpin,N_pin)
+    subroutine set_assmgeom(this,pellet,Bond,Cladth,pitch,Height,pd,N_fuelpin,N_pin)
        implicit none
        class(assmgeom),intent(in out)::this
-       real(KREAL),intent(in)::rod      !元件半径
+       real(KREAL),intent(in)::pellet       !元件半径
        real(KREAL),intent(in)::Bond         !元件气隙厚度
        real(KREAL),intent(in)::Cladth     	!元件外壳厚度
        !real(KREAL)::,intent(in)::AssmCladth !组件外壳厚度
@@ -166,12 +166,13 @@ module imp_assm_header
        real(KREAL),intent(in)::pd
        integer,intent(in)::N_fuelpin       !元件的个数
 	   integer,intent(in)::N_pin
-       this%rod=rod
+       this%pellet=pellet
        this%Bond=Bond
        this%Cladth=Cladth
+       this%rod=this%pellet+this%bond+this%cladth
        !this%AssmCladth=AssmCladth
        this%pitch=pitch
-       this%Height=Height*0.01
+       this%Height=Height
        !this%Height=Height
        this%pd=pd
        this%N_fuelpin=N_fuelpin

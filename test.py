@@ -111,5 +111,31 @@ for idx,it in enumerate(tlist):
     ax1[idx+1].set_title('zone='+str(zone)+',t='+str(it)+' Temperature')
     ax1[idx+1].legend()
     ax1[idx+1].set_ylim(480.0,1300.0)
-    
+#FIG3
+#time flowrate powinput  Tsin Qin
+fig,ax=plt.subplots(2,2)
+plt.subplots_adjust(hspace=0.27)
+ax[0,0].plot(time,flowrate)
+ax[0,0].set_ylabel('flowrate/(Kg/s)')
+ax[0,0].set_xlabel('time/s')  
+ax[0,0].set_title('Primary flowrate')  
+ax[0,0].legend()
+
+ax[0,1].plot(time,powinput)
+ax[0,1].set_ylabel('Power/W')
+ax[0,1].set_xlabel('time/s')  
+ax[0,1].set_title('Power total')  
+ax[0,1].legend()
+
+ax[1,0].plot(time,Qs)
+ax[1,0].set_ylabel('flowrate/(kg/s)')
+ax[1,0].set_xlabel('time/s')  
+ax[1,0].set_title('IHX intermedia flowrate')  
+ax[1,0].legend()
+
+ax[1,1].plot(time,Tsin)
+ax[1,1].set_ylabel('Temperature/K')
+ax[1,1].set_xlabel('time/s')  
+ax[1,1].set_title('IHX intermedia Tin')  
+ax[1,1].legend()
 plt.show()

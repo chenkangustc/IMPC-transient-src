@@ -22,24 +22,24 @@ contains
      !real(KREAL)::ltime
      !real(KREAL)::ctime
      !integer::Nt
-     write(*,*)'start the sys pre process:'
+     write(*,*)'start the reactor pre process:'
      !alloc
 	  layer_core=ns%state%layer-ns%state%layer_bottom-ns%state%layer_top
 		if(ns%feedback%is_feedback .and. (ns%feedback%is_inner.OR.ns%feedback%is_imp.OR.ns%feedback%is_loop)) then
 			allocate(assm1(core%Nzone))
 			allocate(imp_pow(ns%state%zone,ns%state%layer))
-			do i=1,ns%state%zone,1
+			do i=1,core%Nzone,1
 				!if(allocated(assm1(i)%geom%height))  deallocate(assm1(i)%geom%height)
-				allocate(assm1(i)%geom%height(layer_core))
+				allocate(assm1(i)%geom%height(reInputdata%ny))
 			enddo
 		endif
      !读取参数
      !call reInputdata%set()
      !call reInputdata%publish()
      !参数赋值
-	 do i=1,ns%state%zone,1
+	 do i=1,core%Nzone,1
          !print*,assm1(i)
-		call set_assembly(assm1(i),reInputdata,ns%state%zone,reInputdata%ny,reInputdata%ny_bottom,reInputdata%ny_top,reInputdata%height)
+		call set_assembly(assm1(i),reInputdata,core%Nzone,reInputdata%ny,reInputdata%ny_bottom,reInputdata%ny_top,reInputdata%height)
 		print*,'set nf ng ns...'
 		print*,'nf=',assm1(i)%mesh%nf,'ng=',assm1(i)%mesh%ng,'ns=',assm1(i)%mesh%ns
 		!ttotal=150.0

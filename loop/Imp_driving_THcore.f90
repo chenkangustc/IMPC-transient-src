@@ -42,7 +42,7 @@
                 izone=core%fzone(i)
 				do j=1,assm1(izone)%mesh%ny,1!dy
 					do k=1,N,1
-						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)
+						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)!W/m3
                     enddo
                     !powertotal=powertotal+assembly(izone,j)
 				enddo

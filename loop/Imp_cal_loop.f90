@@ -27,6 +27,9 @@ module Imp_cal_loop
 		!cal total input power for output
 		call cal_total_inputpow(assembly,powinput)
 		!write(*,*)'driving loop steady:'
+        write(*,fmt="('------------------------------------------------------------------------------')") 
+        write(*,fmt="('  ','num','   ','sigma','      ','coreTin','  ','coreTout','  ','IHXTpin','   ','IHXTpout','   ','IHXTsin','  ','IHXTsout')") 
+        write(*,fmt="('------------------------------------------------------------------------------')") 
         do while(sigma.gt.1.0D-6)
             num=num+1
             coreTin=PipePR%Tfout
@@ -45,7 +48,8 @@ module Imp_cal_loop
             call PipePR%thCals()
             sigma=abs((PipePR%Tfout-coreTin)/coreTin)
             ! print*,'num=',num,'sigma=',sigma,'coreTin=',coreTin,'coreTout=',coreTout
-            write(*,fmt="('num=',I4,'  sigma=',F9.7,'  coreTin=',F8.2,'  coreTout=',F8.2)") num,sigma,coreTin,coreTout
+            ! write(*,fmt="('num=',I4,'  sigma=',F10.7,'  coreTin=',F8.2,'  coreTout=',F8.2,'IHXTpin=',F8.2,'IHXTpout=',F8.2)") num,sigma,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout
+            write(*,fmt="(I4,'|',F10.7,6F10.2)")num,sigma,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Tsin,IHX1%Tsout
         enddo
 		!call driving_output_steady()
 		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
@@ -65,8 +69,9 @@ module Imp_cal_loop
         is_table=.TRUE.
 		
 		call cal_total_inputpow(assembly,powinput)
-		
-        call cal_loop_hydraulic(is_table,current,Qloop)						
+        call cal_loop_hydraulic(is_table,current,Qloop)		
+        call update_secflow(current)
+        call update_Tsin(current)
         coreQin=pump1%Nbranch*Qloop
         coreTin=PipePR%Tfout			
         ! print *,'core cal'
@@ -190,4 +195,41 @@ module Imp_cal_loop
 			enddo
 		enddo
 	end subroutine cal_total_inputpow
+    subroutine update_Tsin(current)
+        real(KREAL),intent(in)::current
+        !local
+        integer::i
+        associate(dtime=>IHX1%Tintable(1,:),&
+                  Tsin=>IHX1%Tintable(2,:),&
+                  Ntime=>IHX1%NTtime)
+        if (IHX1%is_Tintable) then
+            do i=1,Ntime-1,1
+                if(current>=dtime(i).and.current<=dtime(i+1)) then
+                    IHX1%Tsin=(Tsin(i+1)-Tsin(i))/(dtime(i+1)-dtime(i))*(current-dtime(i))+Tsin(i)
+                    exit
+                endif
+                if(current>dtime(Ntime)) IHX1%Tsin=Tsin(Ntime)
+            enddo            
+        endif
+        end associate
+    end subroutine update_Tsin
+    subroutine update_secflow(current)
+        real(KREAL),intent(in)::current
+        !local
+        integer::i
+        associate(dtime=>IHX1%flowtable(1,:),&
+                  Qs=>IHX1%flowtable(2,:),&
+                  Ntime=>IHX1%Nftime)
+        if (IHX1%is_flowtable) then
+            do i=1,Ntime-1,1
+                if(current>=dtime(i).and.current<=dtime(i+1)) then
+                    IHX1%Qs=(Qs(i+1)-Qs(i))/(dtime(i+1)-dtime(i))*(current-dtime(i))+Qs(i)
+                    exit
+                endif
+                if(current>dtime(Ntime)) IHX1%Qs=Qs(Ntime)
+            enddo          
+        endif
+        end associate
+    end subroutine update_secflow
+    
 end module Imp_cal_loop

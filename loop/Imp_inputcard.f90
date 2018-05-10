@@ -25,7 +25,7 @@ module Imp_inputcard
         INP_SECTION(1:N_keyword)=['pump   ',   &
                                 & 'control ',   &
                                 & 'pipePR ',   &
-                                & 'pinflow',   &        
+                                & 'assembly',   &        
                                 & 'pipeRI ',   &
                                 & 'IHX    ',   &
                                 & 'pipeIP ',   &
@@ -106,7 +106,7 @@ module Imp_inputcard
 					pipePR%Ti=dummy_real(6)
 					pipePR%Ny=dummy_int(1)
 					
-					case('pinflow')!径向描述
+					case('assembly')!径向描述
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1)
                     core%Nzone=dummy_int(1)
                     core%Nflow=dummy_int(2)
@@ -218,7 +218,7 @@ module Imp_inputcard
     
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
-					case('pinflow')
+					case('assembly')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1),dummy_int(5:core%Nflow+core%Nflowsemi+4)
                     core%fzone=dummy_int(5:core%Nflow+core%Nflowsemi+4)
                     case('height')
