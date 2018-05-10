@@ -123,7 +123,11 @@ module Imp_cal_loop
                 endif
                 if(current>dtime(Ntime)) crotate=rotate(Ntime)
             enddo
-            flowrate=crotate/rotate(1)*Qe
+            if (crotate>=0.024*Qe) then
+                flowrate=crotate/rotate(1)*Qe
+            else 
+                flowrate=0.024*Qe
+            endif
             end associate
         endif
         call set_flowrate(flowrate)
