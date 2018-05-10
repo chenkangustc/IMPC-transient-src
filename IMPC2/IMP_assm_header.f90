@@ -239,7 +239,7 @@ module imp_assm_header
         this%ny=ny
         this%layer_bottom=layer_bottom
         this%layer_top=layer_top
-        call this%print()
+        !call this%print()
      end subroutine set_assmmesh
      
      subroutine init_th_boundary(this,Tin,uin,pout)

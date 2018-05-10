@@ -9,7 +9,7 @@ data3=np.loadtxt('..\\Tdis.txt')
 #FIG1 sub0 control
 zone=12
 #FIG2 sub[1,5]control
-tlist=[0,1,5,1,2]
+tlist=[0,0,0,0,0]
 
 time=loopdat[:,0]
 flowrate=loopdat[:,2]
@@ -91,6 +91,7 @@ Toutlet=data2[:,4*zone]
 zz=data3[0,1:]
 #FIG2
 fig,ax=plt.subplots(3,2)
+plt.subplots_adjust(hspace=0.40)
 ax[0,0].plot(time,Tfave,label='fuelTave')
 ax[0,0].plot(time,Tcave,label='coolantTave')
 ax[0,0].plot(time,Tinlet,label='Tinlet')
@@ -110,7 +111,7 @@ for idx,it in enumerate(tlist):
     ax1[idx+1].set_xlabel('zz/m')
     ax1[idx+1].set_title('zone='+str(zone)+',t='+str(it)+' Temperature')
     ax1[idx+1].legend()
-    ax1[idx+1].set_ylim(480.0,1300.0)
+    #ax1[idx+1].set_ylim(480.0,1300.0)
 #FIG3
 #time flowrate powinput  Tsin Qin
 fig,ax=plt.subplots(2,2)

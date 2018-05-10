@@ -177,69 +177,58 @@ contains
      end subroutine set_assembly
      
      subroutine cal_grid(assm)
-       implicit none
-       type(sys_assembly),intent(in out)::assm
-       !local
-       real(KREAL):: Df,Dg,Ds,Dy 
-       integer  M,N,i,j,k
-     ! write(*,*)'calculate the grid value...'
-     Df=assm%geom%pellet/assm%mesh%Nf
-     Dg=assm%geom%Bond/assm%mesh%Ng
-     Ds=assm%geom%Cladth/assm%mesh%Ns
-     !Dy=assm%geom%Height/assm%mesh%Ny
-     M=assm%mesh%Ny+1
-     N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
-     !print*,'after M, N ,ok'
-     Do i=0,M,1
-        !print*,i !Dy=1.0
-	   if(i>0.and.i<M-1) then 
-	     !print*,'1>0 1<M-1'
-	     k=assm%mesh%layer_bottom+i
-		 !dy=0.01
-		 !print*,'k=',k
-		  !Dy=assm%geom%height(k)
-          !print*,dy
-		 !Dy=assm%geom%rod
-		 Dy=geom%height(k)/100 !convert the unit from cm to m
-		 !print*,'dy=',dy
-       elseif(i==0)then 
-         Dy=0.0
-       elseif(i==M)then
-         Dy=0.0
-       endif		 
-         do j=0,N,1
-            if (j==0)then
-               assm%mesh%r(i,j)=0.0
-            elseif(j==1)then
-               assm%mesh%r(i,j)=Df/2.0
-            elseif(j>1.and.j<=assm%mesh%Nf) then
-               assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Df
-            elseif(j==assm%mesh%Nf+1)then
-               assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Df/2.0+Dg/2.0
-            elseif (j>assm%mesh%Nf+1.and.j<=assm%mesh%Nf+assm%mesh%Ng) then
-               assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Dg
-            elseif (j==assm%mesh%Nf+assm%mesh%Ng+1)then
-               assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+ Dg/2.0+Ds/2.0
-            elseif (j>assm%mesh%Nf+assm%mesh%Ng+1.and.j<=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns)then
-               assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Ds
-            else!流体的径向坐标，没有实际意义
-               assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Ds
-            endif
-            
-            if(i==0)then
-              assm%mesh%z(i,j)=0.0
-            elseif (i==1)then
-              assm%mesh%z(i,j)=Dy/2.0
-            elseif (i>1.and.i<M)then
-              assm%mesh%z(i,j)=assm%mesh%z(i-1,j)+Dy
-            elseif (i==M)then
-              assm%mesh%z(i,j)=assm%mesh%z(i-1,j)+Dy/2.0
-            endif
-			!print*,'r z ok '	 
-         enddo
-		 
-      enddo  
-       
+        implicit none
+        type(sys_assembly),intent(in out)::assm
+        !local
+        real(KREAL):: Df,Dg,Ds,Dy 
+        integer  M,N,i,j,k
+        ! write(*,*)'calculate the grid value...'
+        Df=assm%geom%pellet/assm%mesh%Nf
+        Dg=assm%geom%Bond/assm%mesh%Ng
+        Ds=assm%geom%Cladth/assm%mesh%Ns
+        !Dy=assm%geom%Height/assm%mesh%Ny
+        M=assm%mesh%Ny+1
+        N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
+        !print*,'after M, N ,ok'
+        Do i=0,M,1
+            if(i>0.and.i<M-1) then 
+                k=assm%mesh%layer_bottom+i
+                Dy=assm%geom%height(k)!convert the unit from cm to m
+            elseif(i==0)then 
+                Dy=0.0
+            elseif(i==M)then
+                Dy=0.0
+            endif		 
+            do j=0,N,1
+                if (j==0)then
+                    assm%mesh%r(i,j)=0.0
+                elseif(j==1)then
+                    assm%mesh%r(i,j)=Df/2.0
+                elseif(j>1.and.j<=assm%mesh%Nf) then
+                    assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Df
+                elseif(j==assm%mesh%Nf+1)then
+                    assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Df/2.0+Dg/2.0
+                elseif (j>assm%mesh%Nf+1.and.j<=assm%mesh%Nf+assm%mesh%Ng) then
+                    assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Dg
+                elseif (j==assm%mesh%Nf+assm%mesh%Ng+1)then
+                    assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+ Dg/2.0+Ds/2.0
+                elseif (j>assm%mesh%Nf+assm%mesh%Ng+1.and.j<=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns)then
+                    assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Ds
+                else!流体的径向坐标，没有实际意义
+                    assm%mesh%r(i,j)=assm%mesh%r(i,j-1)+Ds
+                endif
+                
+                if(i==0)then
+                    assm%mesh%z(i,j)=0.0
+                elseif (i==1)then
+                    assm%mesh%z(i,j)=Dy/2.0
+                elseif (i>1.and.i<M)then
+                    assm%mesh%z(i,j)=assm%mesh%z(i-1,j)+Dy
+                elseif (i==M)then
+                    assm%mesh%z(i,j)=assm%mesh%z(i-1,j)+Dy/2.0
+                endif
+            enddo
+        enddo  
      end subroutine cal_grid   
 
 end module imp_driving_pre_process

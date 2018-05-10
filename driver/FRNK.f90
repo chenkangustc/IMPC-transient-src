@@ -66,9 +66,12 @@ program DAISY
 	! --------------------------------------------------------------------------
 	if (is_tNK2TH) then 
         call driving_testNK2loop()
+        stop
     endif
     if(is_THonly) then
         call driving_THloop()
+        read(*,*)
+        stop
     endif
     ! --------------------------------------------------------------------------
     ! perturbation calculation
