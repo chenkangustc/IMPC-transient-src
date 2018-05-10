@@ -22,7 +22,7 @@ contains
      !real(KREAL)::ltime
      !real(KREAL)::ctime
      !integer::Nt
-     write(*,*)'start the reactor pre process:'
+     ! write(*,*)'start the reactor pre process:'
      !alloc
 	  layer_core=ns%state%layer-ns%state%layer_bottom-ns%state%layer_top
 		if(ns%feedback%is_feedback .and. (ns%feedback%is_inner.OR.ns%feedback%is_imp.OR.ns%feedback%is_loop)) then
@@ -40,8 +40,8 @@ contains
 	 do i=1,core%Nzone,1
          !print*,assm1(i)
 		call set_assembly(assm1(i),reInputdata,core%Nzone,reInputdata%ny,reInputdata%ny_bottom,reInputdata%ny_top,reInputdata%height)
-		print*,'set nf ng ns...'
-		print*,'nf=',assm1(i)%mesh%nf,'ng=',assm1(i)%mesh%ng,'ns=',assm1(i)%mesh%ns
+		!print*,'set nf ng ns...'
+		!print*,'nf=',assm1(i)%mesh%nf,'ng=',assm1(i)%mesh%ng,'ns=',assm1(i)%mesh%ns
 		!ttotal=150.0
 		!Nt=150
 		!call timer1%set(ttotal,Nt)!(ttotal,Nt)
@@ -62,7 +62,7 @@ contains
     subroutine init_assembly(assm)
       implicit none
       type(sys_assembly),intent(in out)::assm
-      write(*,*)'init assembly'
+      ! write(*,*)'init assembly'
       !热物性初始化
       call assm%property%init(assm%mesh%Nf,assm%mesh%Ng,assm%mesh%Ns,assm%mesh%Ny)
       !热工参数初始化
@@ -115,7 +115,7 @@ contains
       
       allocate(assm%pow%power(M-1,N))
       allocate(assm%pow%fq_core(M-1,N))
-      write(*,*)'alloc data array'
+      ! write(*,*)'alloc data array'
      end subroutine alloc_assembly
      
      subroutine Free_assembly(assm)
@@ -162,7 +162,7 @@ contains
 	  !n_start=layer_bottom+1
 	  !n_end=layer-layer_top
 	  !real,intent(in)::height(:)
-      write(*,*)'set assmebly as below:'
+      ! write(*,*)'set assmebly as below:'
       !设置几何参数
 	  !print*,geom%height
       call assm%geom%set(reInputdata%xf,reInputdata%xg,reInputdata%xs,reInputdata%acf,Height,reInputdata%pd,reInputdata%nFuelPin,reInputdata%npin)
@@ -182,7 +182,7 @@ contains
        !local
        real(KREAL):: Df,Dg,Ds,Dy 
        integer  M,N,i,j,k
-     write(*,*)'calculate the grid value...'
+     ! write(*,*)'calculate the grid value...'
      Df=assm%geom%pellet/assm%mesh%Nf
      Dg=assm%geom%Bond/assm%mesh%Ng
      Ds=assm%geom%Cladth/assm%mesh%Ns

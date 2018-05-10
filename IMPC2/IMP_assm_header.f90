@@ -183,33 +183,33 @@ module imp_assm_header
      subroutine print_assmgeom(this)
       implicit none
       class(assmgeom),intent(in out)::this
-      write(*,*)'set geom as below:'
-      write(*,100) this%pellet,this%Bond,this%Cladth,this%pitch,this%Height(1),this%pd,this%N_fuelpin
-      100 format(1x,'pellet=',F8.4,3x,'Bond=',F8.4,3x,'Cladth=',F8.4,3x,1x,'pitch=',F7.3,3x,'Height=',F7.3,3x,'pd=',F7.3,3x,'N_fuelpin=',I3/)
+      ! write(*,*)'set geom as below:'
+      ! write(*,100) this%pellet,this%Bond,this%Cladth,this%pitch,this%Height(1),this%pd,this%N_fuelpin
+      ! 100 format(1x,'pellet=',F8.4,3x,'Bond=',F8.4,3x,'Cladth=',F8.4,3x,1x,'pitch=',F7.3,3x,'Height=',F7.3,3x,'pd=',F7.3,3x,'N_fuelpin=',I3/)
      end subroutine print_assmgeom
      
      subroutine print_assmmesh(this)
        implicit none
        class(assmmesh),intent(in out)::this
-       write(*,*)'set mesh as below:'
-       write(*,100) this%ny,this%layer_bottom,this%layer_top
-       100 format(1x,'Ny=',I3,3x,'layer_bottom=',I3,3x,'layer_top=',I3/)
+       ! write(*,*)'set mesh as below:'
+       ! write(*,100) this%ny,this%layer_bottom,this%layer_top
+       ! 100 format(1x,'Ny=',I3,3x,'layer_bottom=',I3,3x,'layer_top=',I3/)
      end subroutine print_assmmesh
      
      subroutine print_hydraulic(this)
        implicit none
        class(hydraulic),intent(in out)::this
-       write(*,*)'set fric as below:'
-       write(*,100) this%fric
-       100 format(1x,'fric=',F7.3/)
+       ! write(*,*)'set fric as below:'
+       ! write(*,100) this%fric
+       ! 100 format(1x,'fric=',F7.3/)
      end subroutine print_hydraulic
      
      subroutine print_assminit(this)
        implicit none
        class(assminit),intent(in out)::this
-       write(*,*)'set assminit as below:'
-       write(*,100) this%Pi,this%Ui,this%Ti,this%Pout,this%uin,this%Tin
-       100 format(1x,'Pi=',F8.1,3x,'Ui=',F5.2,3x,'Ti=',F5.1,3x,'Pout=',F8.1,3x,'Uin=',F5.2,3x,'Tin=',F5.1/)             
+       ! write(*,*)'set assminit as below:'
+       ! write(*,100) this%Pi,this%Ui,this%Ti,this%Pout,this%uin,this%Tin
+       ! 100 format(1x,'Pi=',F8.1,3x,'Ui=',F5.2,3x,'Ti=',F5.1,3x,'Pout=',F8.1,3x,'Uin=',F5.2,3x,'Tin=',F5.1/)             
        !write(*,100) this%Pi,this%Ui,this%Ti,this%Pin,this%uin,this%Tin
        !100 format(1x,'Pi=',F8.1,3x,'Ui=',F5.2,3x,'Ti=',F5.1,3x,'Pin=',F8.1,3x,'Uin=',F5.2,3x,'Tin=',F5.1/)
      end subroutine print_assminit
@@ -217,9 +217,9 @@ module imp_assm_header
      subroutine print_confactor(this)
        implicit none
        class(confactor),intent(in out)::this
-       write(*,*)'set confactor as below:'
-       write(*,100) this%alpha,this%sigma
-       100 format(1x,'alpha=',F7.4,3x,'sigma=',F7.4/)
+       ! write(*,*)'set confactor as below:'
+       ! write(*,100) this%alpha,this%sigma
+       ! 100 format(1x,'alpha=',F7.4,3x,'sigma=',F7.4/)
      end subroutine print_confactor
      
      subroutine set_assmmesh(this,nf,ng,ns,n_zone,ny,layer_bottom,layer_top)
@@ -248,7 +248,7 @@ module imp_assm_header
        real(KREAL),intent(in)::Tin
        real(KREAL),intent(in)::uin
        real(KREAL),intent(in)::pout
-       write(*,*)'init the PVT inlet boundary value'
+       ! write(*,*)'init the PVT inlet boundary value'
        this%T%inlet=Tin
        this%u%inlet=uin
        this%p%outlet=pout
@@ -264,7 +264,7 @@ module imp_assm_header
        elseif(this%u%inlet<=0.6)then
         this%u%inlet=0.6
        endif
-       print*,'update the uin,uin=',this%u%inlet
+       ! print*,'update the uin,uin=',this%u%inlet
      end subroutine update_th_boundary
      !subroutine init_material(this,LBE,he,T91)  
      subroutine init_material(this,Nf,Ng,Ns,Ny)
@@ -277,7 +277,7 @@ module imp_assm_header
        integer M,N!local
        integer i,j!local
        real(KREAL)::Ti
-       write(*,*)'init the material value'
+       ! write(*,*)'init the material value'
        Ti=493.
        M=Ny+1
        N=Nf+Ng+Ns+1
@@ -320,7 +320,7 @@ module imp_assm_header
         real(KREAL),intent(in)::Velocity
 		!local
 		integer i,N
-        write(*,*)'init the thermal value'
+        ! write(*,*)'init the thermal value'
         this%Temperature=Temperature
         !this%Pressure=Pressure
         this%Velocity=Velocity
@@ -380,7 +380,7 @@ module imp_assm_header
         implicit none
         class(hydraulic),intent(in out)::this
         real(KREAL),intent(in)::rc,pd
-        print*,'calculate the hydraulic constants...'
+        ! print*,'calculate the hydraulic constants...'
         call get_hyconstant(rc,pd,this%Aflow,this%wet,this%de)
      end subroutine cal_hydraulic
      
@@ -398,13 +398,13 @@ module imp_assm_header
     subroutine print_power(this)
         implicit none
         class(assmpow),intent(in out)::this
-        write(*,*)'set power as below:'
-        write(*,100) this%power
-        100     format(1x,'power=',I3)
+        ! write(*,*)'set power as below:'
+        ! write(*,100) this%power
+        ! 100     format(1x,'power=',I3)
         
-        write(*,*)'set fq_core as below:'
-        write(*,101) this%fq_core
-        101 format(1x,'fq_core=',I3)
+        ! write(*,*)'set fq_core as below:'
+        ! write(*,101) this%fq_core
+        ! 101 format(1x,'fq_core=',I3)
      end subroutine print_power
      
 end module imp_assm_header
