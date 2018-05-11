@@ -1,6 +1,11 @@
 module imp_re_input_header
     use constants
     implicit none
+    type,public::satype
+        real(KREAL)::flowdis
+        real(KREAL)::powdis
+    end type satype
+    
     type,public::sys_re_input
        !public
        !integer nf,ng,ns,ny,npin,ny_start,ny_end
@@ -11,10 +16,13 @@ module imp_re_input_header
        real(KREAL):: Ti,ui,pi
        real(KREAL):: alpha,sigma
        real(KREAL),allocatable::height(:)
+       integer::Ntype
+       type(SAtype),allocatable::sa(:)
     contains
      procedure,public::set=>set_inputdata
      procedure,public::publish=>print_inputdata
     end type sys_re_input
+
      private::set_inputdata
      private::print_inputdata
     contains

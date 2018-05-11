@@ -3,6 +3,7 @@ module imp_assembly_header
     implicit none
     type,public::sys_assembly!描述一个组件的特征和使用方法
       !private
+      integer::SAflag
       !real::fric  !摩擦因子
       type(hydraulic)::hydrau
       type(AssmGeom)::geom !assm_geom

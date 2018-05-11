@@ -39,9 +39,13 @@ module Imp_driving_presys
 		call PipePR%alloc()      
         call core%alloc()
         if(pump1%is_table==.TRUE.) call pump1%alloc()
-        if(is_THonly) allocate(tpower1%pow(2,tpower1%Ntime))
+        if(is_THonly) then
+            allocate(tpower1%pow(2,tpower1%Ntime))
+            allocate(core%SAtable(core%Nzone))
+        endif
         !用来临时代替core
         allocate(reInputdata%height(reInputdata%ny))
+        allocate(reInputdata%sa(reInputdata%Ntype))
 	end subroutine driving_alloc_loop
 	
 	subroutine driving_free_loop()
@@ -51,5 +55,6 @@ module Imp_driving_presys
         if(is_THonly) then  
             if(allocated(tpower1%pow)) deallocate(tpower1%pow)
         endif
+        if(allocated(reInputdata%sa)) deallocate(reInputdata%sa)
 	end subroutine driving_free_loop
 end module Imp_driving_presys

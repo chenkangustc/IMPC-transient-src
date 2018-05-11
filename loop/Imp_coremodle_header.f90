@@ -11,8 +11,9 @@ module Imp_coremodle_header
         integer::Nflow
         integer::Nflowsemi!缩略模型半组件
         integer::Nsplit!计算时堆芯分成的份数
-        integer,allocatable::fzone(:)!zones which should be allocated flow
         real(KREAL)::sigmaPass
+        integer,allocatable::fzone(:)!zones which should be allocated flow
+        integer,allocatable::SAtable(:)
 	    !geom 
         real(KREAL)::Ltotal
 		real(KREAL),allocatable::Length(:)
@@ -97,10 +98,11 @@ module Imp_coremodle_header
       implicit none
       class(coremodle),intent(in out)::this
       !local
-      integer::Ny,Nflow,Nsemi
+      integer::Ny,Nflow,Nsemi,Nzone
       Ny=this%Ny
       Nflow=this%Nflow
       Nsemi=this%Nflowsemi
+      Nzone=this%Nzone
       !integer,intent(in)::N
       !check allocated first
       call Free_coremodle(this)
@@ -129,6 +131,7 @@ module Imp_coremodle_header
 	  if(allocated(this%kf)) deallocate(this%kf)
 	  if(allocated(this%visf)) deallocate(this%visf)
       if(allocated(this%fzone)) deallocate(this%fzone)
+      if(allocated(this%SAtable)) deallocate(this%SAtable)
     end subroutine free_coremodle
 	
 	subroutine cal_htc(this)

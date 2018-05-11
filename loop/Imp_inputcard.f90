@@ -6,9 +6,9 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=16
-    integer,parameter,private::MAX_REAL_PARAMETER=200
-	integer,parameter,private::MAX_INT_PARAMETER=500
+	integer,parameter,private::N_keyword=18
+    integer,parameter,private::MAX_REAL_PARAMETER=700
+	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
@@ -37,6 +37,8 @@ module Imp_inputcard
                                 & 'power   ',  &
                                 & 'IHXsTin ',  &
                                 & 'IHXsflow',  &
+                                & 'SAradiau',  &
+                                & 'SAtype  ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -191,6 +193,10 @@ module Imp_inputcard
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
                     IHX1%NTtime=dummy_int(1)
                     
+					case('SAtype')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
+                    reInputdata%Ntype=dummy_int(1)
+                    
 					case('time')
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)
 					timer1%ttotal=dummy_real(1)
@@ -240,7 +246,14 @@ module Imp_inputcard
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*IHX1%NTtime)
                     IHX1%Tintable(1,:)=dummy_real(1:IHX1%NTtime)
                     IHX1%Tintable(2,:)=dummy_real(IHX1%NTtime+1:2*IHX1%NTtime)
-               end select
+                    case('SAradiau')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:core%Nzone)
+                    core%SAtable(:)=dummy_int(1:core%Nzone)
+                    case('SAtype')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*reInputdata%Ntype)
+                    reInputdata%sa(:)%flowdis=dummy_real(1:reInputdata%Ntype)
+                    reInputdata%sa(:)%powdis=dummy_real(reInputdata%Ntype+1:2*reInputdata%Ntype)
+                    end select
             endif
         end do
     end subroutine
