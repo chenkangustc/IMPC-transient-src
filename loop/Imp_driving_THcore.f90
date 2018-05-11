@@ -21,6 +21,7 @@
 			real(KREAL),allocatable::pow(:,:),fq_core(:,:)
 			real(KREAL)::density,flowrate,Qinpart
             real(KREAL),allocatable::powersingle(:)
+            real(KREAL)::zonepower
 
             fq_core=1.0D0
             Nzone=core%Nflow+core%Nflowsemi!需要计算的zone的数量
@@ -35,7 +36,7 @@
 			fq_core=1.0
 		
 			do i=1,Nzone,1
-				assm1(core%fzone(i))%th_boundary%T%inlet=Tin
+				assm1(i)%th_boundary%T%inlet=Tin
 			enddo
 			Qinpart=Qin/core%Nsplit
 			call driving_loop_flowAlloc(assm1,Qinpart)
@@ -48,27 +49,25 @@
                     enddo
                     !powertotal=powertotal+assembly(izone,j)
 				enddo
-
-				! if (assm1(izone)%th_boundary%u%inlet==0.0) then
-					! assm1(izone)%thermal%velocity=0.0
-					! assm1(izone)%th_boundary%u%outlet=0.0
-					! assm1(izone)%thermal%temperature=assm1(izone)%th_boundary%T%inlet
-					! assm1(izone)%th_boundary%T%outlet=assm1(izone)%th_boundary%T%inlet
-					! assm1(izone)%property%rho=get_density(assm1(izone)%th_boundary%T%inlet)
-				! else
-                if (transient_flag)then
-                    if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(izone),pow,fq_core,last,current)
-                else
-                    call driving_imp_THsteady(assm1(izone),pow,fq_core)					
-                endif
-				! endif	
+                zonepower=0.0
+                zonepower=sum(assembly(izone,:))
+				if (zonepower==0.0) then
+					assm1(izone)%thermal%temperature=assm1(izone)%th_boundary%T%inlet
+					assm1(izone)%th_boundary%T%outlet=assm1(izone)%th_boundary%T%inlet
+				else
+                    if (transient_flag)then
+                        if(PRESENT(last).and.PRESENT(current)) call driving_imp_THtransient(assm1(izone),pow,fq_core,last,current)
+                    else
+                        call driving_imp_THsteady(assm1(izone),pow,fq_core)					
+                    endif
+				endif	
                 powersingle(i)=151.0*assm1(izone)%hydrau%Qf*(assm1(izone)%th_boundary%T%outlet-assm1(izone)%th_boundary%T%inlet)
 			enddo !zone		
 			!Tout volum ave
 			Tout=0.0
 			do i=1,Nzone,1
                 izone=core%fzone(i)
-				density=get_density(assm1(izone)%th_boundary%T%inlet)
+				density=get_density_Na(assm1(izone)%th_boundary%T%inlet)
 				flowrate=assm1(izone)%hydrau%Qf*assm1(izone)%geom%N_pin
 				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qinpart
 			enddo

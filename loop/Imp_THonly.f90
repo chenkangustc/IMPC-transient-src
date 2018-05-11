@@ -33,7 +33,7 @@ module Imp_THonly
 	    
         transient_flag=.TRUE.
         power=0.0
-        do j=1,core%Nflow,1
+        do j=1,61,1
             power(core%fzone(j),:)=tpower1%pow(2,1)*1.0e6/(61*reInputdata%Ny)
         enddo
         if(transient_flag==.FALSE.) then
@@ -55,7 +55,7 @@ module Imp_THonly
 			do i=1,nTime,1
 				current=current+dtime
                 call set_pow(current,powtotal)
-                do j=1,core%Nflow,1
+                do j=1,61,1
                    power(core%fzone(j),:)=powtotal*1.e6/(61*reInputdata%Ny)
                 enddo
 				!call get_pow(current,power,powerSteady)

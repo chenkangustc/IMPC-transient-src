@@ -8,7 +8,7 @@ module Imp_inputcard
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
 	integer,parameter,private::N_keyword=16
     integer,parameter,private::MAX_REAL_PARAMETER=200
-	integer,parameter,private::MAX_INT_PARAMETER=100
+	integer,parameter,private::MAX_INT_PARAMETER=500
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
