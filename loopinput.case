@@ -7,7 +7,7 @@
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny
         pipeRI	    5.491	0.05	 0.005	     0	    420.45	   493	 100
 !IHX:device 	Lsingle 	Rtube   thickt  Plength AreaP	thickv    QP 	    Qs  Tsin    Ti  Ntube	Ny   
-     	IHX	    3.317	    0.0067	0.00124	0.02064	0.1	    0.1143	420.45	 288.35	574.12  493	3026	100
+     	IHX	    3.317	    0.0067	0.00124	0.02064	0.6354	0.1143	420.45	 288.35	574.12  493	3026	100
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta 	     Q	     T   Ny 
         pipeIP	     5.0	    0.05	 0.005	     0	    420.45	   493	 100
 !time:keyword ttotal   Nt
