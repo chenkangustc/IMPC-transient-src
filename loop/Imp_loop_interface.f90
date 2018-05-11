@@ -50,7 +50,7 @@
         M=SIZE(assm1(1)%thermal%temperature,dim=1)
         N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer  
 		Nave=2*nr
-        Nzone=core%Nflow+core%Nflowsemi
+        Nzone=core%Nzone
 		allocate(aveT(Nave))
 		!热工水力计算
 		if (transient_flag)  then
@@ -64,8 +64,7 @@
         Tfuel=525.0!K
         Tcoolant=525.0!K
 		!热工feedback:Tfuel,Tcoolant,Rhocoolant,max_Tfuel,max_Tcoolant,min_Rhocoolant
-        do i=1,Nzone,1!反射层之类不计算的温度不去改变
-            izone=core%fzone(i)
+        do izone=1,Nzone,1!反射层之类不计算的温度不去改变
             dr=assm1(izone)%geom%pellet/assm1(izone)%mesh%Nf
             do j=1,assm1(izone)%mesh%Ny,1
                 volumn=0.0
@@ -91,16 +90,14 @@
 		max_Tfuel=0.0
         Nzone=core%Nflow+core%Nflowsemi
 		!calculate max_Tcoolant max_Tfuel
-		do i=1,Nzone,1
-            izone=core%fzone(i)
+		do izone=1,Nzone,1
 			do j=1,assm1(izone)%mesh%Ny,1
 				if(Tfuel(izone,j)>max_Tfuel) 		max_Tfuel=Tfuel(izone,j)
 				if(Tcoolant(izone,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(izone,j)
 			enddo
 		enddo
 		!calculate the surface temperature
-		do i=1,Nzone,1
-            izone=core%fzone(i)
+		do izone=1,Nzone,1
 			Nf=assm1(izone)%mesh%Nf
 			Ng=assm1(izone)%mesh%Ng
 			Ns=assm1(izone)%mesh%Ns
@@ -121,8 +118,7 @@
 		!write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
 		max_T_inner=0.0
 		max_T_outer=0.0
-		do i=1,Nzone,1
-            izone=core%fzone(i)
+		do izone=1,Nzone,1
 			do j=1,assm1(izone)%mesh%Ny,1
 				if(max_T_inner<assm1(izone)%thermal%Tgs(j)) max_T_inner=assm1(izone)%thermal%Tgs(j)
 				if(max_T_outer<assm1(izone)%thermal%Tsc(j)) max_T_outer=assm1(izone)%thermal%Tsc(j)

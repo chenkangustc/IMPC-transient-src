@@ -1,7 +1,7 @@
 module imp_re_input_header
     use constants
     implicit none
-    type,public::satype
+    type satype
         real(KREAL)::flowdis
         real(KREAL)::powdis
     end type satype
@@ -22,7 +22,9 @@ module imp_re_input_header
      procedure,public::set=>set_inputdata
      procedure,public::publish=>print_inputdata
     end type sys_re_input
+    
 
+    
      private::set_inputdata
      private::print_inputdata
     contains

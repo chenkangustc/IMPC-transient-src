@@ -25,16 +25,18 @@ module Imp_THonly
         real(KREAL)  :: powtotal
 		!local
 		integer Nradial,i_zone,nTime,i,j
+        integer::Nzone,izone
         real(KREAL) ::tTotal,dtime
-        
+        Nzone=core%Nzone
         Tfuel = 0.0; Tcoolant = 0.0; Rhocoolant = 0.0; 
         max_Tfuel = 0.0; max_Tcoolant = 0.0; min_Rhocoolant = 0.0; 
         last = 0.0; current = 0.0;
 	    
         transient_flag=.TRUE.
         power=0.0
-        do j=1,61,1
-            power(core%fzone(j),:)=tpower1%pow(2,1)*1.0e6/(61*reInputdata%Ny)
+        do izone=1,Nzone,1
+            assm1(izone)%saflag=core%SAtable(izone)
+            power(izone,:)=tpower1%pow(2,1)*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/reInputdata%Ny
         enddo
         if(transient_flag==.FALSE.) then
             if (ns%feedback%is_loop)  then
@@ -55,8 +57,9 @@ module Imp_THonly
 			do i=1,nTime,1
 				current=current+dtime
                 call set_pow(current,powtotal)
-                do j=1,61,1
-                   power(core%fzone(j),:)=powtotal*1.e6/(61*reInputdata%Ny)
+                do izone=1,Nzone,1
+                    assm1(izone)%saflag=core%SAtable(izone)
+                    power(izone,:)=powtotal*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/reInputdata%Ny
                 enddo
 				!call get_pow(current,power,powerSteady)
 				call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  

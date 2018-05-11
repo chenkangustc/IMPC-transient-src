@@ -752,7 +752,7 @@ subroutine update_property(assm,drho)
       enddo
       !print*,RHOF
       do i=1,M-1,1
-         assm%property%rho(i,N)=get_density_Na(assm%thermal%Temperature(i,N))
+         assm%property%rho(i,N)=get_density(assm%thermal%Temperature(i,N))
       enddo
       !print*,'temperature=',assm%thermal%Temperature(:,N)
       assm%property%rho(0,N)=assm%property%rho(1,N)
