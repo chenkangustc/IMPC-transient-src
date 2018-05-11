@@ -5,6 +5,8 @@
 		use imp_single_channel
 		use imp_loop_global
 		implicit none
+        public::driving_TH_core
+        public::driving_loop_flowAlloc
 		contains
 		subroutine driving_TH_core(transient_flag,Qin,Tin,assembly,Tout,last,current)
 			logical,intent(in)::transient_flag
@@ -73,4 +75,29 @@
             Tout=Tout+core%sigmaPass*Qinpart*Tin/Qinpart
 			core%Tfout=Tout
 		end subroutine driving_TH_core
-	end module Imp_driving_THcore
+        
+        subroutine driving_loop_flowAlloc(assm,Qin)
+            type(sys_assembly),intent(in out)::assm(:)
+            real(KREAL),intent(in)::Qin
+            !local
+            real(KREAL)::flowrate
+            real(KREAL)::fuelArea,density!flow area of pin
+            real(KREAL)::Qave
+            integer zone,n_pin,layer,nr,izone
+            integer i,j
+            zone=size(core%fzone)
+            layer=size(assm(1)%thermal%velocity)
+            nr=size(assm(1)%thermal%temperature,2)
+            !以zone为统计，而非SA
+            Qave=Qin*(1-core%sigmaPass)/(core%Nflow+core%Nflowsemi/2)!average
+            do i=1,zone,1
+                izone=core%fzone(i)
+                if (i<=core%Nflow) then
+                    flowrate=Qave
+                else
+                    flowrate=Qave/2.0
+                endif
+                assm(izone)%hydrau%Qf=flowrate/assm(izone)%geom%N_pin
+            enddo
+        end subroutine driving_loop_flowAlloc
+    end module Imp_driving_THcore

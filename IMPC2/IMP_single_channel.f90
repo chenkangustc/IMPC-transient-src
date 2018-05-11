@@ -12,7 +12,6 @@ module imp_single_channel
 	 public::driving_imp_THsteady   !only energy formula is calculated
 	 public::driving_imp_THtransient!no pv step ,not simple
 	 public::driving_imp_flowAlloc
-	 public::driving_loop_flowAlloc
      public::update_property_rhoi
     contains
 	subroutine driving_imp_flowAlloc(assm,flowrate)
@@ -30,31 +29,6 @@ module imp_single_channel
 			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
 		enddo
 	end subroutine driving_imp_flowAlloc
-	
-	subroutine driving_loop_flowAlloc(assm,Qin)
-		type(sys_assembly),intent(in out)::assm(:)
-		real(KREAL),intent(in)::Qin
-		!local
-		real(KREAL)::flowrate
-		real(KREAL)::fuelArea,density!flow area of pin
-        real(KREAL)::Qave
-		integer zone,n_pin,layer,nr,izone
-		integer i,j
-		zone=size(core%fzone)
-		layer=size(assm(1)%thermal%velocity)
-		nr=size(assm(1)%thermal%temperature,2)
-        !以zone为统计，而非SA
-		Qave=Qin*(1-core%sigmaPass)/(core%Nflow+core%Nflowsemi/2)!average
-		do i=1,zone,1
-            izone=core%fzone(i)
-            if (i<=core%Nflow) then
-                flowrate=Qave
-            else
-                flowrate=Qave/2.0
-            endif
-            assm(izone)%hydrau%Qf=flowrate/assm(izone)%geom%N_pin
-		enddo
-	end subroutine driving_loop_flowAlloc
 	
 subroutine driving_imp_steady(assm,power,fq_core)
     type(sys_assembly),intent(in out)::assm
