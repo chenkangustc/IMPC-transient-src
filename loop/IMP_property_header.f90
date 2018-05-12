@@ -66,7 +66,31 @@ module imp_property
     function get_shc_Na(Tin) result(shc)
 	    real(KREAL),intent(in)::tin
 		real(KREAL)::shc
-		shc=1436.05+(4.625*1e-5*Tin-0.5802)*Tin!J/(kg*K)
+        !local
+        integer::Nar
+        real(KREAL),allocatable::argonne(:,:)
+        real(KREAL),allocatable::dtem(:)
+        real(KREAL),allocatable::dar(:)
+        Nar=24
+        allocate(argonne(2,Nar))
+        allocate(dtem(Nar))
+        allocate(dar(Nar))
+
+        argonne=reshape([371.,1383,400.,1372.,500.,1334.,600.,1301.,700.,1277.,800.,1260.,900.,1252.,&
+                        &1000.,1252.,1100.,1261.,1200.,1279.,1300.,1305.,1400.,1340.,1500.,1384.,1600.,1437.,&
+                        &1700.,1500.,1800.,1574.,1900.,1661.,2000.,1764.,2100.,1926.,2200.,2190.,2300.,2690.,&
+                        &2400.,4012.,2469.,8274.,2500.,39279],[2,24])
+        dtem=argonne(1,:)
+        dar=argonne(2,:)
+        do i=1,Nar-1,1
+            if(Tin>=dtem(i).and.Tin<=dtem(i+1)) then
+                shc=(dar(i+1)-dar(i))/(dtem(i+1)-dtem(i))*(Tin-dtem(i))+dar(i)
+                exit
+            endif
+            if(Tin>dtem(Nar)) shc=dar(Nar)
+        enddo
+        !shc=1032.0
+		!shc=1436.05+(4.625*1e-5*Tin-0.5802)*Tin!J/(kg*K)
 	end function get_shc_Na
     
     function get_conductivity_Na(Tin) result(conductivity)

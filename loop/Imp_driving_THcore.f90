@@ -62,10 +62,10 @@
 				density=get_density_Na(assm1(izone)%th_boundary%T%inlet)
 				flowrate=assm1(izone)%hydrau%Qf*assm1(izone)%geom%N_pin
 				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qinpart
-			enddo
+            enddo
             Tout=Tout+core%sigmaPass*Qinpart*Tin/Qinpart
 			core%Tfout=Tout
-		end subroutine driving_TH_core
+        end subroutine driving_TH_core       
         
         subroutine driving_loop_flowAlloc(assm,Qin)
             type(sys_assembly),intent(in out)::assm(:)
