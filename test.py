@@ -17,7 +17,7 @@ exname=['high pressure inlet.txt',\
         'pump2 mass flow.txt']
 exanl=['Exp','Exp','ANL','ANL','ANL','Exp','Exp']
 #generel control
-is_flag=[False,False,False,True]
+is_flag=[True,False,False,True]
 is_exp=True
 #FIG1 sub0 control
 zone=12

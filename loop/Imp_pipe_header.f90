@@ -26,7 +26,7 @@ module Imp_pipe_header
 		real(KREAL),allocatable::htc(:)
 		!material
 		real(KREAL),allocatable::rhof(:),shcf(:),kf(:),visf(:)
-		real(KREAL)::rhos,shcs
+		real(KREAL)::rhos,shcs,ks
 		!initial
 		real(KREAL)::Ti
 		!boundary
@@ -71,6 +71,7 @@ module Imp_pipe_header
       !property
       this%rhos=get_density_304()
       this%shcs=get_shc_304()
+      this%ks=get_conductivity_304()
       do i=1,Ny,1
           this%length(i)=this%ltotal/Ny
 		  this%Tf(i)=this%Ti
@@ -107,7 +108,7 @@ module Imp_pipe_header
 	  allocate(this%shcf(Ny))
 	  allocate(this%visf(Ny))
 	  allocate(this%kf(Ny))
-	  if(is_Tb) allocate(this%Tb(Ny))
+	  if(this%is_Tb) allocate(this%Tb(Ny))
       !allocate(this%rhof(Ny))
       !allocate(this%T(Ny))
     end subroutine alloc_pipe
@@ -245,14 +246,18 @@ module Imp_pipe_header
 			  case(2)!solid
 			  aw=htc(i)*PI*2*Rtube*Length(i)
               if(is_Tb==.TRUE.) then
-                ab=ctcs(i)*PI*2*(Rtube+thicks)*Length(i)/(thicks/2.0)
+                ab=ks*PI*2*(Rtube+thicks)*Length(i)/(thicks/2.0)
 			  else
                 ab=0.0
               endif
               !apz=mv*this%shcv/dt
 			  apz=0.0
 			  ap=aw+apz+ab
-			  S=apz*Tsl(i)+ab*Tb(i)
+              if(is_Tb==.True.) then
+			     S=apz*Tsl(i)+ab*Tb(i)
+              else
+                 S=apz*Tsl(i)
+              endif
 			  A(i+Ny,i+Ny)=ap
 			  A(i+Ny,i)=-aw
 			  B(i+Ny)=S
@@ -348,14 +353,18 @@ module Imp_pipe_header
 			  case(2)!solid
 			  aw=htc(i)*PI*2*Rtube*Length(i)
               if(is_Tb==.TRUE.) then
-                ab=ctcs(i)*PI*2*(Rtube+thicks)*Length(i)/(thicks/2.0)
+                ab=ks*PI*2*(Rtube+thicks)*Length(i)/(thicks/2.0)
               else
                 ab=0.0
               endif
 			  apz=ms*shcs/dt
 			  !apz=0.0
 			  ap=aw+apz
-			  S=apz*Tsl(i)+ab*Tb(i)
+              if(is_Tb==.TRUE.) then
+			      S=apz*Tsl(i)+ab*Tb(i)
+              else
+                  S=apz*Tsl(i)
+              endif
 			  A(i+Ny,i+Ny)=ap
 			  A(i+Ny,i)=-aw
 			  B(i+Ny)=S
