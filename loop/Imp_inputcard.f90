@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=18
+	integer,parameter,private::N_keyword=21
     integer,parameter,private::MAX_REAL_PARAMETER=700
 	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
@@ -39,6 +39,9 @@ module Imp_inputcard
                                 & 'IHXsflow',  &
                                 & 'SAradiau',  &
                                 & 'SAtype  ',  &
+                                & 'Tb_RI  ',  &
+                                & 'Tb_IP  ',  &
+                                & 'Tb_PR  ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -99,13 +102,14 @@ module Imp_inputcard
                     endif
 					
 					case('pipePR')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_logical(1),dummy_int(1)
 					pipePR%ltotal=dummy_real(1)
 					pipePR%Rtube=dummy_real(2)
 					pipePR%thicks=dummy_real(3)
 					pipePR%theta=dummy_real(4)
 					pipePR%Q=dummy_real(5)
 					pipePR%Ti=dummy_real(6)
+					pipePR%is_Tb=dummy_logical(1)
 					pipePR%Ny=dummy_int(1)
 					
 					case('assembly')!径向描述
@@ -124,13 +128,14 @@ module Imp_inputcard
 					! core%Ny=dummy_int(4)
 					
 					case('pipeRI')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_logical(1),dummy_int(1)
 					pipeRI%ltotal=dummy_real(1)
 					pipeRI%Rtube=dummy_real(2)
 					pipeRI%thicks=dummy_real(3)
 					pipeRI%theta=dummy_real(4)
 					pipeRI%Q=dummy_real(5)
 					pipeRI%Ti=dummy_real(6)
+					pipeRI%is_Tb=dummy_real(1)
 					pipeRI%Ny=dummy_int(1)
 					
 					case('IHX')
@@ -149,13 +154,14 @@ module Imp_inputcard
 					IHX1%N=dummy_int(2)
 					
 					case('pipeIP')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:6),dummy_logical(1),dummy_int(1)
 					pipeIP%ltotal=dummy_real(1)
 					pipeIP%Rtube=dummy_real(2)
 					pipeIP%thicks=dummy_real(3)
 					pipeIP%theta=dummy_real(4)
 					pipeIP%Q=dummy_real(5)
 					pipeIP%Ti=dummy_real(6)
+					pipeIP%is_Tb=dummy_logical(1)
 					pipeIP%Ny=dummy_int(1)
 
                     case('pingeom')
@@ -253,7 +259,16 @@ module Imp_inputcard
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1),dummy_real(1:2*reInputdata%Ntype)
                     reInputdata%sa(:)%flowdis=dummy_real(1:reInputdata%Ntype)
                     reInputdata%sa(:)%powdis=dummy_real(reInputdata%Ntype+1:2*reInputdata%Ntype)
-                    end select
+                    case('Tb_RI')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipeRI%Ny)
+                    PipeRI%Tb(:)=dummy_real(1:PipeRI%Ny)
+                    case('Tb_IP')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipeIP%Ny)                
+                    PipeIP%Tb(:)=dummy_real(1:PipeIP%Ny)
+                    case('Tb_PR')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipePR%Ny)
+                    PipePR%Tb(:)=dummy_real(1:PipePR%Ny)
+                end select
             endif
         end do
     end subroutine

@@ -31,6 +31,8 @@ module Imp_pipe_header
 		real(KREAL)::Ti
 		!boundary
 		real(KREAL)::Tfin,Tfout
+        logical::is_Tb
+        real(KREAL),allocatable::Tb(:)
     contains
         procedure,public::init=>init_pipe
         procedure,public::alloc=>alloc_pipe
@@ -105,6 +107,7 @@ module Imp_pipe_header
 	  allocate(this%shcf(Ny))
 	  allocate(this%visf(Ny))
 	  allocate(this%kf(Ny))
+	  if(is_Tb) allocate(this%Tb(Ny))
       !allocate(this%rhof(Ny))
       !allocate(this%T(Ny))
     end subroutine alloc_pipe
@@ -120,6 +123,7 @@ module Imp_pipe_header
 	  if(allocated(this%shcf)) deallocate(this%shcf)
 	  if(allocated(this%kf)) deallocate(this%kf)
 	  if(allocated(this%visf)) deallocate(this%visf)
+	  if(allocated(this%Tb)) deallocate(this%Tb)
     end subroutine free_pipe
 	
 	subroutine cal_htc(this)
@@ -171,7 +175,7 @@ module Imp_pipe_header
 		class(pipe),intent(in out)::this
 		!local
 		integer::i,j,info,Ny
-		real(KREAL)::aw,ap,ae,as,an,apz,S
+		real(KREAL)::aw,ap,ae,as,an,apz,S,ab
 		real(KREAL)::ms!m per tube per Nyy of shell
 		real(KREAL)::kfn,kfs
 		real(KREAL),allocatable::A(:,:),B(:)
@@ -184,10 +188,13 @@ module Imp_pipe_header
 				  rhof=>this%rhof,&
 				  shcs=>this%shcs,&
 				  shcf=>this%shcf,&
+                  ks=>this%ks,&
 				  htc=>this%htc,  &
 				  Q=>this%Q,      &
 				  area=>this%area,&
 				  kf=>this%kf,    &
+				  Tb=>this%Tb,&
+				  is_Tb=>this%is_Tb,&
 				  Tfin=>this%Tfin)
             
         Ny=this%Ny
@@ -237,10 +244,15 @@ module Imp_pipe_header
 			  B(i)=S			  
 			  case(2)!solid
 			  aw=htc(i)*PI*2*Rtube*Length(i)
-			  !apz=mv*this%shcv/dt
+              if(is_Tb==.TRUE.) then
+                ab=ctcs(i)*PI*2*(Rtube+thicks)*Length(i)/(thicks/2.0)
+			  else
+                ab=0.0
+              endif
+              !apz=mv*this%shcv/dt
 			  apz=0.0
-			  ap=aw+apz
-			  S=apz*Tsl(i)
+			  ap=aw+apz+ab
+			  S=apz*Tsl(i)+ab*Tb(i)
 			  A(i+Ny,i+Ny)=ap
 			  A(i+Ny,i)=-aw
 			  B(i+Ny)=S
@@ -267,7 +279,7 @@ module Imp_pipe_header
 		!local
 		integer::i,j,info,Ny
         real(KREAL)::dt
-		real(KREAL)::aw,ap,ae,as,an,apz,S
+		real(KREAL)::aw,ap,ae,as,an,apz,S,ab
 		real(KREAL)::ms!m per tube per Nyy of shell
 		real(KREAL)::kfn,kfs
 		real(KREAL),allocatable::A(:,:),B(:)
@@ -284,6 +296,9 @@ module Imp_pipe_header
 				  htc=>this%htc,  &
 				  Q=>this%Q,      &
 				  kf=>this%kf,    &
+				  ks=>this%ks,    &
+				  Tb=>this%Tb,    &
+				  is_Tb=>this%is_Tb,    &
 				  Tfin=>this%Tfin)
            
         Ny=this%Ny
@@ -332,10 +347,15 @@ module Imp_pipe_header
 			  B(i)=S			  
 			  case(2)!solid
 			  aw=htc(i)*PI*2*Rtube*Length(i)
+              if(is_Tb==.TRUE.) then
+                ab=ctcs(i)*PI*2*(Rtube+thicks)*Length(i)/(thicks/2.0)
+              else
+                ab=0.0
+              endif
 			  apz=ms*shcs/dt
 			  !apz=0.0
 			  ap=aw+apz
-			  S=apz*Tsl(i)
+			  S=apz*Tsl(i)+ab*Tb(i)
 			  A(i+Ny,i+Ny)=ap
 			  A(i+Ny,i)=-aw
 			  B(i+Ny)=S

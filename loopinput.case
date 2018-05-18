@@ -2,14 +2,14 @@
          control    T         F          T      T             T
 !pump:device     Qe	   Ntime	Nbranch
       pump	   456.90  	26        1
-!pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti   Ny
-        pipePR	    5.0	0.05	 0.005	     0	    456.90	   493	 100
-!pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     T   Ny
-        pipeRI	    5.491	0.05	 0.005	     0	    456.90	   493	 100
+!pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti  is_Tb Ny 
+        pipePR	    5.0	0.05	 0.005	     0	    456.90	   493	  T   100
+!pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     T   is_Tb   Ny
+        pipeRI	    5.491	0.05	 0.005	     0	    456.90	 493   F  	  100
 !IHX:device 	Lsingle 	Rtube   thickt  Plength AreaP	thickv    QP 	    Qs  Tsin    Ti  Ntube	Ny   
      	IHX	    3.317	    0.0067	0.00124	0.02064	0.6354	0.1143	456.90	 311.54	574.12  493	3026	100
-!pipeIP:device    	Length 	  Rtube  thicks  	 theta 	     Q	     T   Ny 
-        pipeIP	     5.0	    0.05	 0.005	     0	    456.90	   493	 100
+!pipeIP:device    	Length 	  Rtube  thicks  	 theta 	     Q	     T     is_Tb   Ny 
+        pipeIP	     5.0	    0.05	 0.005	     0	    456.90	 493     F  	 100
 !time:keyword ttotal   Nt
       time     50.0    50
 !=====================================================================================
@@ -37,6 +37,9 @@ IHXsflow    21    0 1 2.5 6 16.5 30 60 120 180 240 300 360 420 480 540 600 660 7
 !==========================================
 !IHXs Tin NTtime time/s temperature/K
 IHXsTin     16   0 60 120 180 240 300 360 420 480 540 600 660 720 780 840 900 574.12 574.03 573.92 573.96 573.76 573.35 573.09 572.74 572.46 572.37 572.03 571.23 569.91 568.38 566.55 565.13
+!==========================================
+!pipeRI Tb/K
+Tb_RI 100*630.0
 !example
 !is_table=.FALSE.
 ! !pump:device   	I	    He	  Qe	   omegae	     yita	 Nbranch	
