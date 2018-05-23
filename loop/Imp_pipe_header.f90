@@ -32,7 +32,7 @@ module Imp_pipe_header
 		!boundary
 		real(KREAL)::Tfin,Tfout
         logical::is_Tb
-        real(KREAL),allocatable::Tb(:)
+        real(KREAL),allocatable::Tb(:),Bq(:)
     contains
         procedure,public::init=>init_pipe
         procedure,public::alloc=>alloc_pipe
@@ -68,6 +68,7 @@ module Imp_pipe_header
 	  rpipe=this%Rtube
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
+      this%Bq=0.0
       !property
       this%rhos=get_density_304()
       this%shcs=get_shc_304()
@@ -108,6 +109,7 @@ module Imp_pipe_header
 	  allocate(this%shcf(Ny))
 	  allocate(this%visf(Ny))
 	  allocate(this%kf(Ny))
+	  allocate(this%Bq(Ny))
 	  if(this%is_Tb) allocate(this%Tb(Ny))
       !allocate(this%rhof(Ny))
       !allocate(this%T(Ny))
@@ -125,6 +127,7 @@ module Imp_pipe_header
 	  if(allocated(this%kf)) deallocate(this%kf)
 	  if(allocated(this%visf)) deallocate(this%visf)
 	  if(allocated(this%Tb)) deallocate(this%Tb)
+	  if(allocated(this%Bq)) deallocate(this%Bq)
     end subroutine free_pipe
 	
 	subroutine cal_htc(this)
@@ -191,6 +194,7 @@ module Imp_pipe_header
 				  shcf=>this%shcf,&
                   ks=>this%ks,&
 				  htc=>this%htc,  &
+				  Bq=>this%Bq,  &
 				  Q=>this%Q,      &
 				  area=>this%area,&
 				  kf=>this%kf,    &
@@ -254,9 +258,9 @@ module Imp_pipe_header
 			  apz=0.0
 			  ap=aw+apz+ab
               if(is_Tb==.True.) then
-			     S=apz*Tsl(i)+ab*Tb(i)
+			     S=apz*Tsl(i)+ab*Tb(i)+Bq(i)
               else
-                 S=apz*Tsl(i)
+                 S=apz*Tsl(i)+Bq(i)
               endif
 			  A(i+Ny,i+Ny)=ap
 			  A(i+Ny,i)=-aw
@@ -299,6 +303,7 @@ module Imp_pipe_header
 				  shcs=>this%shcs,&
 				  shcf=>this%shcf,&
 				  htc=>this%htc,  &
+				  Bq=>this%Bq,      &
 				  Q=>this%Q,      &
 				  kf=>this%kf,    &
 				  ks=>this%ks,    &
@@ -361,9 +366,9 @@ module Imp_pipe_header
 			  !apz=0.0
 			  ap=aw+apz
               if(is_Tb==.TRUE.) then
-			      S=apz*Tsl(i)+ab*Tb(i)
+			      S=apz*Tsl(i)+ab*Tb(i)+Bq(i)
               else
-                  S=apz*Tsl(i)
+                  S=apz*Tsl(i)+Bq(i)
               endif
 			  A(i+Ny,i+Ny)=ap
 			  A(i+Ny,i)=-aw

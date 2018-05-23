@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=21
+	integer,parameter,private::N_keyword=24
     integer,parameter,private::MAX_REAL_PARAMETER=700
 	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
@@ -42,6 +42,9 @@ module Imp_inputcard
                                 & 'Tb_RI  ',  &
                                 & 'Tb_IP  ',  &
                                 & 'Tb_PR  ',  &
+                                & 'Bq_RI  ',  &
+                                & 'Bq_IP  ',  &
+                                & 'Bq_PR  ',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -268,6 +271,15 @@ module Imp_inputcard
                     case('Tb_PR')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipePR%Ny)
                     PipePR%Tb(:)=dummy_real(1:PipePR%Ny)
+                    case('Bq_RI')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipeRI%Ny)
+                    PipeRI%Bq(:)=dummy_real(1:PipeRI%Ny)
+                    case('Bq_IP')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipeIP%Ny)                
+                    PipeIP%Bq(:)=dummy_real(1:PipeIP%Ny)
+                    case('Bq_PR')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipePR%Ny)
+                    PipePR%Bq(:)=dummy_real(1:PipePR%Ny)
                 end select
             endif
         end do
