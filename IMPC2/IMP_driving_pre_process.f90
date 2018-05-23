@@ -173,7 +173,7 @@ contains
       call assm%initdata%set(reInputdata%Ti,reInputdata%Pi,reInputdata%Ui,reInputdata%Tin,reInputdata%Pin,reInputdata%Uin)
       !设置收敛因子
       call assm%confactor_%set(reInputdata%alpha,reInputdata%sigma)
-      call assm%hydrau%set(reInputdata%f)
+      call assm%hydrau%set(reInputdata%f,reInputdata%K)
      end subroutine set_assembly
      
      subroutine cal_grid(assm)

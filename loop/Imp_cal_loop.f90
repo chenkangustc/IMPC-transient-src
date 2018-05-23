@@ -16,6 +16,7 @@ module Imp_cal_loop
 		real(KREAL)::powinput
         integer::num
 		logical:: transient_flag
+        is_natural=.FALSE.
 		transient_flag=.FALSE.
 		current=0.0
         sigma=1.0
@@ -24,6 +25,7 @@ module Imp_cal_loop
 		coreQin=0.0
 		powinput=0.0
         num=0
+        Qloop=pump1%Nbranch*Pump1%Qe
 		!cal total input power for output
 		call cal_total_inputpow(assembly,powinput)
 		!write(*,*)'driving loop steady:'
@@ -60,16 +62,16 @@ module Imp_cal_loop
 		real(KREAL),intent(in)::assembly(:,:)!power(zone,layer)
         real(KREAL),intent(in)::last,current
         !local
-		real(KREAL)::coreTin,coreTout,coreQin,Qloop
+		real(KREAL)::coreTin,coreTout,coreQin
 		real(KREAL)::powinput
 		integer::i,j,nr,na
 		logical::transient_flag,is_table
 		
 		transient_flag=.TRUE.
         is_table=.TRUE.
-		
+
 		call cal_total_inputpow(assembly,powinput)
-        call cal_loop_hydraulic(is_table,current,Qloop)		
+        call cal_loop_hydraulic(is_table,is_natural,last,current,Qloop)		
         call update_secflow(current)
         call update_Tsin(current)
         coreQin=pump1%Nbranch*Qloop
@@ -91,8 +93,33 @@ module Imp_cal_loop
         write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
           
 	end subroutine driving_loop_transient
-	
-	subroutine cal_loop_hydraulic(is_table,current,flowrate)
+    
+	subroutine cal_loop_hydraulic(is_table,is_natural,last,current,flowrate)
+        logical,intent(in)::is_table
+        logical,intent(in out)::is_natural
+		real(KREAL),INTENT(in)::last!time
+		real(KREAL),INTENT(in)::current!time
+		real(KREAL),INTENT(out)::flowrate
+        !local
+        real(KREAL)::flowf,flows
+        flowf=flowrate
+        flows=flowrate
+        if(is_natural==.FALSE.) then
+            call cal_hydraulic_fir(is_table,current,flowf)
+            call cal_hydraulic_sec(last,current,flows)
+            if(flows<flowf) then
+                flowrate=flowf
+            else
+                flowrate=flows
+                is_natural=.TRUE.
+            endif
+        else
+            call cal_hydraulic_sec(last,current,flows)
+            flowrate=flows
+        endif
+    end subroutine cal_loop_hydraulic
+    
+	subroutine cal_hydraulic_fir(is_table,current,flowrate)
 		implicit none
         logical,intent(in)::is_table
 		real(KREAL),INTENT(in)::current!time
@@ -123,16 +150,33 @@ module Imp_cal_loop
                 endif
                 if(current>dtime(Ntime)) crotate=rotate(Ntime)
             enddo
-            if (crotate>=0.024*Qe) then
+            !if (crotate>=0.024*Qe) then
                 flowrate=crotate/rotate(1)*Qe
-            else 
-                flowrate=0.024*Qe
-            endif
+            !else 
+            !    flowrate=0.024*Qe
+            !endif
             end associate
         endif
         call set_flowrate(flowrate)
-	end subroutine cal_loop_hydraulic
-	
+	end subroutine cal_hydraulic_fir
+    
+	subroutine cal_hydraulic_sec(last,current,flowrate)
+        implicit none
+		real(KREAL),INTENT(in)::last!time
+		real(KREAL),INTENT(in)::current!time
+		real(KREAL),INTENT(out)::flowrate
+        !local
+        real(KREAL)::alpha,beta,buoy
+        real(KREAL)::dt
+        dt=current-last
+        alpha=PipePR%ltotal/PipePR%Area+core%calpha()+PipeRI%ltotal/PipeRI%Area+IHX1%Lsingle/IHX1%Areap+PipeIP%ltotal/PipeIP%Area
+        beta=PipePR%cbeta()+PipeRI%cbeta()+PipeIP%cbeta()+IHX1%cbeta()+core%cbeta()
+        buoy=PipePR%cbuoy()+PipeRI%cbuoy()+PipeIP%cbuoy()+IHX1%cbuoy()+core%cbuoy()
+        !this%betap=this%betap+0.5*(this%Fricp*this%length(i)/this%Dep+Kiouter)*1/(this%rhop(i)*this%Areap**2)
+        !solve
+        flowrate=(alpha*flowrate+buoy*dt)/(alpha-beta*flowrate*dt)
+   end subroutine cal_hydraulic_sec
+    
 	subroutine cal_beta(beta,formula)
 		implicit none
 		real(KREAL),intent(in out)::beta

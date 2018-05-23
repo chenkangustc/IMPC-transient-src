@@ -66,6 +66,7 @@ module imp_assm_header
         real(KREAL):: aflow
         real(KREAL):: wet
         real(KREAL):: de
+        real(KREAL):: K
     contains
         procedure,public::set=>set_hydraulic
         procedure,public::print=>print_hydraulic
@@ -368,11 +369,13 @@ module imp_assm_header
         call this%print
      end subroutine set_confactor
  
-     subroutine set_hydraulic(this,fric)
+     subroutine set_hydraulic(this,fric,kric)
         implicit none
         class(hydraulic),intent(in out)::this
         real(KREAL),intent(in)::fric
+        real(KREAL),intent(in)::kric
         this%fric=fric
+        this%K=kric
         call this%print
      end subroutine set_hydraulic
      

@@ -8,6 +8,8 @@ module Imp_loop_global
 	implicit none
         logical::is_tNK2TH
         logical::is_THonly
+        logical::is_natural
+        real(KREAL)::Qloop
 		type(coremodle)::core
 		type(IHX)::IHX1
 		type(pipe)::PipeRI

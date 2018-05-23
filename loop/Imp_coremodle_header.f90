@@ -4,6 +4,7 @@ module Imp_coremodle_header
     use imp_mathkerel
     use lapack_interface
     use Imp_coremodle_pow
+    use imp_assm_global
   
     type coremodle
         !useful
@@ -51,6 +52,9 @@ module Imp_coremodle_header
 		procedure,public::calhtc=>cal_htc
 		procedure,public::thcals=>cal_thermal_steady
 		procedure,public::thcalt=>cal_thermal_transient		
+		procedure,public::cbuoy=>cal_buoy		
+		procedure,public::cbeta=>cal_beta		
+		procedure,public::calpha=>cal_alpha		
     end type coremodle
 
     private::init_coremodle
@@ -63,6 +67,9 @@ module Imp_coremodle_header
 	private::cal_htc
 	private::cal_thermal_steady
 	private::cal_thermal_transient
+	private::cal_buoy
+	private::cal_beta
+	private::cal_alpha
   contains
       subroutine init_coremodle(this)
       implicit none
@@ -378,5 +385,81 @@ module Imp_coremodle_header
 		call this%kerelt(last,current)	
 	end subroutine cal_thermal_transient
     
-
+    function cal_buoy(this) result (buoy)
+		implicit none
+		class(coremodle),intent(in out)::this
+        real(KREAL)::buoy,dbuoy,rhoa
+        integer::i,j
+        integer::Nfluid,Nzone
+        buoy=0.0
+        dbuoy=0.0
+        associate(Ny=>assm1(1)%mesh%Ny,&
+                  Nf=>assm1(1)%mesh%Nf,&  
+                  Ng=>assm1(1)%mesh%Ng,&  
+                  Ns=>assm1(1)%mesh%Ns,&  
+                  rho=>assm1(1)%property%rho,&
+                  length=>assm1(1)%geom%height)
+            Nfluid=Nf+Ng+Ns+1
+            Nzone=size(assm1)
+            do i=1,Ny,1
+                rhoa=0.0
+                do j=1,Nzone,1
+                    rhoa=rhoa+assm1(j)%property%rho(i,Nfluid)/Nzone
+                enddo
+                dbuoy=-GRAVG*sin(90.0/180.0*PI)*rhoa*length(i)
+                buoy=buoy+dbuoy
+            enddo
+    end associate
+    end function cal_buoy
+    
+    function cal_beta(this) result (beta)
+        implicit none
+		class(coremodle),intent(in out)::this
+        real(KREAL)::beta,rhoa,De
+        real(KREAL)::ltotal,area
+        integer::i,j
+        integer::Nzone,Nfluid
+        beta=0.0
+        rhoa=0.0
+        associate(Ny=>assm1(1)%mesh%Ny,&
+                  Nf=>assm1(1)%mesh%Nf,&
+                  Ng=>assm1(1)%mesh%Ng,&          
+                  Ns=>assm1(1)%mesh%Ns,&          
+                  Npin=>assm1(1)%geom%N_pin,&          
+                  ! rho=>assm1(1)%property%rho,&
+                  height=>assm1(1)%geom%height,&
+                  areap=>assm1(1)%hydrau%aflow,&
+                  fric=>assm1(1)%hydrau%fric,&
+                  Dep=>assm1(1)%hydrau%De,&
+                  K=>assm1(1)%hydrau%K)
+            Nzone=size(assm1)
+            Nfluid=Nf+Ng+Ns+1
+            De=Dep*Npin*Nzone
+            area=areap*Npin*Nzone
+            ltotal=sum(height)
+            rhoa=0.0
+            do i=1,Nzone,1
+                do j=1,Ny,1
+                    rhoa=rhoa+assm1(i)%property%rho(j,Nfluid)*height(j)/(ltotal*Nzone)
+                enddo
+            enddo
+            beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
+    end associate
+    end function cal_beta
+    
+    function cal_alpha(this) result(alpha)
+        implicit none
+		class(coremodle),intent(in out)::this
+        real(KREAL)::alpha
+        real(KREAL)::area,ltotal
+        integer::Nzone,Npin
+        associate(height=>assm1(1)%geom%height,&
+                  Npin=>assm1(1)%geom%N_pin,&
+                  areap=>assm1(1)%hydrau%aflow)
+            Nzone=size(assm1)
+            ltotal=sum(height)
+            area=areap*Npin*Nzone
+            alpha=ltotal/area
+        end associate
+    end function cal_alpha
 end module Imp_coremodle_header

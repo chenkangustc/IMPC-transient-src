@@ -44,6 +44,8 @@ module Imp_pipe_header
 		procedure,public::calhtc=>cal_htc
 		procedure,public::thcals=>cal_thermal_steady
 		procedure,public::thcalt=>cal_thermal_transient		
+		procedure,public::cbuoy=>cal_buoy		
+		procedure,public::cbeta=>cal_beta		
     end type pipe
 
     private::init_pipe
@@ -56,6 +58,8 @@ module Imp_pipe_header
 	private::cal_htc
 	private::cal_thermal_steady
 	private::cal_thermal_transient
+	private::cal_buoy
+	private::cal_beta
   contains
       subroutine init_pipe(this)
       implicit none
@@ -431,6 +435,43 @@ module Imp_pipe_header
 		call this%kerelt(last,current)	
         call this%updatep()!update property
 	end subroutine cal_thermal_transient
-    
 
+    function cal_buoy(this) result (buoy)
+		implicit none
+		class(pipe),intent(in out)::this
+        real(KREAL)::buoy,dbuoy
+        integer::i
+        buoy=0.0
+        dbuoy=0.0
+        associate(Ny=>this%Ny,&
+                  rhof=>this%rhof,&
+                  length=>this%Length,&
+                  theta=>this%theta)
+            do i=1,Ny,1
+               dbuoy=-GRAVG*sin(theta/180.0*PI)*rhof(i)*length(i)
+               buoy=buoy+dbuoy
+            enddo
+        end associate
+    end function cal_buoy
+    
+    function cal_beta(this) result (beta)
+        implicit none
+		class(pipe),intent(in out)::this
+        real(KREAL)::beta,rhoa
+        integer::i
+        beta=0.0
+        rhoa=0.0
+        associate(Ny=>this%Ny,&
+                  fric=>this%fric,&
+                  rho=>this%rhof,&
+                  ltotal=>this%ltotal,&
+                  De=>this%De,&
+                  area=>this%area,&
+                  K=>this%K)
+            do i=1,Ny,1
+                rhoa=rhoa+rho(i)/Ny
+            enddo
+            beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
+        end associate
+    end function cal_beta
 end module Imp_pipe_header

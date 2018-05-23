@@ -60,6 +60,8 @@ module Imp_IHX_header
         procedure,public::kerel=>cal_thermal_kerel
 		procedure,public::kerelTransient=>cal_thermal_kerel_transient
 		procedure,public::updateBoundary=>update_Boundary
+		procedure,public::cbuoy=>cal_buoy
+		procedure,public::cbeta=>cal_beta
 	end type IHX
 	
 	private::init_IHX
@@ -72,6 +74,8 @@ module Imp_IHX_header
 	private::cal_htc
 	private::cal_thermal_kerel_transient
 	private::update_Boundary
+	private::cal_buoy
+	private::cal_beta
   contains
 	subroutine init_IHX(this)
 		implicit none
@@ -132,7 +136,7 @@ module Imp_IHX_header
 				this%zz(i)=this%zz(i-1)+this%Length(i)
 			endif
 			!betap
-			this%betap=this%betap+0.5*(this%Fricp*this%length(i)/this%Dep+Kiouter)*1/(this%rhop(i)*this%Areap**2)
+			!this%betap=this%betap+0.5*(this%Fricp*this%length(i)/this%Dep+Kiouter)*1/(this%rhop(i)*this%Areap**2)
 		end do
 		call this%CalHtc()
 		!if(allocated(temperature)) deallocate(temperature)
@@ -578,5 +582,44 @@ module Imp_IHX_header
 		this%Tpin=Tpin
 		this%Tsin=Tsin		
 	end subroutine update_Boundary
-
+    
+    function cal_buoy(this) result (buoy)
+        class(IHX),intent(in out)::this
+        real(KREAL)::buoy,dbuoy
+        integer::i
+        buoy=0.0
+        dbuoy=0.0
+        associate(Ny=>this%N,&
+                  rhop=>this%rhop,&
+                  length=>this%Length)
+            do i=1,Ny,1
+               dbuoy=-GRAVG*sin(-90.0/180.0*PI)*rhop(i)*length(i)
+               buoy=buoy+dbuoy
+            enddo
+        end associate
+    end function cal_buoy
+  
+    function cal_beta(this) result (beta)
+        implicit none
+		class(IHX),intent(in out)::this
+        real(KREAL)::beta,rhoa,De,area
+        integer::i
+        beta=0.0
+        rhoa=0.0
+        associate(Ny=>this%N,&
+                  Ntube=>this%Ntube,&
+                  fric=>this%Fricp,&
+                  rho=>this%rhop,&
+                  ltotal=>this%lsingle,&
+                  Des=>this%Des,&
+                  areap=>this%areap,&
+                  K=>this%Kricp)
+            De=Des*Ntube
+            area=areap*Ntube
+            do i=1,Ny,1
+                rhoa=rhoa+rho(i)/Ny
+            enddo
+            beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
+        end associate
+    end function cal_beta
 end module Imp_IHX_header

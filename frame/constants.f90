@@ -12,7 +12,7 @@ module constants
 
     implicit none
     public
-    
+
     ! --------------------------------------------------------------------------
     ! kind number for integer, real and character 
     integer, parameter  :: KINT            = SELECTED_INT_KIND(r=17)            ! high precision integer kind
@@ -21,6 +21,8 @@ module constants
     integer, parameter  :: MAX_LINE_LEN  = 800                                  ! max length of a line, as group increasing
     integer, parameter  :: MAX_WORD_LEN  = 800                                  ! max length of a word
     integer, parameter  :: MAX_WORDS     = 800                                  ! max number of word per line
+    !physics
+    real(KREAL), parameter  :: GRAVG = 9.80 
     
     real(KREAL), parameter  :: INT_DEFAULT_BYTE = KIND(0) / (1024.0 * 1024.0)   ! size in 'MB' for default integer kind
     real(KREAL), parameter  :: REAL_DEFAULT_BYTE = KIND(0.0) / (1024.0 * 1024.0)! size in 'MB' for default real kind
@@ -157,5 +159,5 @@ module constants
     character(len=MAX_WORD_LEN), parameter  :: TH_HOT               = '.thhotchannel'
     character(len=MAX_WORD_LEN), parameter  :: TH_AVERAGE           = '.thavgchannel'
     character(len=MAX_WORD_LEN), parameter  :: TH_RBFD              = '.RBFD.bin'
-                                                                        
+    !
 end module constants

@@ -11,7 +11,8 @@ module imp_re_input_header
        !integer nf,ng,ns,ny,npin,ny_start,ny_end
 	   integer::ny,ny_bottom,ny_top
        integer::nf,ng,ns,npin,nFuelPin
-       real(KREAL):: xf,xg,xs,xos,acf,f,pd,pout
+       real(KREAL):: xf,xg,xs,xos,acf,pd,pout
+       real(KREAL):: f,K
        real(KREAL):: Tin,uin,pin
        real(KREAL):: Ti,ui,pi
        real(KREAL):: alpha,sigma
