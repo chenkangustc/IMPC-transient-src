@@ -26,6 +26,7 @@ module Imp_cal_loop
 		powinput=0.0
         num=0
         Qloop=pump1%Nbranch*Pump1%Qe
+        core%Qtotal=Qloop
 		!cal total input power for output
 		call cal_total_inputpow(assembly,powinput)
 		!write(*,*)'driving loop steady:'
@@ -75,6 +76,7 @@ module Imp_cal_loop
         call update_secflow(current)
         call update_Tsin(current)
         coreQin=pump1%Nbranch*Qloop
+        core%Qtotal=coreQin
         coreTin=PipePR%Tfout
         core%Tfin=PipePR%Tfout
         ! print *,'core cal'

@@ -46,6 +46,7 @@ module Imp_pipe_header
 		procedure,public::thcalt=>cal_thermal_transient		
 		procedure,public::cbuoy=>cal_buoy		
 		procedure,public::cbeta=>cal_beta		
+		procedure,public::cfric=>cal_fric		
     end type pipe
 
     private::init_pipe
@@ -60,6 +61,7 @@ module Imp_pipe_header
 	private::cal_thermal_transient
 	private::cal_buoy
 	private::cal_beta
+	private::cal_fric
   contains
       subroutine init_pipe(this)
       implicit none
@@ -453,6 +455,30 @@ module Imp_pipe_header
             enddo
         end associate
     end function cal_buoy
+        
+    function cal_fric(this) result(fric)
+        implicit none
+		class(pipe),intent(in out)::this
+        real(KREAL)::fric
+        real(KREAL)::Re,visa,De
+        integer::i
+        associate(De=>this%De,&
+                  Ny=>this%Ny,&
+                  vis=>this%visf,&
+                  flowrate=>this%Q,&
+                  flowarea=>this%area)
+            visa=0.0
+            do i=1,Ny,1
+                visa=visa+vis(i)/Ny
+            enddo
+            Re=4*flowrate*De/(visa*flowarea)
+            if(Re>=1082) then
+                fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
+            else
+                fric=64./Re
+            endif
+        end associate
+    end function cal_fric
     
     function cal_beta(this) result (beta)
         implicit none
@@ -471,6 +497,7 @@ module Imp_pipe_header
             do i=1,Ny,1
                 rhoa=rhoa+rho(i)/Ny
             enddo
+            fric=this%cfric()
             beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
         end associate
     end function cal_beta

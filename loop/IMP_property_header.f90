@@ -69,16 +69,21 @@ module imp_property
         allocate(drho(Nrho))
         dtem=[400.,500.,600.,700.,800.,900.,1000.,1100.,1200.,1300.,1400.,1500.,1600.,1700.,1800.,1900.,2000.,2100.,2200.,2300.,2400.,2500.,2503.7]
             drho=[919.,897.,874.,852.,828.,805.,781.,756.,732.,706.,680.,653.,626.,597.,568.,537.,504.,469.,431.,387.,335.,239.,219.]
-        if(Tin<dtem(1).or.Tin>dtem(Nrho)) write(*,fmt="('Tin is out of range of Na rho table')")
-        do i=1,Nrho-1,1
-            if(Tin>=dtem(i).and.Tin<=dtem(i+1)) then
-                rho=(drho(i+1)-drho(i))/(dtem(i+1)-dtem(i))*(Tin-dtem(i))+drho(i)
-                exit
-            endif
-            if(Tin>dtem(Nrho)) rho=drho(Nrho)
-        enddo        
+        ! if(Tin<dtem(1).or.Tin>dtem(Nrho)) write(*,fmt="('Tin is out of range of Na rho table')")
+        if(Tin<dtem(1)) then
+            rho=(drho(2)-drho(1))/(dtem(2)-dtem(1))*(Tin-dtem(1))+drho(1)
+        elseif(Tin>dtem(Nrho)) then
+            rho=(drho(Nrho)-drho(Nrho-1))/(dtem(Nrho)-dtem(Nrho-1))*(Tin-dtem(Nrho))+drho(Nrho)
+        else
+            do i=1,Nrho-1,1
+                if(Tin>=dtem(i).and.Tin<=dtem(i+1)) then
+                    rho=(drho(i+1)-drho(i))/(dtem(i+1)-dtem(i))*(Tin-dtem(i))+drho(i)
+                    exit
+                endif
+            enddo  
+        endif
         !Cui Manman
-        ! rho=950.076-0.2298*Tin-1.4605*1e-5*Tin**2+5.5379*1e-9*Tin**3!kg/m3
+         ! rho=950.076-0.2298*Tin-1.4605*1e-5*Tin**2+5.5379*1e-9*Tin**3!kg/m3
 	end function get_density_Na
     
     function get_shc_Na(Tin) result(shc)
@@ -99,14 +104,27 @@ module imp_property
                        &2400.,4012.,2469.,8274.,2500.,39279],[2,24])
         dtem=argonne(1,:)
         dar=argonne(2,:)
-        if(Tin<dtem(1).or.Tin>dtem(Nar)) write(*,fmt="('Tin is out of range of Na shc table')")
-        do i=1,Nar-1,1
-           if(Tin>=dtem(i).and.Tin<=dtem(i+1)) then
-               shc=(dar(i+1)-dar(i))/(dtem(i+1)-dtem(i))*(Tin-dtem(i))+dar(i)
-               exit
-           endif
-           if(Tin>dtem(Nar)) shc=dar(Nar)
-        enddo
+        ! if(Tin<dtem(1).or.Tin>dtem(Nar)) write(*,fmt="('Tin is out of range of Na shc table')")
+        
+        if(Tin<dtem(1)) then
+            shc=(dar(2)-dar(1))/(dtem(2)-dtem(1))*(Tin-dtem(1))+dar(1)
+        elseif(Tin>dtem(Nar)) then
+            shc=(dar(Nar)-dar(Nar-1))/(dtem(Nar)-dtem(Nar-1))*(Tin-dtem(Nar))+dar(Nar)
+        else
+            do i=1,Nar-1,1
+                if(Tin>=dtem(i).and.Tin<=dtem(i+1)) then
+                    shc=(dar(i+1)-dar(i))/(dtem(i+1)-dtem(i))*(Tin-dtem(i))+dar(i)
+                    exit
+                endif
+            enddo  
+        endif
+        ! do i=1,Nar-1,1
+           ! if(Tin>=dtem(i).and.Tin<=dtem(i+1)) then
+               ! shc=(dar(i+1)-dar(i))/(dtem(i+1)-dtem(i))*(Tin-dtem(i))+dar(i)
+               ! exit
+           ! endif
+           ! if(Tin>dtem(Nar)) shc=dar(Nar)
+        ! enddo
         !Cui Manman
 		! shc=1436.05+(4.625*1e-5*Tin-0.5802)*Tin!J/(kg*K)
 	end function get_shc_Na

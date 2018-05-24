@@ -62,6 +62,7 @@ module Imp_IHX_header
 		procedure,public::updateBoundary=>update_Boundary
 		procedure,public::cbuoy=>cal_buoy
 		procedure,public::cbeta=>cal_beta
+		procedure,public::cfric=>cal_fric
 	end type IHX
 	
 	private::init_IHX
@@ -598,6 +599,32 @@ module Imp_IHX_header
             enddo
         end associate
     end function cal_buoy
+    
+    function cal_fric(this) result(fric)
+        implicit none
+		class(IHX),intent(in out)::this
+        real(KREAL)::fric
+        real(KREAL)::Re,visa,De
+        integer::i
+        associate(Dep=>this%Dep,&
+                  Ny=>this%N,&
+                  Ntube=>this%Ntube,&
+                  vis=>this%visp,&
+                  flowrate=>this%Qp,&
+                  flowarea=>this%areap)
+            visa=0.0
+            do i=1,Ny,1
+                visa=visa+vis(i)/Ny
+            enddo
+            De=Dep*Ntube
+            Re=4*flowrate*De/(visa*flowarea)
+            if(Re>=1082) then
+                fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
+            else
+                fric=64./Re
+            endif
+        end associate
+    end function cal_fric
   
     function cal_beta(this) result (beta)
         implicit none
@@ -615,11 +642,14 @@ module Imp_IHX_header
                   areap=>this%areap,&
                   K=>this%Kricp)
             De=Des*Ntube
-            area=areap*Ntube
+            area=areap
+            fric=this%cfric()
             do i=1,Ny,1
                 rhoa=rhoa+rho(i)/Ny
             enddo
             beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
         end associate
     end function cal_beta
+    
+
 end module Imp_IHX_header

@@ -12,6 +12,7 @@ module Imp_coremodle_header
         integer::Nflow
         integer::Nflowsemi!缩略模型半组件
         integer::Nsplit!计算时堆芯分成的份数
+        real(KREAL)::Qtotal
         real(KREAL)::sigmaPass
         integer,allocatable::fzone(:)!zones which should be allocated flow
         integer,allocatable::SAtable(:)
@@ -55,6 +56,7 @@ module Imp_coremodle_header
 		procedure,public::cbuoy=>cal_buoy		
 		procedure,public::cbeta=>cal_beta		
 		procedure,public::calpha=>cal_alpha		
+		procedure,public::cfric=>cal_fric		
     end type coremodle
 
     private::init_coremodle
@@ -70,6 +72,7 @@ module Imp_coremodle_header
 	private::cal_buoy
 	private::cal_beta
 	private::cal_alpha
+	private::cal_fric
   contains
       subroutine init_coremodle(this)
       implicit none
@@ -412,6 +415,47 @@ module Imp_coremodle_header
     end associate
     end function cal_buoy
     
+    function cal_fric(this) result(fric)
+        implicit none
+		class(coremodle),intent(in out)::this
+        real(KREAL)::fric
+        real(KREAL)::ltotal
+        real(KREAL)::Re,visa,De,area
+        integer::i,j
+        integer::Nzone,Nfluid
+        associate(Ny=>assm1(1)%mesh%Ny,&
+                  Nf=>assm1(1)%mesh%Nf,&
+                  Ng=>assm1(1)%mesh%Ng,&          
+                  Ns=>assm1(1)%mesh%Ns,&          
+                  Npin=>assm1(1)%geom%N_pin,&  
+                  height=>assm1(1)%geom%height,&  
+                  flowrate=>this%Qtotal,&
+                  areap=>assm1(1)%hydrau%aflow,&
+                  fric=>assm1(1)%hydrau%fric,&
+                  Dep=>assm1(1)%hydrau%De)
+                  
+            Nzone=size(assm1)
+            Nfluid=Nf+Ng+Ns+1
+            ltotal=sum(height)
+            De=Dep*Npin*Nzone
+            area=areap*Npin*Nzone
+          
+            visa=0.0
+            do i=1,Nzone,1
+                do j=1,Ny,1
+                    visa=visa+assm1(i)%property%dvs(j,Nfluid)*height(j)/(ltotal*Nzone)
+                enddo
+            enddo
+            Re=4*flowrate*De/(visa*area)
+            
+            if(Re>=2050.) then
+                fric=0.1875/Re**2
+            else
+                fric=76.5/Re
+            endif
+        end associate
+    end function cal_fric
+    
     function cal_beta(this) result (beta)
         implicit none
 		class(coremodle),intent(in out)::this
@@ -443,6 +487,7 @@ module Imp_coremodle_header
                     rhoa=rhoa+assm1(i)%property%rho(j,Nfluid)*height(j)/(ltotal*Nzone)
                 enddo
             enddo
+            fric=this%cfric()
             beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
     end associate
     end function cal_beta
