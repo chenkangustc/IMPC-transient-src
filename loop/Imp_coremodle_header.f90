@@ -446,7 +446,7 @@ module Imp_coremodle_header
                     visa=visa+assm1(i)%property%dvs(j,Nfluid)*height(j)/(ltotal*Nzone)
                 enddo
             enddo
-            Re=4*flowrate*De/(visa*area)
+            Re=flowrate*De/(visa*area)
             
             if(Re>=2050.) then
                 fric=0.1875/Re**2

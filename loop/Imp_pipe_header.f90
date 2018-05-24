@@ -471,7 +471,7 @@ module Imp_pipe_header
             do i=1,Ny,1
                 visa=visa+vis(i)/Ny
             enddo
-            Re=4*flowrate*De/(visa*flowarea)
+            Re=flowrate*De/(visa*flowarea)
             if(Re>=1082) then
                 fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
             else

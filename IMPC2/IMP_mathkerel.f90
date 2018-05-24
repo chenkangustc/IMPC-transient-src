@@ -97,7 +97,7 @@ contains
 		real(KREAL),intent(in)::flowrate
 		!local
 		real(KREAL)::Re,Pr,Pe,Nu
-		Re=4*flowrate*De/(vis*flowarea)
+		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
 		Nu=0.023*Re**0.8*Pr**0.333
@@ -110,7 +110,7 @@ contains
 		real(KREAL),intent(in)::flowrate
 		!local
 		real(KREAL)::Re,Pr,Pe,Nu
-		Re=4*flowrate*De/(vis*flowarea)
+		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
 		Nu=7.55*P/D-20.*(P/D)**(-13)+3.67/(90.*(P/D)**2)*Pe**(0.56+0.19*P/D)
@@ -123,7 +123,7 @@ contains
 		real(KREAL),intent(in)::flowrate
 		!local
 		real(KREAL)::Re,Pr,Pe,Nu
-		Re=4*flowrate*De/(vis*flowarea)
+		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
 		Nu=4.8+0.0156*Re**0.85*Pr**0.93
@@ -135,7 +135,7 @@ contains
 		real(KREAL),intent(in)::flowrate
 		!local
 		real(KREAL)::Re,Pr,Pe,Nu
-		Re=4*flowrate*De/(vis*flowarea)
+		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
 		Nu=4.5+0.018*Pe**0.8
@@ -148,7 +148,7 @@ contains
 		real(KREAL),intent(in)::flowrate
         !local
 		real(KREAL)::Re,Pr,Pe,Nu
-		Re=4*flowrate*De/(vis*flowarea)
+		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
         if(pd>=1.05.and.pd<=1.15) then
