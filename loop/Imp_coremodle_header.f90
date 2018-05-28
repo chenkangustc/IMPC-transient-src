@@ -400,10 +400,10 @@ module Imp_coremodle_header
                   Nf=>assm1(1)%mesh%Nf,&  
                   Ng=>assm1(1)%mesh%Ng,&  
                   Ns=>assm1(1)%mesh%Ns,&  
+                  Nzone=>this%Nzone,&  
                   rho=>assm1(1)%property%rho,&
                   length=>assm1(1)%geom%height)
             Nfluid=Nf+Ng+Ns+1
-            Nzone=size(assm1)
             do i=1,Ny,1
                 rhoa=0.0
                 do j=1,Nzone,1

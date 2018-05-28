@@ -88,8 +88,9 @@
         
 		max_Tcoolant=0.0
 		max_Tfuel=0.0
-        Nzone=core%Nflow+core%Nflowsemi
-		!calculate max_Tcoolant max_Tfuel
+        ! Nzone=core%Nflow+core%Nflowsemi
+		Nzone=core%Nzone!better change it to fuel 
+        !calculate max_Tcoolant max_Tfuel
 		do izone=1,Nzone,1
 			do j=1,assm1(izone)%mesh%Ny,1
 				if(Tfuel(izone,j)>max_Tfuel) 		max_Tfuel=Tfuel(izone,j)

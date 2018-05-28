@@ -16,8 +16,14 @@ exname=['high pressure inlet.txt',\
         'IHX primary inlet temperature.txt',\
         'pump2 mass flow.txt']
 exanl=['Exp','Exp','ANL','ANL','ANL','Exp','Exp']
+xx09exname=['XX09 lower flowmeter temperature.txt',\
+            'XX09 mass flowrate.txt',\
+            'XX09 sample midcore temperature.txt',\
+            'XX09 sample top of core temperature.txt',\
+            'XX09 sample above core temperature.txt',\
+            'XX09 sample  core  outlet temperature.txt']
 #generel control
-is_flag=[True,False,False,True]
+is_flag=[False,False,False,True,True]
 is_exp=True
 #FIG1 sub0 control
 zone=12
@@ -225,5 +231,24 @@ if is_flag[3]==True:
             # dtime=exdata[idx,:,0]
             # dvalue=exdata[idx,:,1]
             # ax1[idx].plot(dtime,dvalue,label='exp')
+#FIG5:EBR-II XX09
+if is_flag[4]==True:
+    fig,ax=plt.subplots(2,3)
+    plt.subplots_adjust(wspace=0.28,hspace=0.38)
+
+    #XX09 exp plot
+    if is_exp==True:
+        ax1=ax.flatten()
+        for idx,iname in enumerate(xx09exname):
+            exdatab=np.loadtxt(exdir+iname,skiprows=4)
+            dtime=exdatab[:,0]
+            dvalue=exdatab[:,1]
+            ax1[idx].plot(dtime,dvalue,label='Exp')
+            ax1[idx].set_xlabel('Time/sec')
+            ax1[idx].set_title(iname[:-4])
+            ax1[idx].legend()
+            ax1[idx].yaxis.grid(True)  
+            ax1[idx].xaxis.grid(True) 
+            
 plt.savefig(exdir+'test.png', format='png', bbox_inches='tight', transparent=True, dpi=600)
 plt.show()
