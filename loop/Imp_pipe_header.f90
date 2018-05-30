@@ -21,6 +21,7 @@ module Imp_pipe_header
         real(KREAL)::K
 		real(KREAL)::Q
 		real(KREAL)::beta
+        real(KREAL)::poolmodify
 		!thermal
 		real(KREAL),allocatable::Tf(:),Ts(:)
 		real(KREAL),allocatable::htc(:)
@@ -75,6 +76,7 @@ module Imp_pipe_header
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
       this%Bq=0.0
+      !this%poolmodify=1.0
       !property
       this%rhos=get_density_304()
       this%shcs=get_shc_304()
@@ -448,9 +450,10 @@ module Imp_pipe_header
         associate(Ny=>this%Ny,&
                   rhof=>this%rhof,&
                   length=>this%Length,&
+                  sigma=>this%poolmodify,&
                   theta=>this%theta)
             do i=1,Ny,1
-               dbuoy=-GRAVG*sin(theta/180.0*PI)*rhof(i)*length(i)
+               dbuoy=-GRAVG*sin(theta/180.0*PI)*rhof(i)*length(i)*sigma
                buoy=buoy+dbuoy
             enddo
         end associate

@@ -106,7 +106,7 @@ module Imp_inputcard
                     endif
 					
 					case('pipePR')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:8),dummy_logical(1),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1)
 					pipePR%ltotal=dummy_real(1)
 					pipePR%Rtube=dummy_real(2)
 					pipePR%thicks=dummy_real(3)
@@ -115,6 +115,7 @@ module Imp_inputcard
 					pipePR%Ti=dummy_real(6)
 					pipePR%fric=dummy_real(7)
 					pipePR%K=dummy_real(8)
+					pipePR%poolmodify=dummy_real(9)
 					pipePR%is_Tb=dummy_logical(1)
 					pipePR%Ny=dummy_int(1)
 					
@@ -134,7 +135,7 @@ module Imp_inputcard
 					! core%Ny=dummy_int(4)
 					
 					case('pipeRI')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:8),dummy_logical(1),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1)
 					pipeRI%ltotal=dummy_real(1)
 					pipeRI%Rtube=dummy_real(2)
 					pipeRI%thicks=dummy_real(3)
@@ -143,6 +144,7 @@ module Imp_inputcard
 					pipeRI%Ti=dummy_real(6)
                     pipeRI%fric=dummy_real(7)
 					pipeRI%K=dummy_real(8)
+					pipeRI%poolmodify=dummy_real(9)
 					pipeRI%is_Tb=dummy_real(1)
 					pipeRI%Ny=dummy_int(1)
 					
@@ -164,7 +166,7 @@ module Imp_inputcard
 					IHX1%N=dummy_int(2)
 					
 					case('pipeIP')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:8),dummy_logical(1),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1)
 					pipeIP%ltotal=dummy_real(1)
 					pipeIP%Rtube=dummy_real(2)
 					pipeIP%thicks=dummy_real(3)
@@ -173,6 +175,7 @@ module Imp_inputcard
 					pipeIP%Ti=dummy_real(6)
                     pipeIP%fric=dummy_real(7)
 					pipeIP%K=dummy_real(8)
+					pipeIP%poolmodify=dummy_real(9)
 					pipeIP%is_Tb=dummy_logical(1)
 					pipeIP%Ny=dummy_int(1)
 
