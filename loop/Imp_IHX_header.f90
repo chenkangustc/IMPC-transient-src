@@ -127,7 +127,8 @@ module Imp_IHX_header
             this%visp(i)=get_vis_Na(Tp,this%rhop(i))
 			this%kp(i)=get_conductivity_Na(Tp)		
 			this%rhos(i)=get_density_Na(Ts)
-			this%shcs(i)=get_shc_Na(Ts)
+			! this%shcs(i)=get_shc_Na(Ts)
+			this%shcs(i)=1260.0
 		    this%viss=get_vis_Na(Ts,this%rhos(i))
 			this%ks(i)=get_conductivity_Na(Ts)
 			this%Length(i)=Lsingle/N
@@ -212,7 +213,8 @@ module Imp_IHX_header
 			this%visp(i)=get_vis_Na(this%Tp(i),this%rhop(i))
 			
             this%rhos(i)=get_density_Na(this%Ts(i))
-			this%shcs(i)=get_shc_Na(this%Ts(i))
+			! this%shcs(i)=get_shc_Na(this%Ts(i))
+			this%shcs(i)=1260.0
 			this%ks(i)=get_conductivity_Na(this%Ts(i))
 			this%viss(i)=get_vis_Na(this%Ts(i),this%rhos(i))
 		enddo
