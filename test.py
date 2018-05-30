@@ -23,12 +23,12 @@ xx09exname=['XX09 lower flowmeter temperature.txt',\
             'XX09 sample above core temperature.txt',\
             'XX09 sample  core  outlet temperature.txt']
 #generel control
-is_flag=[True,True,False,True,True]
+is_flag=[False,False,False,False,False]
 is_exp=True
 #FIG1 sub0 control
-zone=62
+zone=1
 #FIG2 sub[1,5]control
-tlist=[0,50,100,200,300]
+tlist=[0,100,150,900,2000]
 #data
 time=loopdat[:,0]
 flowrate=loopdat[:,2]
@@ -39,12 +39,14 @@ IHXTout=loopdat[:,6]
 Qs=loopdat[:,7]
 Tsin=loopdat[:,8]
 Tsout=loopdat[:,9]
-shc=151.0
+# shc=151.0
+shc=1260.0
 powinput=loopdat[:,1]
 pripow=shc*flowrate*(IHXTin-IHXTout)
 corepow=shc*flowrate*(coreTout-coreTin)
 shcs=1260.0#800K liquid Na
 secpow=shcs*Qs*(Tsout-Tsin)
+print(secpow[0])
 
 times=maxdat[:,0]
 maxTfuel=maxdat[:,1]
