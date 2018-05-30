@@ -12,7 +12,11 @@
         pipeIP	     3.173	  4.5312  0.005	     -90	456.90	 493  0.3    0.3   F     100
 !time:keyword ttotal   Nt
 <<<<<<< HEAD
+<<<<<<< HEAD
       time     900.0   900
+=======
+      time     2000.0    2000
+>>>>>>> parent of 61239f3... backup
 =======
       time     2000.0    2000
 >>>>>>> parent of 61239f3... backup
