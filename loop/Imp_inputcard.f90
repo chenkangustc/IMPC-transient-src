@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=24
+	integer,parameter,private::N_keyword=25
     integer,parameter,private::MAX_REAL_PARAMETER=700
 	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
@@ -45,6 +45,7 @@ module Imp_inputcard
                                 & 'Bq_RI  ',  &
                                 & 'Bq_IP  ',  &
                                 & 'Bq_PR  ',  &
+                                & 'IMPCpost',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -219,6 +220,10 @@ module Imp_inputcard
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1)
 					timer1%ttotal=dummy_real(1)
 					timer1%Nt=dummy_int(1)
+                    
+                    case('IMPCpost')
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
+                    izoneTdis=dummy_int(1)
 				end select
 			end if
 		end do

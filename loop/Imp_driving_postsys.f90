@@ -38,7 +38,7 @@ module Imp_driving_syspost
 		write(unit=File_aveT,fmt="(F6.1,' ',<Nave>F8.2)") current,aveT!(aveT(i),i=1,Nave)
 		!looptimelist.txt
 		!Tdis.txt
-		izone=12!
+		izone=izoneTdis!
 		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,(assm1(1)%mesh%z(i,1),i=1,ny)
 		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tfuel(:)
 		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tcoolant(:)

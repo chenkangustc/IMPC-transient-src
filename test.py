@@ -23,10 +23,10 @@ xx09exname=['XX09 lower flowmeter temperature.txt',\
             'XX09 sample above core temperature.txt',\
             'XX09 sample  core  outlet temperature.txt']
 #generel control
-is_flag=[False,False,False,True,True]
+is_flag=[True,True,False,True,True]
 is_exp=True
 #FIG1 sub0 control
-zone=12
+zone=62
 #FIG2 sub[1,5]control
 tlist=[0,50,100,200,300]
 #data
@@ -43,7 +43,7 @@ shc=151.0
 powinput=loopdat[:,1]
 pripow=shc*flowrate*(IHXTin-IHXTout)
 corepow=shc*flowrate*(coreTout-coreTin)
-shcs=4660.0
+shcs=1260.0#800K liquid Na
 secpow=shcs*Qs*(Tsout-Tsin)
 
 times=maxdat[:,0]
@@ -235,7 +235,17 @@ if is_flag[3]==True:
 if is_flag[4]==True:
     fig,ax=plt.subplots(2,3)
     plt.subplots_adjust(wspace=0.28,hspace=0.38)
-
+    #calculating data
+    time=loopdat[:,0]
+    thloc=[6,10,15,19]
+    XX09MTC=[];XX09TTC=[];XX0914TC=[];XX09OTC=[]
+    for idx,it in enumerate(time):
+        XX09MTC.append(data3[3*idx+2,thloc[0]])
+        XX09TTC.append(data3[3*idx+2,thloc[1]])
+        XX0914TC.append(data3[3*idx+2,thloc[2]])
+        XX09OTC.append(data3[3*idx+2,thloc[3]])
+    XX09flowrate=flowrate*0.005693
+    caldata=[coreTin,XX09flowrate,XX09MTC,XX09TTC,XX0914TC,XX09OTC]
     #XX09 exp plot
     if is_exp==True:
         ax1=ax.flatten()
@@ -243,9 +253,13 @@ if is_flag[4]==True:
             exdatab=np.loadtxt(exdir+iname,skiprows=4)
             dtime=exdatab[:,0]
             dvalue=exdatab[:,1]
+            cvalue=caldata[idx]
+            ax1[idx].plot(time,cvalue,label='IMPC')
             ax1[idx].plot(dtime,dvalue,label='Exp')
             ax1[idx].set_xlabel('Time/sec')
             ax1[idx].set_title(iname[:-4])
+            # if idx==1:
+                # ax1[idx].set_ylim(0.0,0.12)
             ax1[idx].legend()
             ax1[idx].yaxis.grid(True)  
             ax1[idx].xaxis.grid(True) 

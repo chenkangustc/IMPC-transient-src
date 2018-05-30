@@ -18,4 +18,6 @@ module Imp_loop_global
 		type(pump)::pump1
         !is_THonly
         type(tpower)::tpower1
+        !post
+        integer::izoneTdis
 end module Imp_loop_global

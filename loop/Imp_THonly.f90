@@ -1,6 +1,7 @@
 module Imp_THonly
 	use global_state
     use imp_assm_global
+    use imp_timer_global
     use TH2NK_interface_loop
     use imp_loop_global
     use imp_re_input_global
@@ -25,7 +26,7 @@ module Imp_THonly
         real(KREAL)  :: powtotal
 		!local
 		integer Nradial,i_zone,nTime,i,j
-        integer::Nzone,izone
+        integer::Nzone,izone,powNy
         real(KREAL) ::tTotal,dtime
         Nzone=core%Nzone
         Tfuel = 0.0; Tcoolant = 0.0; Rhocoolant = 0.0; 
@@ -34,9 +35,13 @@ module Imp_THonly
 	    
         transient_flag=.TRUE.
         power=0.0
+        powNy=11!1-11功率分配
         do izone=1,Nzone,1
-            assm1(izone)%saflag=core%SAtable(izone)
-            power(izone,:)=tpower1%pow(2,1)*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/reInputdata%Ny
+            do j=1,powNy,1
+                assm1(izone)%saflag=core%SAtable(izone)
+                power(izone,j)=tpower1%pow(2,1)*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/powNy
+                !power(izone,iy)=tpower1%pow(2,1)*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/reInputdata%Ny
+            enddo 
         enddo
         if(transient_flag==.FALSE.) then
             if (ns%feedback%is_loop)  then
@@ -48,8 +53,8 @@ module Imp_THonly
 			!power=0.8*power
 			powerSteady=power
 			transient_flag=.TRUE.
-       		tTotal=900.0
-			nTime=900
+       		tTotal=timer1%ttotal
+			nTime=timer1%Nt
 			dtime=tTotal/nTime
             write(*,fmt="('------------------------------------------------------------------------------')")
             write(*,fmt="(' ','time','   ','maxTfuel','  ','maxTcoolant',' ','coreTin',' ','coreTout','   ','IHXTpin','   ','IHXTpout')")
@@ -58,8 +63,11 @@ module Imp_THonly
 				current=current+dtime
                 call set_pow(current,powtotal)
                 do izone=1,Nzone,1
-                    assm1(izone)%saflag=core%SAtable(izone)
-                    power(izone,:)=powtotal*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/reInputdata%Ny
+                    do j=1,powNy,1
+                        assm1(izone)%saflag=core%SAtable(izone)
+                        power(izone,j)=powtotal*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/powNy
+                        ! power(izone,:)=powtotal*1.0e6*reInputdata%sa(assm1(izone)%saflag)%powdis/reInputdata%Ny
+                    enddo
                 enddo
 				!call get_pow(current,power,powerSteady)
 				call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  
