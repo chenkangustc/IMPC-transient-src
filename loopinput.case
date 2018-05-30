@@ -11,7 +11,11 @@
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta   Q	     T    fric  kric is_Tb   Ny 
         pipeIP	     3.173	  4.5312  0.005	     -90	456.90	 493  0.3    0.3   F     100
 !time:keyword ttotal   Nt
+<<<<<<< HEAD
       time     900.0   900
+=======
+      time     2000.0    2000
+>>>>>>> parent of 61239f3... backup
 !=====================================================================================
 !assembly:device pellet(mm) gap(mm) cladth(mm) p2d  fric  K   Tin  Ti    npin nfuelpin
          pingeom  1.68       0.21       0.315  1.20 0.3  0.3  493  493    91   91
