@@ -9,6 +9,7 @@ module Imp_loop_global
         logical::is_tNK2TH
         logical::is_THonly
         logical::is_natural
+        logical::is_Bq
         real(KREAL)::Qloop
 		type(coremodle)::core
 		type(IHX)::IHX1

@@ -42,6 +42,7 @@ module Imp_cal_loop
 		    call driving_TH_core(transient_flag,coreQin,coreTin,assembly,coreTout)
 		    pipeRI%Tfin=coreTout
            ! print*,'pipe cal steady'
+            if(is_Bq) call cal_Bq()
 		    call PipeRI%thCals()
 		    IHX1%Tpin=PipeRI%Tfout
 		    call IHX1%thCals()
@@ -85,6 +86,7 @@ module Imp_cal_loop
         pipeRI%Tfin=coreTout
         core%Tfout=coreTout
         ! print*,'pipe cal transient'
+        if(is_Bq) call cal_Bq()
         call PipeRI%thCalt(last,current)
         IHX1%Tpin=PipeRI%Tfout
         call IHX1%thCalt(last,current)
@@ -283,5 +285,24 @@ module Imp_cal_loop
         endif
         end associate
     end subroutine update_secflow
-    
+    subroutine cal_Bq()
+        integer::i,Num
+        real(KREAL)::Bqtotal
+        Num=5!cool pool 前5个节点分配功率
+        associate(Ny=>PipeRI%Ny,&
+                  Bq=>PipeRI%Bq,&
+                  Rtube=>PipeRI%Rtube,&
+                  thicks=>PipeRI%thicks,&
+                  Length=>PipeRI%Length,&
+                  Ts=>PipeRI%Ts,&
+                  ctc=>PipeRI%ks)
+        do i=1,Ny,1
+            Bq(i)=ctc*2*PI*(Rtube+thicks)*Length(i)*(IHX1%Tpout-Ts(i))/(thicks/2.0)
+        enddo
+        Bqtotal=sum(Bq)
+        do i=1,Num,1
+            PipeIP%Bq(i)=-Bqtotal/Num
+        enddo
+        end associate
+    end subroutine cal_Bq
 end module Imp_cal_loop

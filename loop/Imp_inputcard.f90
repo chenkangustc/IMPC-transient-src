@@ -81,13 +81,13 @@ module Imp_inputcard
 			if(is_keyword(INP_SECTION,section_name)) then
 				select case(trim(adjustl(section_name)))
 					case('control')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_logical(1:5)
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_logical(1:6)
                     is_THonly=dummy_logical(1)
                     is_tNK2TH=dummy_logical(2)
                     pump1%is_table=dummy_logical(3)
                     IHX1%is_flowtable=dummy_logical(4)
                     IHX1%is_Tintable=dummy_logical(5)
-                    
+                    is_Bq=dummy_logical(6)
 					
                     case('pump')
                     if(pump1%is_table==.FALSE.)then

@@ -23,7 +23,7 @@ xx09exname=['XX09 lower flowmeter temperature.txt',\
             'XX09 sample above core temperature.txt',\
             'XX09 sample  core  outlet temperature.txt']
 #generel control
-is_flag=[False,False,False,True,True]
+is_flag=[True,False,False,True,True]
 is_exp=True
 #FIG1 sub0 control
 zone=1
