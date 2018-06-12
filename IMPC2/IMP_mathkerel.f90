@@ -138,7 +138,8 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
-		Nu=4.5+0.018*Pe**0.8
+		Nu=4.8+0.025*Pe**0.8!Argonne
+        !Nu=4.5+0.018*Pe**0.8
 	end function get_Nusselt_Na_tube
     
     function get_Nusselt_Na_bundle(pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
@@ -151,19 +152,22 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
-        if(pd>=1.05.and.pd<=1.15) then
-            if(Pe<=150.)then
-                Nu=4.496*(-16.15+24.96*pd-8.55*pd**2)
-            elseif(Pe>=150.0.and.Pe<=1000.)then
-                Nu=(-16.15+24.96*pd-8.55*pd**2)*Pe**0.3
-            else
-                print*,'Pe is out of range of Nu'
-            endif
-        elseif(pd>=1.15.and.pd<=1.30)then
-            Nu=4.0+0.16*pd**5.+0.33*pd**3.8*(Pe/100.)**0.86
-        else
-            print*,'PD is out of range of Nu'
-        endif
+        !Argonne
+        Nu=5.0+0.025*Pe**0.8
+        !West formula
+        ! if(pd>=1.05.and.pd<=1.15) then
+            ! if(Pe<=150.)then
+                ! Nu=4.496*(-16.15+24.96*pd-8.55*pd**2)
+            ! elseif(Pe>=150.0.and.Pe<=1000.)then
+                ! Nu=(-16.15+24.96*pd-8.55*pd**2)*Pe**0.3
+            ! else
+                ! print*,'Pe is out of range of Nu'
+            ! endif
+        ! elseif(pd>=1.15.and.pd<=1.30)then
+            ! Nu=4.0+0.16*pd**5.+0.33*pd**3.8*(Pe/100.)**0.86
+        ! else
+            ! print*,'PD is out of range of Nu'
+        ! endif
 	end function get_Nusselt_Na_bundle
     !
     subroutine get_hyconstant(rc,pd,Aflow,wet,de)

@@ -23,6 +23,7 @@
 			real(KREAL)::density,flowrate,Qinpart
             real(KREAL),allocatable::powersingle(:)
             real(KREAL)::zonepower
+            real(KREAL)::qtotal,dqi
 
             fq_core=1.0D0
             Nzone=core%Nzone!需要计算的zone的数量
@@ -45,7 +46,8 @@
 			do izone=1,Nzone,1!zone start
 				do j=1,assm1(izone)%mesh%ny,1!dy
 					do k=1,N,1
-						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)!W/m3
+						! if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j+assm1(izone)%mesh%layer_bottom)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)!W/m3
+						if(k<=assm1(izone)%mesh%Nf) pow(j,k)=assembly(izone,j)/(assm1(izone)%geom%N_fuelpin*assm1(izone)%geom%height(j)*PI*assm1(izone)%geom%pellet**2)!W/m3
                     enddo
                     !powertotal=powertotal+assembly(izone,j)
 				enddo
@@ -54,7 +56,7 @@
                 else
                     call driving_imp_THsteady(assm1(izone),pow,fq_core)					
                 endif
-                powersingle(izone)=151.0*assm1(izone)%hydrau%Qf*(assm1(izone)%th_boundary%T%outlet-assm1(izone)%th_boundary%T%inlet)
+                ! powersingle(izone)=151.0*assm1(izone)%hydrau%Qf*(assm1(izone)%th_boundary%T%outlet-assm1(izone)%th_boundary%T%inlet)
 			enddo !zone		
 			!Tout volum ave
 			Tout=0.0
@@ -65,6 +67,34 @@
             enddo
             Tout=Tout+core%sigmaPass*Qinpart*Tin/Qinpart
 			core%Tfout=Tout
+            !v&v power
+            
+            qtotal=0.0
+            do izone=1,Nzone,1
+                associate(Qf=>assm1(izone)%hydrau%Qf,&
+                          N_pin=>assm1(izone)%geom%N_pin,&
+                          Ny=>assm1(izone)%mesh%ny,&
+                          Nf=>assm1(izone)%mesh%nf,&
+                          Ng=>assm1(izone)%mesh%ng,&
+                          Ns=>assm1(izone)%mesh%ns,&
+                          shc=>assm1(izone)%property%shc,&
+                          temperature=>assm1(izone)%thermal%temperature,&
+                          Tin=>assm1(izone)%th_boundary%T%inlet,&
+                          Tout=>assm1(izone)%th_boundary%T%outlet)
+                dqi=0.0
+                do j=1,Ny,1
+                    if(j==1) then
+                        dqi=dqi+Qf*N_pin*shc(j,Nf+Ng+Ns+1)*(temperature(j,Nf+Ng+Ns+1)-Tin)
+                    elseif(j==Ny) then
+                        dqi=dqi+Qf*N_pin*shc(j,Nf+Ng+Ns+1)*(Tout-temperature(j,Nf+Ng+Ns+1))
+                    else
+                        dqi=dqi+Qf*N_pin*shc(j,Nf+Ng+Ns+1)*(temperature(j,Nf+Ng+Ns+1)-temperature(j-1,Nf+Ng+Ns+1))
+                    endif
+                enddo
+                end associate
+                qtotal=qtotal+dqi
+            enddo
+            core%vqtotal=qtotal
         end subroutine driving_TH_core       
         
         subroutine driving_loop_flowAlloc(assm,Qin)

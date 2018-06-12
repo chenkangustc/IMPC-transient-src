@@ -22,9 +22,16 @@ xx09exname=['XX09 lower flowmeter temperature.txt',\
             'XX09 sample top of core temperature.txt',\
             'XX09 sample above core temperature.txt',\
             'XX09 sample  core  outlet temperature.txt']
+xx10exname=['XX10 lower flowmeter temperature.txt',\
+            'XX10 mass flowrate.txt',\
+            'XX10 sample midcore temperature.txt',\
+            'XX10 sample top of core temperature.txt',\
+            'XX10 sample above core temperature.txt',\
+            'XX10 sample  core  outlet temperature.txt']
 #generel control
-is_flag=[True,False,False,True,True]
+is_flag=[False,False,False,False,True]
 is_exp=True
+Nzout=2
 #FIG1 sub0 control
 zone=1
 #FIG2 sub[1,5]control
@@ -113,6 +120,8 @@ if is_flag[0]==True:
     zz=data3[0,1:]
 #FIG2
 if is_flag[1]==True:
+    
+    izout=1
     fig,ax=plt.subplots(3,2)
     plt.subplots_adjust(hspace=0.40)
     ax[0,0].plot(time,Tfave,label='fuelTave')
@@ -126,8 +135,8 @@ if is_flag[1]==True:
     
     ax1=ax.flatten()
     for idx,it in enumerate(tlist):
-        Tfuel=data3[3*it+1,1:]
-        Tcoolant=data3[3*it+2,1:]
+        Tfuel=data3[3*Nzout*it+(izone-1)*3+1,1:]
+        Tcoolant=data3[3*Nzout*it+(izone-1)*3+2,1:]
         ax1[idx+1].plot(zz,Tfuel,label='Tfuel')
         ax1[idx+1].plot(zz,Tcoolant,label='Tcoolant')
         ax1[idx+1].set_ylabel('Temperature/K')
@@ -235,6 +244,7 @@ if is_flag[3]==True:
             # ax1[idx].plot(dtime,dvalue,label='exp')
 #FIG5:EBR-II XX09
 if is_flag[4]==True:
+    izone=1
     fig,ax=plt.subplots(2,3)
     plt.subplots_adjust(wspace=0.28,hspace=0.38)
     #calculating data
@@ -242,10 +252,10 @@ if is_flag[4]==True:
     thloc=[6,10,15,19]
     XX09MTC=[];XX09TTC=[];XX0914TC=[];XX09OTC=[]
     for idx,it in enumerate(time):
-        XX09MTC.append(data3[3*idx+2,thloc[0]])
-        XX09TTC.append(data3[3*idx+2,thloc[1]])
-        XX0914TC.append(data3[3*idx+2,thloc[2]])
-        XX09OTC.append(data3[3*idx+2,thloc[3]])
+        XX09MTC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[0]])#3*Nzout*it+(izone-1)*3+1
+        XX09TTC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[1]])
+        XX0914TC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[2]])
+        XX09OTC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[3]])
     XX09flowrate=flowrate*0.005693
     caldata=[coreTin,XX09flowrate,XX09MTC,XX09TTC,XX0914TC,XX09OTC]
     #XX09 exp plot
@@ -266,5 +276,38 @@ if is_flag[4]==True:
             ax1[idx].yaxis.grid(True)  
             ax1[idx].xaxis.grid(True) 
             
+#FIG6:EBR-II XX10
+if is_flag[4]==True:
+    izone=2
+    fig,ax=plt.subplots(2,3)
+    plt.subplots_adjust(wspace=0.28,hspace=0.38)
+    #calculating data
+    time=loopdat[:,0]
+    thloc=[6,10,15,19]
+    XX10MTC=[];XX10TTC=[];XX1014TC=[];XX10OTC=[]
+    for idx,it in enumerate(time):
+        XX10MTC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[0]])
+        XX10TTC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[1]])
+        XX1014TC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[2]])
+        XX10OTC.append(data3[3*Nzout*idx+(izone-1)*3+2,thloc[3]])
+    XX10flowrate=flowrate*0.000801
+    caldata=[coreTin,XX10flowrate,XX10MTC,XX10TTC,XX1014TC,XX10OTC]
+    #XX10 exp plot
+    if is_exp==True:
+        ax1=ax.flatten()
+        for idx,iname in enumerate(xx10exname):
+            exdatab=np.loadtxt(exdir+iname,skiprows=4)
+            dtime=exdatab[:,0]
+            dvalue=exdatab[:,1]
+            cvalue=caldata[idx]
+            ax1[idx].plot(time,cvalue,label='IMPC')
+            ax1[idx].plot(dtime,dvalue,label='Exp')
+            ax1[idx].set_xlabel('Time/sec')
+            ax1[idx].set_title(iname[:-4])
+            # if idx==1:
+                # ax1[idx].set_ylim(0.0,0.12)
+            ax1[idx].legend()
+            ax1[idx].yaxis.grid(True)  
+            ax1[idx].xaxis.grid(True)             
 plt.savefig(exdir+'test.png', format='png', bbox_inches='tight', transparent=True, dpi=600)
 plt.show()

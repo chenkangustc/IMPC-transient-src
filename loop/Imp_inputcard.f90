@@ -225,8 +225,9 @@ module Imp_inputcard
 					timer1%Nt=dummy_int(1)
                     
                     case('IMPCpost')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:2)
                     izoneTdis=dummy_int(1)
+                    izoneTdis2=dummy_int(2)
 				end select
 			end if
 		end do

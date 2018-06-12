@@ -49,6 +49,8 @@ module Imp_IHX_header
         real(KREAL),allocatable::flowtable(:,:),Tintable(:,:)
         !control
         logical::is_Tintable,is_flowtable
+        !vv
+        real(KREAL)::vqtotal
 	  contains
 		procedure,public::init=>init_IHX
         procedure,public::alloc=>alloc_IHX
@@ -63,6 +65,7 @@ module Imp_IHX_header
 		procedure,public::cbuoy=>cal_buoy
 		procedure,public::cbeta=>cal_beta
 		procedure,public::cfric=>cal_fric
+		procedure,public::cvqtotal=>cal_vqtotal
 	end type IHX
 	
 	private::init_IHX
@@ -77,6 +80,7 @@ module Imp_IHX_header
 	private::update_Boundary
 	private::cal_buoy
 	private::cal_beta
+    private::cal_vqtotal
   contains
 	subroutine init_IHX(this)
 		implicit none
@@ -111,14 +115,16 @@ module Imp_IHX_header
 		this%Wetp=2*PI*(this%Rtube+this%thickt+this%Rpa)
 	    this%Dep=4*this%Areap/(this%Wetp*this%Ntube)	
 		this%betap=0.0	
-		this%Wets=2*PI*(this%Rtube+this%thickt)
+		! this%Wets=2*PI*(this%Rtube+this%thickt)
+		this%Wets=2*PI*this%Rtube
 		this%Des=4*this%AreaTubeSingle/this%Wets
         !property
         this%rhot=get_density_304()
         this%shct=get_shc_304()
         this%rhov=get_density_304()
         this%shcv=get_shc_304()
-
+        !vv
+        this%vqtotal=0.0
 		do i=1,N,1
 			Tp=this%Tp(i)
             Ts=this%Ts(i)
@@ -127,8 +133,9 @@ module Imp_IHX_header
             this%visp(i)=get_vis_Na(Tp,this%rhop(i))
 			this%kp(i)=get_conductivity_Na(Tp)		
 			this%rhos(i)=get_density_Na(Ts)
+			!this%rhos(i)=879.0
 			this%shcs(i)=get_shc_Na(Ts)
-			! this%shcs(i)=1260.0
+			!this%shcs(i)=1310.0
 		    this%viss=get_vis_Na(Ts,this%rhos(i))
 			this%ks(i)=get_conductivity_Na(Ts)
 			this%Length(i)=Lsingle/N
@@ -213,12 +220,32 @@ module Imp_IHX_header
 			this%visp(i)=get_vis_Na(this%Tp(i),this%rhop(i))
 			
             this%rhos(i)=get_density_Na(this%Ts(i))
+            !this%rhos(i)=879.0
 			this%shcs(i)=get_shc_Na(this%Ts(i))
-			! this%shcs(i)=1260.0
+			!this%shcs(i)=1310.0
 			this%ks(i)=get_conductivity_Na(this%Ts(i))
 			this%viss(i)=get_vis_Na(this%Ts(i),this%rhos(i))
 		enddo
-	end subroutine update_property
+    end subroutine update_property
+    
+    subroutine cal_vqtotal(this)
+        class(IHX),intent(in out)::this
+        !local
+        real(KREAL)::qtotal
+        integer::j,Ny
+        Ny=this%N
+        qtotal=0.0
+        do j=1,Ny,1
+            if(j==1)then!inlet
+                qtotal=qtotal+this%Qs*this%shcs(j)*(this%Ts(j)-this%Tsin)
+            elseif(j==Ny)then!outlet
+                qtotal=qtotal+this%Qs*this%shcs(j)*(this%Tsout-this%Ts(j))
+            else
+                qtotal=qtotal+this%Qs*this%shcs(j)*(this%Ts(j)-this%Ts(j-1))
+            endif
+        enddo
+        this%vqtotal=qtotal
+    end subroutine cal_vqtotal
     
 	subroutine cal_thermal_steady(this)
 		implicit none
@@ -250,6 +277,7 @@ module Imp_IHX_header
 			sigma=sums
 		end do
 		call this%update()
+        call this%cvqtotal()
 	end subroutine cal_thermal_steady
 	
 	subroutine cal_htc(this)
@@ -652,6 +680,4 @@ module Imp_IHX_header
             beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
         end associate
     end function cal_beta
-    
-
 end module Imp_IHX_header

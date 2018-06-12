@@ -21,4 +21,5 @@ module Imp_loop_global
         type(tpower)::tpower1
         !post
         integer::izoneTdis
+        integer::izoneTdis2
 end module Imp_loop_global

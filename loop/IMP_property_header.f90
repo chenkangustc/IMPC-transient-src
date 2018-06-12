@@ -132,7 +132,9 @@ module imp_property
     function get_conductivity_Na(Tin) result(conductivity)
 	    real(KREAL),intent(in)::tin
 		real(KREAL)::conductivity
-		conductivity=92.25-0.058*Tin+1.17*1e-5*Tin**2!W/(m*K)
+		! conductivity=92.25-0.058*Tin+1.17*1e-5*Tin**2!W/(m*K)
+		!Argonne
+        conductivity=124.67-0.1138*Tin+5.5226*1e-5*Tin**2-1.1842*1e-8*Tin**3!W/(m*K)
 	end function get_conductivity_Na
     
     function get_vis_Na(Tin,rho) result(vis)

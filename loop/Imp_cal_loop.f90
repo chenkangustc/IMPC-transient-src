@@ -56,7 +56,7 @@ module Imp_cal_loop
             write(*,fmt="(I4,'|',F10.7,6F10.2)")num,sigma,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Tsin,IHX1%Tsout
         enddo
 		!call driving_output_steady()
-		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
+		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2,2F15.1)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout,core%vqtotal,IHX1%vqtotal
 	end subroutine driving_loop_steady
 	
 	subroutine driving_loop_transient(assembly,last,current)

@@ -14,6 +14,7 @@ module Imp_coremodle_header
         integer::Nsplit!计算时堆芯分成的份数
         real(KREAL)::Qtotal
         real(KREAL)::sigmaPass
+        real(KREAL)::vqtotal!稳态冷却剂带走功率的计算值
         integer,allocatable::fzone(:)!zones which should be allocated flow
         integer,allocatable::SAtable(:)
 	    !geom 

@@ -42,6 +42,10 @@ module Imp_driving_syspost
 		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,(assm1(1)%mesh%z(i,1),i=1,ny)
 		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tfuel(:)
 		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tcoolant(:)
+        izone=izoneTdis2
+        write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,(assm1(1)%mesh%z(i,1),i=1,ny)
+		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tfuel(:)
+		write(unit=file_disT,fmt="(F6.1,' ',<Ny>F8.2)") current,assm1(izone)%thermal%Tcoolant(:)
 		
 	end subroutine loop_output_transient
 	
