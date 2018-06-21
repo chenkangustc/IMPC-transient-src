@@ -6,10 +6,10 @@
         pipePR	    3.6961	0.05	 0.005	 155.19	    456.90	   493	 0.3    0.3    1.0       F   100
         ! pipePR	    2.0722	0.05	 0.005	 155.0	    456.90	   493	 0.3    0.3    1.0       F   100
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti  fric  kric poolmodify is_Tb   Ny
-        pipeRI	    5.491	0.05	 0.005	 52.34	    456.90	 493 0.3    0.3    1.0     F  	  100
+        pipeRI	    5.491	0.05	 0.005	l 52.34	    456.90	 493 0.3    0.3    1.0     F  	  100
         ! pipeRI	    7.000	0.05	 0.005	 70.00	    456.90	 493 0.3    0.3    1.0     F  	  100
 !IHX:device 	Lsingle 	Rtube   thickt  Plength AreaP	thickv    QP 	    Qs  Tsin    Ti  fric Kric  Ntube	Ny   
-     	IHX	    3.317	    0.0067	0.00124	0.02064	0.6354	0.1143	456.90	 311.54	574.12  493	 0.3  0.3  3026	100
+     	IHX	    3.317	        0.0067	0.00124	0.02064	0.6354	0.1143	456.90	 311.54	574.12  493	 0.3  0.3  3026	    100
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta   Q	     T    fric  kric poolmodify is_Tb   Ny 
       ! pipeIP	     3.173	  4.5312  0.005	     -90	456.90	 493  0.3    0.3    1.0      F     100
       ! pipeIP	5     3.9859	  4.5312  0.005	     -90	456.90	 493  0.3    0.3    1.0      F     100
