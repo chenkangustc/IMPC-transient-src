@@ -2,6 +2,7 @@ module imp_single_kernel
     use constants
     use imp_mathkerel
     use imp_assembly_header
+    use Imp_loop_global
     implicit none
      private
      public::solve_momentum
@@ -750,7 +751,7 @@ subroutine update_property(assm,drho)
       enddo
       !print*,RHOF
       do i=1,M-1,1
-         assm%property%rho(i,N)=get_density(assm%thermal%Temperature(i,N))
+         assm%property%rho(i,N)=get_density(assm%property%Mtl_coolant,assm%thermal%Temperature(i,N))
       enddo
       !print*,'temperature=',assm%thermal%Temperature(:,N)
       assm%property%rho(0,N)=assm%property%rho(1,N)
@@ -810,6 +811,7 @@ subroutine cal_th_convection_rhoi(assm)
     type(sys_assembly),intent(in out)::assm
     !lcoal
     integer i,Ny,nr
+    integer::Ftype,Nubundle
     real(KREAL):: Nu,flowrate,pd!
     real(KREAL):: De,Area,wet,velocity!
     real(KREAL),allocatable::rho(:),dvs(:),shc(:),ctc(:)
@@ -824,12 +826,14 @@ subroutine cal_th_convection_rhoi(assm)
     shc=assm%property%shc(:,nr+1)
     ctc=assm%property%ctc(:,nr+1)
     pd=assm%geom%pd
+    Ftype=assm%property%Mtl_coolant
+    Nubundle=assm%thermal%Nubundle
     do i=1,Ny,1
         !velocity=assm%hydrau%Qf/(area*rho(i))
         !call get_convection(De,Area,wet,RHO(i),velocity,DVS(i),SHC(i),CTC(i),assm%property%htc(i))!DVS(i,N)动力粘度 Pa*s
         !get_Nusselt_Na_bundle(p,d,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
         flowrate=assm%hydrau%Qf
-        Nu=get_Nusselt_Na_bundle(pd,Area,wet,De,RHO(i),flowrate,DVS(i),SHC(i),CTC(i))
+        Nu=get_Nusselt_bundle(Ftype,Nubundle,pd,Area,wet,De,RHO(i),flowrate,DVS(i),SHC(i),CTC(i))
         assm%property%htc(i)=Nu*ctc(i)/De
     enddo
     assm%property%htc(0)=assm%property%htc(1)!边界上的对流换热系数

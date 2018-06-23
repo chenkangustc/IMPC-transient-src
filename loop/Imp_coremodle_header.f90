@@ -17,6 +17,8 @@ module Imp_coremodle_header
         real(KREAL)::vqtotal!稳态冷却剂带走功率的计算值
         integer,allocatable::fzone(:)!zones which should be allocated flow
         integer,allocatable::SAtable(:)
+        integer::Mtl_fuel,Mtl_shell,Mtl_coolant,Mtl_gas
+        integer::Nubundle
 	    !geom 
         real(KREAL)::Ltotal
 		real(KREAL),allocatable::Length(:)
@@ -90,10 +92,10 @@ module Imp_coremodle_header
           this%length(i)=this%ltotal/Ny
 		  this%Tf(i)=this%Ti
 		  this%Ts(i)=this%Ti
-          this%rhof(i)=get_density(this%Tf(i))
-		  this%shcf(i)=get_shc_LBE(this%Tf(i))
-		  this%kf(i)=get_conductivity_LBE(this%Tf(i))
-		  this%visf(i)=get_vis_LBE()
+          this%rhof(i)=get_density(this%Mtl_coolant,this%Tf(i))
+		  this%shcf(i)=get_shc(this%Mtl_coolant,this%Tf(i))
+		  this%kf(i)=get_conductivity(this%Mtl_coolant,this%Tf(i))
+		  this%visf(i)=get_vis(this%Mtl_coolant,this%Tf(i))
       end do
 	  !area
 	  this%area=PI*rcoremodle*rcoremodle
@@ -161,7 +163,7 @@ module Imp_coremodle_header
 				  kf=>this%kf,    &
 				  visf=>this%visf)
 		do i=1,Ny,1
-			Nu=get_Nusselt_PIPE_tube(area,wet,De,rhof(i),Q,visf(i),shcf(i),kf(i))!secondary
+			Nu=get_Nusselt_tube(this%Mtl_coolant,this%Nubundle,area,wet,De,rhof(i),Q,visf(i),shcf(i),kf(i))!secondary
 			this%htc(i)=Nu*kf(i)/De
 		end do
 		end associate
@@ -174,10 +176,10 @@ module Imp_coremodle_header
 		integer::i,Ny
 		Ny=this%Ny
 		do i=1,Ny,1
-			this%rhof(i)=get_density(this%Tf(i))
-			this%shcf(i)=get_shc_LBE(this%Tf(i))
-			this%kf(i)=get_conductivity_LBE(this%Tf(i))
-			this%visf(i)=get_vis_LBE()
+			this%rhof(i)=get_density(this%Mtl_coolant,this%Tf(i))
+			this%shcf(i)=get_shc(this%Mtl_coolant,this%Tf(i))
+			this%kf(i)=get_conductivity(this%Mtl_coolant,this%Tf(i))
+			this%visf(i)=get_vis(this%Mtl_coolant,this%Tf(i))
 		enddo
 	end subroutine update_property
 	
@@ -416,10 +418,9 @@ module Imp_coremodle_header
     end associate
     end function cal_buoy
     
-    function cal_fric(this) result(fric)
-        implicit none
+    function cal_fric(this) result(frics)
 		class(coremodle),intent(in out)::this
-        real(KREAL)::fric
+        real(KREAL)::frics
         real(KREAL)::ltotal
         real(KREAL)::Re,visa,De,area
         integer::i,j
@@ -450,9 +451,9 @@ module Imp_coremodle_header
             Re=flowrate*De/(visa*area)
             
             if(Re>=2050.) then
-                fric=0.1875/Re**2
+                frics=0.1875/Re**2
             else
-                fric=76.5/Re
+                frics=76.5/Re
             endif
         end associate
     end function cal_fric

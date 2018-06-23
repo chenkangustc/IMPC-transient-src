@@ -302,6 +302,7 @@ module Imp_cal_loop
         Bqtotal=sum(Bq)
         do i=1,Num,1
             PipeIP%Bq(i)=-Bqtotal/Num
+            ! PipeRI%Bq(i)=Bqtotal/Num
         enddo
         end associate
     end subroutine cal_Bq

@@ -80,6 +80,7 @@ module imp_assm_header
         real(KREAL),allocatable::ctc(:,:)
         real(KREAL),allocatable::dvs(:,:)
         real(KREAL),allocatable::htc(:)
+        integer::Mtl_coolant,Mtl_fuel,Mtl_gas,Mtl_shell
      contains
        procedure,public::init=>init_material
     end type material
@@ -95,6 +96,7 @@ module imp_assm_header
 		real(KREAL),allocatable::Tgs(:)
 		real(KREAL),allocatable::Tsc(:)
 		real(KREAL)::Tfave,Tcave
+        integer::Nubundle
       contains
        procedure,public::init=>init_thermal
       end type thermal
@@ -286,28 +288,28 @@ module imp_assm_header
              Do j=0,N,1
                  if (j>=0.and.j<=Nf)then !芯块热物性 UO2
                   !RHOI(i,j)=10980
-                  this%RHO(i,j)=get_density_U5Fs(Ti)
-                  this%SHC(i,j)=get_shc_U5Fs(Ti)
-                  this%CTC(i,j)=get_conductivity_U5Fs(Ti)
+                  this%RHO(i,j)=get_density(this%Mtl_fuel,Ti)
+                  this%SHC(i,j)=get_shc(this%Mtl_fuel,Ti)
+                  this%CTC(i,j)=get_conductivity(this%Mtl_fuel,Ti)
                   this%DVS(i,j)=0.0
                  elseif (j>Nf.and.j<=Nf+Ng) then!气隙热物性 He
                   !RHOI(i,j)=1.785
-                  this%RHO(i,j)=get_density_Na(Ti)
-                  this%SHC(i,j)=get_shc_Na(Ti)
-                  this%CTC(i,j)=get_conductivity_Na(Ti)
-                  this%DVS(i,j)=get_vis_Na(Ti,this%RHO(i,j))
+                  this%RHO(i,j)=get_density(this%Mtl_gas,Ti)
+                  this%SHC(i,j)=get_shc(this%Mtl_gas,Ti)
+                  this%CTC(i,j)=get_conductivity(this%Mtl_gas,Ti)
+                  this%DVS(i,j)=get_vis(this%Mtl_gas,Ti,this%RHO(i,j))
                  elseif (j>Nf+Ng.and.j<=Nf+Ng+Ns)then!包壳热物性 Ti
                   !RHOI(i,j)=7900
-                  this%RHO(i,j)=get_density_316L()
-                  this%SHC(i,j)=get_shc_316L()
-                  this%CTC(i,j)=get_conductivity_316L()
+                  this%RHO(i,j)=get_density(this%Mtl_shell,Ti)
+                  this%SHC(i,j)=get_shc(this%Mtl_shell,Ti)
+                  this%CTC(i,j)=get_conductivity(this%Mtl_shell,Ti)
                   this%DVS(i,j)=0.0
                  else!流体物性
                   !RHOI(i,j)=10470  
-                  this%RHO(i,j)=get_density_Na(Ti)
-                  this%SHC(i,j)=get_shc_Na(Ti)
-                  this%CTC(i,j)=get_conductivity_Na(Ti)
-                  this%DVS(i,j)=get_vis_Na(Ti,this%RHO(i,j))!动力粘度，而非运动粘度
+                  this%RHO(i,j)=get_density(this%Mtl_coolant,Ti)
+                  this%SHC(i,j)=get_shc(this%Mtl_coolant,Ti)
+                  this%CTC(i,j)=get_conductivity(this%Mtl_coolant,Ti)
+                  this%DVS(i,j)=get_vis(this%Mtl_coolant,Ti,this%RHO(i,j))!动力粘度，而非运动粘度
                  endif                 
              enddo
          enddo    
@@ -321,6 +323,7 @@ module imp_assm_header
         real(KREAL),intent(in)::Velocity
 		!local
 		integer i,N
+        this%Nubundle=1
         ! write(*,*)'init the thermal value'
         this%Temperature=Temperature
         !this%Pressure=Pressure

@@ -174,6 +174,12 @@ contains
       !设置收敛因子
       call assm%confactor_%set(reInputdata%alpha,reInputdata%sigma)
       call assm%hydrau%set(reInputdata%f,reInputdata%K)
+      !property flag
+      assm%property%Mtl_coolant=reInputdata%Mtl_coolant
+      assm%property%Mtl_shell=reInputdata%Mtl_shell
+      assm%property%Mtl_gas=reInputdata%Mtl_gas
+      assm%property%Mtl_fuel=reInputdata%Mtl_fuel
+      assm%thermal%Nubundle=reInputdata%Nubundle
      end subroutine set_assembly
      
      subroutine cal_grid(assm)

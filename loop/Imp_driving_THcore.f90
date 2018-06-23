@@ -61,7 +61,7 @@
 			!Tout volum ave
 			Tout=0.0
 			do izone=1,Nzone,1
-				density=get_density_Na(assm1(izone)%th_boundary%T%inlet)
+				density=get_density(assm1(izone)%property%Mtl_coolant,assm1(izone)%th_boundary%T%inlet)
 				flowrate=assm1(izone)%hydrau%Qf*assm1(izone)%geom%N_pin
 				Tout=Tout+assm1(izone)%th_boundary%T%outlet*flowrate/Qinpart
             enddo

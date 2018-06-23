@@ -25,9 +25,11 @@ module Imp_pipe_header
 		!thermal
 		real(KREAL),allocatable::Tf(:),Ts(:)
 		real(KREAL),allocatable::htc(:)
+        integer::Nutube
 		!material
 		real(KREAL),allocatable::rhof(:),shcf(:),kf(:),visf(:)
 		real(KREAL)::rhos,shcs,ks
+        integer::Mtl_coolant,Mtl_shell
 		!initial
 		real(KREAL)::Ti
 		!boundary
@@ -76,19 +78,20 @@ module Imp_pipe_header
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
       this%Bq=0.0
+      this%Nutube=1
       !this%poolmodify=1.0
       !property
-      this%rhos=get_density_304()
-      this%shcs=get_shc_304()
-      this%ks=get_conductivity_304()
+      this%rhos=get_density(this%Mtl_shell,this%Ti)
+      this%shcs=get_shc(this%Mtl_shell,this%Ti)
+      this%ks=get_conductivity(this%Mtl_shell,this%Ti)
       do i=1,Ny,1
           this%length(i)=this%ltotal/Ny
 		  this%Tf(i)=this%Ti
 		  this%Ts(i)=this%Ti
-          this%rhof(i)=get_density_Na(this%Tf(i))
-		  this%shcf(i)=get_shc_Na(this%Tf(i))
-		  this%kf(i)=get_conductivity_Na(this%Tf(i))
-		  this%visf(i)=get_vis_Na(this%Tf(i),this%rhof(i))
+          this%rhof(i)=get_density(this%Mtl_coolant,this%Tf(i))
+		  this%shcf(i)=get_shc(this%Mtl_coolant,this%Tf(i))
+		  this%kf(i)=get_conductivity(this%Mtl_coolant,this%Tf(i))
+		  this%visf(i)=get_vis(this%Mtl_coolant,this%Tf(i),this%rhof(i))
       end do
 	  !area
 	  this%area=PI*rpipe*rpipe
@@ -152,9 +155,11 @@ module Imp_pipe_header
 				  rhof=>this%rhof,&
 				  shcf=>this%shcf,&
 				  kf=>this%kf,    &
+				  Ftype=>this%Mtl_coolant,    &
+				  Nutube=>this%Nutube,    &
 				  visf=>this%visf)
 		do i=1,Ny,1
-			Nu=get_Nusselt_Na_tube(area,wet,De,rhof(i),Q,visf(i),shcf(i),kf(i))!secondary
+			Nu=get_Nusselt_tube(Ftype,Nutube,area,wet,De,rhof(i),Q,visf(i),shcf(i),kf(i))!secondary
 			this%htc(i)=Nu*kf(i)/De
 		end do
 		end associate
@@ -167,10 +172,10 @@ module Imp_pipe_header
 		integer::i,Ny
 		Ny=this%Ny
 		do i=1,Ny,1
-			this%rhof(i)=get_density_Na(this%Tf(i))
-			this%shcf(i)=get_shc_Na(this%Tf(i))
-			this%kf(i)=get_conductivity_Na(this%Tf(i))
-			this%visf(i)=get_vis_Na(this%Tf(i),this%rhof(i))
+			this%rhof(i)=get_density(this%Mtl_coolant,this%Tf(i))
+			this%shcf(i)=get_shc(this%Mtl_coolant,this%Tf(i))
+			this%kf(i)=get_conductivity(this%Mtl_coolant,this%Tf(i))
+			this%visf(i)=get_vis(this%Mtl_coolant,this%Tf(i),this%rhof(i))
 		enddo
 	end subroutine update_property
 	

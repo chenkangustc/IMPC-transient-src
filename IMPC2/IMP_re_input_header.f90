@@ -18,7 +18,10 @@ module imp_re_input_header
        real(KREAL):: alpha,sigma
        real(KREAL),allocatable::height(:)
        integer::Ntype
+       integer::Nubundle
        type(SAtype),allocatable::sa(:)
+       !property
+       integer::Mtl_coolant,Mtl_fuel,Mtl_gas,Mtl_shell
     contains
      procedure,public::set=>set_inputdata
      procedure,public::publish=>print_inputdata

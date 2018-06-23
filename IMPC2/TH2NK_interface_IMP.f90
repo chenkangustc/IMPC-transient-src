@@ -20,6 +20,7 @@
      use imp_power_header
      use imp_single_channel
 	 use imp_property
+     use imp_loop_global
     implicit none
 
      !real(KREAL),allocatable::power(:,:),fq_core(:,:)
@@ -104,7 +105,7 @@
 		  assm1(i)%th_boundary%u%outlet=0.0
 		  assm1(i)%thermal%temperature=assm1(i)%th_boundary%T%inlet
 		  assm1(i)%th_boundary%T%outlet=assm1(i)%th_boundary%T%inlet
-		  assm1(i)%property%rho=get_density(assm1(i)%th_boundary%T%inlet)
+		  assm1(i)%property%rho=get_density(assm1(i)%property%Mtl_coolant,assm1(i)%th_boundary%T%inlet)
 	   else
 	     if (transient_flag)  then
               call driving_imp_transient(assm1(i),power, fq_core,last_, current_)

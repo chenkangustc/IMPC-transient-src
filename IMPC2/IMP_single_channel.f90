@@ -25,7 +25,7 @@ module imp_single_channel
 		do  i=1,zone,1
 			n_pin=assm(i)%geom%n_pin
 			fuelArea=assm(i)%hydrau%aflow
-			density=get_density(assm(i)%th_boundary%T%inlet)
+			density=get_density(assm(i)%property%Mtl_coolant,assm(i)%th_boundary%T%inlet)
 			assm(i)%th_boundary%u%inlet=flowrate(i)/(n_pin*fuelArea*density)
 		enddo
 	end subroutine driving_imp_flowAlloc
@@ -268,22 +268,22 @@ subroutine update_property_rhoi(assm)
     do j=1,Ny,1
         do i=1,Nr,1
             if(i<=assm%mesh%Nf) then!fuel
-                assm%property%rho(j,i)=get_density_U5Fs(assm%thermal%temperature(j,i))
-                assm%property%shc(j,i)=get_shc_U5Fs(assm%thermal%temperature(j,i))
-                assm%property%ctc(j,i)=get_conductivity_U5Fs(assm%thermal%temperature(j,i))
+                assm%property%rho(j,i)=get_density(assm%property%Mtl_fuel,assm%thermal%temperature(j,i))
+                assm%property%shc(j,i)=get_shc(assm%property%Mtl_fuel,assm%thermal%temperature(j,i))
+                assm%property%ctc(j,i)=get_conductivity(assm%property%Mtl_fuel,assm%thermal%temperature(j,i))
             elseif(i<=assm%mesh%Nf+assm%mesh%Ng) then!gap
-                assm%property%rho(j,i)=get_density_Na(assm%thermal%temperature(j,i))
-                assm%property%shc(j,i)=get_shc_Na(assm%thermal%temperature(j,i))
-                assm%property%ctc(j,i)=get_conductivity_Na(assm%thermal%temperature(j,i))  
+                assm%property%rho(j,i)=get_density(assm%property%Mtl_gas,assm%thermal%temperature(j,i))
+                assm%property%shc(j,i)=get_shc(assm%property%Mtl_gas,assm%thermal%temperature(j,i))
+                assm%property%ctc(j,i)=get_conductivity(assm%property%Mtl_gas,assm%thermal%temperature(j,i))  
             elseif(i<=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns) then!clad
-                assm%property%rho(j,i)=get_density_316L()
-                assm%property%shc(j,i)=get_shc_316L()
-                assm%property%ctc(j,i)=get_conductivity_316L()  
+                assm%property%rho(j,i)=get_density(assm%property%Mtl_shell,assm%thermal%temperature(j,i))
+                assm%property%shc(j,i)=get_shc(assm%property%Mtl_shell,assm%thermal%temperature(j,i))
+                assm%property%ctc(j,i)=get_conductivity(assm%property%Mtl_shell,assm%thermal%temperature(j,i))  
             else!fluid
-                assm%property%rho(j,Nr)=get_density_Na(assm%thermal%temperature(j,Nr))
-                assm%property%shc(j,Nr)=get_shc_Na(assm%thermal%temperature(j,Nr))
-                assm%property%ctc(j,Nr)=get_conductivity_Na(assm%thermal%temperature(j,Nr))
-                assm%property%dvs(j,Nr)=get_vis_Na(assm%thermal%temperature(j,Nr),assm%property%rho(j,Nr))
+                assm%property%rho(j,Nr)=get_density(assm%property%Mtl_coolant,assm%thermal%temperature(j,Nr))
+                assm%property%shc(j,Nr)=get_shc(assm%property%Mtl_coolant,assm%thermal%temperature(j,Nr))
+                assm%property%ctc(j,Nr)=get_conductivity(assm%property%Mtl_coolant,assm%thermal%temperature(j,Nr))
+                assm%property%dvs(j,Nr)=get_vis(assm%property%Mtl_coolant,assm%thermal%temperature(j,Nr),assm%property%rho(j,Nr))
             endif
         enddo
     enddo

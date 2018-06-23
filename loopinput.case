@@ -1,5 +1,5 @@
 !keyword:control is_THonly is_tNK2TH is_table is_flowtable is_Tintable is_Bq
-         control    T         F          T      T             T          T
+         control    F         F          T      T             T          T
 !pump:device     Qe	   Ntime	Nbranch
       pump	   456.90  	26        1
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	       Ti   fric   kric poolmodify is_Tb Ny 

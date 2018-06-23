@@ -4,13 +4,15 @@ module imp_mathkerel
     private
     public::tdma
     public::get_convection
-    public::get_Nusselt
+    !public::get_Nusselt
     public::get_hyconstant
-    public::get_nusselt_IHX_tube
-    public::get_nusselt_IHX_shell
-	public::get_nusselt_PIPE_tube
+ !   public::get_nusselt_water_tube
+ !   public::get_nusselt_IHX_shell
+	!public::get_nusselt_LBE_tube
     public::get_nusselt_Na_tube
     public::get_nusselt_Na_bundle
+    public::get_nusselt_tube
+    public::get_nusselt_bundle
     
 contains
     subroutine tdma(N,A,B,u)
@@ -89,9 +91,11 @@ contains
      Pe=Re*Pr
      Nu=5.0+2.5D-2*Pe**0.8
     end subroutine get_Nusselt
-	
-	!
-	function get_Nusselt_IHX_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+	!========================================================================
+	! water
+    !========================================================================
+	function get_Nusselt_water_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Nutype
 		real(KREAL),intent(in)::flowarea,wet,De
 		real(KREAL),intent(in)::rho,vis,shc,conductivity
 		real(KREAL),intent(in)::flowrate
@@ -100,11 +104,17 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
+        select case(Nutype)
+        case(1)
 		Nu=0.023*Re**0.8*Pr**0.333
-	end function get_Nusselt_IHX_tube
-	
-	function get_Nusselt_IHX_shell(P,D,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
-		real(KREAL),intent(in)::P,D
+        end select
+	end function get_Nusselt_water_tube
+	!========================================================================
+	! LBE
+    !========================================================================
+	function get_Nusselt_LBE_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Nutype
+		real(KREAL),intent(in)::pd
 		real(KREAL),intent(in)::flowarea,wet,De
 		real(KREAL),intent(in)::rho,vis,shc,conductivity
 		real(KREAL),intent(in)::flowrate
@@ -113,11 +123,15 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
-		Nu=7.55*P/D-20.*(P/D)**(-13)+3.67/(90.*(P/D)**2)*Pe**(0.56+0.19*P/D)
+        select case(Nutype)
+        case(1)
+		Nu=7.55*pd-20.*(pd)**(-13)+3.67/(90.*(pd)**2)*Pe**(0.56+0.19*pd)
         if (Nu<0) print*,'Nu is .lt. 0.0,the Nu equation cannot be used here'
-	end function get_Nusselt_IHX_shell
-	
-	function get_Nusselt_PIPE_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+        end select
+    end function get_Nusselt_LBE_bundle
+
+	function get_Nusselt_LBE_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Nutype
 		real(KREAL),intent(in)::flowarea,wet,De
 		real(KREAL),intent(in)::rho,vis,shc,conductivity
 		real(KREAL),intent(in)::flowrate
@@ -126,10 +140,16 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
+        select case(Nutype)
+        case(1)
 		Nu=4.8+0.0156*Re**0.85*Pr**0.93
-	end function get_Nusselt_PIPE_tube
-    
-    function get_Nusselt_Na_tube(flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+        end select
+	end function get_Nusselt_LBE_tube
+	!========================================================================
+	!       Na
+    !========================================================================
+    function get_Nusselt_Na_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Nutype
 		real(KREAL),intent(in)::flowarea,wet,De
 		real(KREAL),intent(in)::rho,vis,shc,conductivity
 		real(KREAL),intent(in)::flowrate
@@ -138,11 +158,15 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
+        select case(Nutype)
+        case(1)
 		Nu=4.8+0.025*Pe**0.8!Argonne
         !Nu=4.5+0.018*Pe**0.8
+        end select
 	end function get_Nusselt_Na_tube
     
-    function get_Nusselt_Na_bundle(pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+    function get_Nusselt_Na_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Nutype
 		real(KREAL),intent(in)::pd
 		real(KREAL),intent(in)::flowarea,wet,De
 		real(KREAL),intent(in)::rho,vis,shc,conductivity
@@ -152,8 +176,11 @@ contains
 		Re=flowrate*De/(vis*flowarea)
 		Pr=vis*shc/conductivity
 		Pe=Re*Pr
+        select case(Nutype)
+        case(1)
         !Argonne
         Nu=5.0+0.025*Pe**0.8
+        end select
         !West formula
         ! if(pd>=1.05.and.pd<=1.15) then
             ! if(Pe<=150.)then
@@ -169,6 +196,41 @@ contains
             ! print*,'PD is out of range of Nu'
         ! endif
 	end function get_Nusselt_Na_bundle
+	!========================================================================
+	!       total
+    !========================================================================
+    function get_Nusselt_tube(Ftype,Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Ftype,Nutype
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+        !
+        real(KREAL)::Nu
+        select case(Ftype)
+        case(101)
+        Nu=get_Nusselt_LBE_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) 
+        case(102)!Na
+        Nu=get_Nusselt_Na_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) 
+        case(103)
+        Nu=get_Nusselt_water_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
+        end select
+    end function
+    
+    function get_Nusselt_bundle(Ftype,Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
+		integer,intent(in)::Ftype,Nutype
+		real(KREAL),intent(in)::pd
+		real(KREAL),intent(in)::flowarea,wet,De
+		real(KREAL),intent(in)::rho,vis,shc,conductivity
+		real(KREAL),intent(in)::flowrate
+        !
+        real(KREAL)::Nu
+        select case(Ftype)
+        case(101)
+        Nu=get_Nusselt_LBE_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
+        case(102)!Na
+        Nu=get_Nusselt_Na_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
+        end select
+    end function
     !
     subroutine get_hyconstant(rc,pd,Aflow,wet,de)
        real(KREAL):: rc,p,pd !r是包壳外半径 p是对边距

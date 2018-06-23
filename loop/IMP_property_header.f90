@@ -4,11 +4,11 @@ module imp_property
     !=============================================================
     !LBE
     !=============================================================
-    function get_density(tin) result(density)
+    function get_density_LBE(tin) result(density)
      real(KREAL),intent(in)::tin
      real(KREAL)::density
      density=11096-1.3326*tin
-    end function get_density
+    end function get_density_LBE
 	
 	function get_shc_LBE(Tin) result(shc)
 	     real(KREAL),intent(in)::tin
@@ -23,7 +23,7 @@ module imp_property
 	end function get_conductivity_LBE
 	
 	function get_vis_LBE() result(vis)
-		real(KREAL)::vis,Tin
+        real(KREAL)::vis,Tin
 		Tin=500.0!K
 		vis=3.26*10.**(-3)-6.26*10.**(-6)*Tin+4.63*10.**(-9)*Tin**2
 	end function get_vis_LBE
@@ -176,36 +176,120 @@ module imp_property
     !================================================================
     !316L
     !================================================================
-    function get_density_316L() result(rho)
-		real(KREAL)::rho
+    function get_density_316L(Tin) result(rho)
+		real(KREAL),intent(in)::Tin
+        real(KREAL)::rho
 		rho=7980.!kg/m3
 	end function get_density_316L
     
-    function get_shc_316L() result(shc)
-		real(KREAL)::shc!J/(Kg*K)
+    function get_shc_316L(Tin) result(shc)
+		real(KREAL),intent(in)::Tin
+        real(KREAL)::shc!J/(Kg*K)
         shc=502.
 	end function get_shc_316L
     
-    function get_conductivity_316L() result(conductivity)
-		real(KREAL)::conductivity
+    function get_conductivity_316L(Tin) result(conductivity)
+		real(KREAL),intent(in)::Tin
+        real(KREAL)::conductivity
 		conductivity=20.9!W/(m*K)
 	end function get_conductivity_316L
     !================================================================
     !304
     !================================================================
-    function get_density_304() result(rho)
-		real(KREAL)::rho
+    function get_density_304(Tin) result(rho)
+		real(KREAL),intent(in)::Tin
+        real(KREAL)::rho
 		rho=7930.!kg/m3
 	end function get_density_304
     
-    function get_shc_304() result(shc)
-		real(KREAL)::shc!J/(Kg*K)
+    function get_shc_304(Tin) result(shc)
+		real(KREAL),intent(in)::Tin
+        real(KREAL)::shc!J/(Kg*K)
         shc=500.
 	end function get_shc_304
     
-    function get_conductivity_304() result(conductivity)
-		real(KREAL)::conductivity
+    function get_conductivity_304(Tin) result(conductivity)
+		real(KREAL),intent(in)::Tin
+        real(KREAL)::conductivity
 		conductivity=21.5!W/(m*K)
-	end function get_conductivity_304       
-
+	end function get_conductivity_304
+    !================================================================    
+    !density
+    function get_density(num,Tin) result(rho)
+        integer,intent(in)::num
+        real(KREAL),intent(in),optional::Tin
+        real(KREAL)::rho
+        select case(num)
+            case(101)
+            rho=get_density_LBE(Tin)
+            case(102)
+            rho=get_density_water(Tin)
+            case(103)
+            rho=get_density_Na(Tin)
+            case(301)
+            rho=get_density_U5Fs(Tin)
+            case(202)
+            rho=get_density_316L(Tin)
+            case(203)
+            rho=get_density_304(Tin)
+        end select
+    end function get_density
+    !shc
+    function get_shc(num,Tin) result(shc)
+        integer,intent(in)::num
+        real(KREAL),intent(in)::Tin
+        real(KREAL)::shc
+        select case(num)
+            case(101)
+            shc=get_shc_LBE(Tin)
+            case(102)
+            shc=get_shc_water(Tin)
+            case(103)
+            shc=get_shc_Na(Tin)
+            case(301)
+            shc=get_shc_U5Fs(Tin)
+            case(202)
+            shc=get_shc_316L(Tin)
+        end select
+    end function get_shc
+    !conductivity
+    function get_conductivity(num,Tin) result(conductivity)
+        integer,intent(in)::num
+        real(KREAL),intent(in)::Tin
+        real(KREAL)::conductivity
+        select case(num)
+            case(101)
+            conductivity=get_conductivity_LBE(Tin)
+            case(102)
+            conductivity=get_conductivity_water(Tin)
+            case(103)
+            conductivity=get_conductivity_Na(Tin)
+            case(301)
+            conductivity=get_conductivity_U5Fs(Tin)
+            case(202)
+            conductivity=get_conductivity_316L(Tin)
+            case(203)
+            conductivity=get_conductivity_304(Tin)
+        end select      
+    end function get_conductivity
+    !vis
+    function get_vis(num,Tin,rho) result(vis)
+        integer,intent(in)::num
+        real(KREAL),intent(in),optional::Tin
+        real(KREAL),intent(in),optional::rho
+        real(KREAL)::vis
+        select case(num)
+            case(101)
+            vis=get_vis_LBE()
+            case(102)
+            vis=get_vis_water()
+            case(103)
+            if (PRESENT(Tin).and.PRESENT(rho)) then
+                vis=get_vis_Na(Tin,rho)
+            else
+                print*,'vis_Na need Tin and rho'
+            endif
+        end select        
+    end function get_vis
+    !================================================================
 end module imp_property

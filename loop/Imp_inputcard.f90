@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=25
+	integer,parameter,private::N_keyword=27
     integer,parameter,private::MAX_REAL_PARAMETER=700
 	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
@@ -46,6 +46,8 @@ module Imp_inputcard
                                 & 'Bq_IP  ',  &
                                 & 'Bq_PR  ',  &
                                 & 'IMPCpost',  &
+                                & 'ReMtl',  &
+                                & 'Nusselt',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -91,22 +93,24 @@ module Imp_inputcard
 					
                     case('pump')
                     if(pump1%is_table==.FALSE.)then
-                        read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:5),dummy_int(1)
+                        read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:5),dummy_int(1:2)
                         pump1%I=dummy_real(1)
                         pump1%He=dummy_real(2)
                         pump1%Qe=dummy_real(3)
                         pump1%omegae=dummy_real(4)
                         pump1%yita=dummy_real(5)
                         pump1%Nbranch=dummy_int(1)
+                        pump1%Mtl_coolant=dummy_int(2)
                     else
-                        read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1:2)
+                        read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1:3)
                         pump1%Qe=dummy_real(1)
                         pump1%Ntime=dummy_int(1)
                         pump1%Nbranch=dummy_int(2)
+                        pump1%Mtl_coolant=dummy_int(3)
                     endif
 					
 					case('pipePR')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1:3)
 					pipePR%ltotal=dummy_real(1)
 					pipePR%Rtube=dummy_real(2)
 					pipePR%thicks=dummy_real(3)
@@ -118,6 +122,8 @@ module Imp_inputcard
 					pipePR%poolmodify=dummy_real(9)
 					pipePR%is_Tb=dummy_logical(1)
 					pipePR%Ny=dummy_int(1)
+					pipePR%Mtl_coolant=dummy_int(2)
+					pipePR%Mtl_shell=dummy_int(3)
 					
 					case('assembly')!径向描述
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4),dummy_real(1)
@@ -135,7 +141,7 @@ module Imp_inputcard
 					! core%Ny=dummy_int(4)
 					
 					case('pipeRI')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1:3)
 					pipeRI%ltotal=dummy_real(1)
 					pipeRI%Rtube=dummy_real(2)
 					pipeRI%thicks=dummy_real(3)
@@ -147,9 +153,11 @@ module Imp_inputcard
 					pipeRI%poolmodify=dummy_real(9)
 					pipeRI%is_Tb=dummy_real(1)
 					pipeRI%Ny=dummy_int(1)
+					pipeRI%Mtl_coolant=dummy_int(2)
+					pipeRI%Mtl_shell=dummy_int(3)
 					
 					case('IHX')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:12),dummy_int(1:2)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:12),dummy_int(1:6)
 					IHX1%Lsingle=dummy_real(1)
 					IHX1%Rtube=dummy_real(2)
 					IHX1%thickt=dummy_real(3)
@@ -163,10 +171,15 @@ module Imp_inputcard
 					IHX1%fricp=dummy_real(11)
 					IHX1%kricp=dummy_real(12)
 					IHX1%Ntube=dummy_int(1)
-					IHX1%N=dummy_int(2)
+                    IHX1%N=dummy_int(2)
+					IHX1%Mtl_coolantp=dummy_int(3)
+					IHX1%Mtl_coolants=dummy_int(4)
+					IHX1%Mtl_tube=dummy_int(5)
+					IHX1%Mtl_shell=dummy_int(6)
+					
 					
 					case('pipeIP')
-					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1)
+					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_logical(1),dummy_int(1:3)
 					pipeIP%ltotal=dummy_real(1)
 					pipeIP%Rtube=dummy_real(2)
 					pipeIP%thicks=dummy_real(3)
@@ -178,6 +191,8 @@ module Imp_inputcard
 					pipeIP%poolmodify=dummy_real(9)
 					pipeIP%is_Tb=dummy_logical(1)
 					pipeIP%Ny=dummy_int(1)
+					pipeIP%Mtl_coolant=dummy_int(2)
+					pipeIP%Mtl_shell=dummy_int(3)
 
                     case('pingeom')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:8),dummy_int(1:2)
@@ -228,6 +243,24 @@ module Imp_inputcard
 					read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:2)
                     izoneTdis=dummy_int(1)
                     izoneTdis2=dummy_int(2)
+                    
+                    case('ReMtl')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:4)
+                    reInputdata%Mtl_fuel=dummy_int(1)
+                    reInputdata%Mtl_shell=dummy_int(2)
+                    reInputdata%Mtl_coolant=dummy_int(3)
+                    reInputdata%Mtl_gas=dummy_int(4)
+                    
+                    case('Nusselt')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:2)
+                    pipeIP%Nutube=dummy_int(1)
+                    pipeRI%Nutube=dummy_int(1)
+                    pipePR%Nutube=dummy_int(1)
+                    IHX1%Nutube=dummy_int(1)
+                    IHX1%Nubundle=dummy_int(2)
+                    ! IHX1%Nubundles=dummy_int(3)
+                    reInputdata%Nubundle=dummy_int(2)
+                    
 				end select
 			end if
 		end do

@@ -14,6 +14,7 @@ module  Imp_pump_header
 		real(KREAL)::He!额定扬程
 		!material
 		real(KREAL)::rho
+        integer::Mtl_coolant
 		!thermal
 		real(KREAL)::T
         !branch
@@ -23,6 +24,7 @@ module  Imp_pump_header
         real,allocatable::rotate(:,:)
         !control
         logical::is_table
+        
 	  contains
 		procedure,public::init=>init_pump
 		procedure,public::alloc=>alloc_pump
@@ -38,7 +40,7 @@ module  Imp_pump_header
 		this%Q=this%Qe
 		this%omega=this%omegae
 		temperature=this%T
-		this%rho=get_density_Na(temperature)
+		this%rho=get_density(this%Mtl_coolant,temperature)
 	end subroutine init_pump   
     
     subroutine free_pump(this)

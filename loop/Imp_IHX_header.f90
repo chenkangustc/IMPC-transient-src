@@ -37,9 +37,11 @@ module Imp_IHX_header
 		real(KREAL),allocatable::kp(:),ks(:)
 		real(KREAL)::rhot,rhov
 		real(KREAL)::shct,shcv
+        integer::Mtl_coolantp,Mtl_coolants,Mtl_tube,Mtl_shell
 		!thermal
 		real(KREAL),allocatable::htp(:),hvp(:),hts(:)
 		real(KREAL),allocatable::Tp(:),Ts(:),Tt(:),Tv(:)
+        integer::Nutube,Nubundle,Nubundles
 		!initial
 		real(KREAL)::Ti
 		!boundary
@@ -105,7 +107,10 @@ module Imp_IHX_header
 		this%Tv(:)=this%Ti
 		this%AreaTubeSingle=PI*rtube*rtube
 		this%AreaTubeTotal=Ntube*this%AreaTubeSingle
-		
+		this%Nutube=1
+		this%Nubundle=1
+		this%Nubundles=1
+       
 		this%Tpin=663.15!K
         this%Tpout=this%Ti
         this%Tsout=this%Ti
@@ -119,25 +124,25 @@ module Imp_IHX_header
 		this%Wets=2*PI*this%Rtube
 		this%Des=4*this%AreaTubeSingle/this%Wets
         !property
-        this%rhot=get_density_304()
-        this%shct=get_shc_304()
-        this%rhov=get_density_304()
-        this%shcv=get_shc_304()
+        this%rhot=get_density(this%Mtl_tube,this%Ti)
+        this%shct=get_shc(this%Mtl_tube,this%Ti)
+        this%rhov=get_density(this%Mtl_shell,this%Ti)
+        this%shcv=get_shc(this%Mtl_shell,this%Ti)
         !vv
         this%vqtotal=0.0
 		do i=1,N,1
 			Tp=this%Tp(i)
             Ts=this%Ts(i)
-			this%rhop(i)=get_density_Na(Tp)
-			this%shcp(i)=get_shc_Na(Tp)
-            this%visp(i)=get_vis_Na(Tp,this%rhop(i))
-			this%kp(i)=get_conductivity_Na(Tp)		
-			this%rhos(i)=get_density_Na(Ts)
+			this%rhop(i)=get_density(this%Mtl_coolantp,Tp)
+			this%shcp(i)=get_shc(this%Mtl_coolantp,Tp)
+            this%visp(i)=get_vis(this%Mtl_coolantp,Tp,this%rhop(i))
+			this%kp(i)=get_conductivity(this%Mtl_coolantp,Tp)		
+			this%rhos(i)=get_density(this%Mtl_coolants,Ts)
 			!this%rhos(i)=879.0
-			this%shcs(i)=get_shc_Na(Ts)
+			this%shcs(i)=get_shc(this%Mtl_coolants,Ts)
 			!this%shcs(i)=1310.0
-		    this%viss=get_vis_Na(Ts,this%rhos(i))
-			this%ks(i)=get_conductivity_Na(Ts)
+		    this%viss=get_vis(this%Mtl_coolants,Ts,this%rhos(i))
+			this%ks(i)=get_conductivity(this%Mtl_coolants,Ts)
 			this%Length(i)=Lsingle/N
 			if(i==1)then
 				this%zz(i)=this%Length(i)/2
@@ -214,17 +219,17 @@ module Imp_IHX_header
 		integer::i,N
 		N=this%N
 		do i=1,N,1
-			this%rhop(i)=get_density_Na(this%Tp(i))
-			this%shcp(i)=get_shc_Na(this%Tp(i))
-			this%kp(i)=get_conductivity_Na(this%Tp(i))
-			this%visp(i)=get_vis_Na(this%Tp(i),this%rhop(i))
+			this%rhop(i)=get_density(this%Mtl_coolantp,this%Tp(i))
+			this%shcp(i)=get_shc(this%Mtl_coolantp,this%Tp(i))
+			this%kp(i)=get_conductivity(this%Mtl_coolantp,this%Tp(i))
+			this%visp(i)=get_vis(this%Mtl_coolantp,this%Tp(i),this%rhop(i))
 			
-            this%rhos(i)=get_density_Na(this%Ts(i))
+            this%rhos(i)=get_density(this%Mtl_coolants,this%Ts(i))
             !this%rhos(i)=879.0
-			this%shcs(i)=get_shc_Na(this%Ts(i))
+			this%shcs(i)=get_shc(this%Mtl_coolants,this%Ts(i))
 			!this%shcs(i)=1310.0
-			this%ks(i)=get_conductivity_Na(this%Ts(i))
-			this%viss(i)=get_vis_Na(this%Ts(i),this%rhos(i))
+			this%ks(i)=get_conductivity(this%Mtl_coolants,this%Ts(i))
+			this%viss(i)=get_vis(this%Mtl_coolants,this%Ts(i),this%rhos(i))
 		enddo
     end subroutine update_property
     
@@ -296,9 +301,9 @@ module Imp_IHX_header
 		Dtubeo=(this%Rtube+this%thickt)*2.0
 		!get_Nusselt_IHX_shell(flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
 		do i=1,N,1
-			Nust=get_Nusselt_Na_tube(Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss(i),this%shcs(i),this%ks(i))!secondary
-			Nupt=get_Nusselt_Na_bundle(this%Plength/Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
-			Nupv=get_Nusselt_Na_bundle(this%Plength/Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))	
+			Nust=get_Nusselt_tube(this%Mtl_coolants,this%Nutube,Areas_,this%wets,this%Des,this%rhos(i),Qs_,this%viss(i),this%shcs(i),this%ks(i))!secondary
+			Nupt=get_Nusselt_bundle(this%Mtl_coolantp,this%Nubundle,this%Plength/Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))!primary, assume that the htc between p and t is as same as that between p and v
+			Nupv=get_Nusselt_bundle(this%Mtl_coolantp,this%Nubundle,this%Plength/Dtubeo,Areap_,this%wetp,this%Dep,this%rhop(i),Qp_,this%visp(i),this%shcp(i),this%kp(i))	
 			this%hts(i)=Nust*this%ks(i)/this%Des
 			this%htp(i)=Nupt*this%kp(i)/this%Dep
 			this%hvp(i)=Nupv*this%kp(i)/this%Dep
