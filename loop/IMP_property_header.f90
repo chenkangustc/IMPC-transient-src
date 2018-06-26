@@ -1,6 +1,15 @@
 module imp_property
     use constants
     contains
+     function get_fric_LBE_pin(Frtype,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        fric=70.399/Re+20.722/Re**0.133+0.01!吕P41
+        end select
+    end function
     !=============================================================
     !LBE
     !=============================================================

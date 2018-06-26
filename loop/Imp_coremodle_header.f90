@@ -16,7 +16,7 @@ module Imp_coremodle_header
         real(KREAL)::Qtotal
         real(KREAL)::sigmaPass
         real(KREAL)::vqtotal!稳态冷却剂带走功率的计算值
-        real(KREAL)::fric!
+        real(KREAL)::Re,fric!
         integer,allocatable::fzone(:)!zones which should be allocated flow
         integer,allocatable::SAtable(:)
         integer::Mtl_fuel,Mtl_shell,Mtl_coolant,Mtl_gas
@@ -457,6 +457,7 @@ module Imp_coremodle_header
             Re=flowrate*De/(visa*area)
             frics=get_fric_pin(Ftype,Frtype,Re)
             this%fric=frics
+            this%Re=Re
             ! assm1(:)%hydrau%fric=frics
             ! if(Re>=2050.) then
                 ! frics=0.1875/Re**2

@@ -327,8 +327,8 @@ module imp_assm_header
         real(KREAL),intent(in)::Velocity
 		!local
 		integer i,N
-        this%Nubundle=1
-        this%Frtype=1
+        ! this%Nubundle=1
+        ! this%Frtype=1
         ! write(*,*)'init the thermal value'
         this%Temperature=Temperature
         !this%Pressure=Pressure
