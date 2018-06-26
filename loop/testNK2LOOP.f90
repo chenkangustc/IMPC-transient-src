@@ -85,8 +85,8 @@ module testNK2loop
         nr=size(pow,dim=1)
         na=size(pow,dim=2)
 		!if(current<=400.0) pow=-powS*(current-400.0)/400.0
-		!pow=powS
-		pow=0.0
+		pow=powS
+		!pow=0.0
         do i=1,nr,1
             do j=1,na,1
                 powtotal=powtotal+pow(i,j)
