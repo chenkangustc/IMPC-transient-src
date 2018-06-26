@@ -2,6 +2,8 @@ module testNK2loop
 	use global_state
     use imp_assm_global
     use TH2NK_interface_loop
+    use imp_loop_global
+    use imp_timer_global
 	implicit none
     contains
     subroutine driving_testNK2loop()
@@ -44,28 +46,31 @@ module testNK2loop
 			  !power=0.8*power
 			  powerSteady=power
 			  transient_flag=.TRUE.
-       		  tTotal=5000.0
-			  nTime=5000
+       		  tTotal=timer1%ttotal
+			  nTime=timer1%Nt
 			  dtime=tTotal/nTime
+              write(*,fmt="('------------------------------------------------------------------------------')")
+              write(*,fmt="(' ','time','   ','maxTfuel','  ','maxTcoolant',' ','coreTin',' ','coreTout','   ','IHXTpin','   ','IHXTpout')")
+              write(*,fmt="('------------------------------------------------------------------------------')")
 			  do i=1,nTime,1
 				  current=current+dtime
 				  call get_pow(current,power,powerSteady)
 				  call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  
-				  print*,'time=',current,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
+                  write(*,fmt="(F5.1,'|',6F10.2)")  current,max_Tfuel,max_Tcoolant,core%Tfin,core%Tfout,IHX1%Tpin,IHX1%Tpout
 				  last=current
 			  enddo
 	   endif
 	      
-       i_zone=19
-	   Nradial=assm1(i_zone)%mesh%Nf+assm1(i_zone)%mesh%Ng+assm1(i_zone)%mesh%Ns+1
-	   print*,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
-	   print*,'Tcoolant=',Tfuel(i_zone,:)
-	   print*,'zone=',i_zone,'Tinlet=',assm1(i_zone)%th_boundary%T%inlet
-	   print*,'zone=',i_zone,'Temperature=',assm1(i_zone)%thermal%temperature(:,Nradial)
-       print*,'zone=',i_zone,'uinlet=',assm1(i_zone)%th_boundary%u%inlet
-	   print*,'zone=',i_zone,'velocity=',assm1(i_zone)%thermal%velocity
-	   print*,'zone=',i_zone,'pressure=',assm1(i_zone)%thermal%pressure
-       read(*,*)
+    !   i_zone=19
+	   !Nradial=assm1(i_zone)%mesh%Nf+assm1(i_zone)%mesh%Ng+assm1(i_zone)%mesh%Ns+1
+	   !print*,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
+	   !print*,'Tcoolant=',Tfuel(i_zone,:)
+	   !print*,'zone=',i_zone,'Tinlet=',assm1(i_zone)%th_boundary%T%inlet
+	   !print*,'zone=',i_zone,'Temperature=',assm1(i_zone)%thermal%temperature(:,Nradial)
+    !   print*,'zone=',i_zone,'uinlet=',assm1(i_zone)%th_boundary%u%inlet
+	   !print*,'zone=',i_zone,'velocity=',assm1(i_zone)%thermal%velocity
+	   !print*,'zone=',i_zone,'pressure=',assm1(i_zone)%thermal%pressure
+    !   read(*,*)
     end subroutine driving_testNK2loop
 	
 	subroutine get_pow(current,pow,powS)

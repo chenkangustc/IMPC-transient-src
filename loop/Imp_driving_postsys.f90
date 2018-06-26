@@ -59,6 +59,7 @@ module Imp_driving_syspost
         close(FILE_I)
         close(FILE_O)
 		close(FILE_T)
+		close(FILE_HY)
 		close(FILE_maxT)
 		close(FILE_aveT)
 		close(FILE_disT)

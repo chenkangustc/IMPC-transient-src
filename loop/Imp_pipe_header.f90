@@ -22,10 +22,13 @@ module Imp_pipe_header
 		real(KREAL)::Q
 		real(KREAL)::beta
         real(KREAL)::poolmodify
+        real(KREAL)::velocity
+        real(KREAL)::Re
 		!thermal
 		real(KREAL),allocatable::Tf(:),Ts(:)
 		real(KREAL),allocatable::htc(:)
         integer::Nutube
+        integer::Frtype
 		!material
 		real(KREAL),allocatable::rhof(:),shcf(:),kf(:),visf(:)
 		real(KREAL)::rhos,shcs,ks
@@ -79,6 +82,10 @@ module Imp_pipe_header
 	  this%Tfout=this%Ti
       this%Bq=0.0
       this%Nutube=1
+      this%Frtype=1
+      this%velocity=0.0
+      this%fric=0.3
+      this%Re=1000.0
       !this%poolmodify=1.0
       !property
       this%rhos=get_density(this%Mtl_shell,this%Ti)
@@ -97,7 +104,7 @@ module Imp_pipe_header
 	  this%area=PI*rpipe*rpipe
       !de
 	  this%wet=2*PI*rpipe
-      this%de=4.0*Aflow/this%wet
+      this%de=4.0*this%area/this%wet
 	  call this%calhtc()
 	  !beta
 	  !this%beta=0.5*(this%fric*this%ltotal/this%de+this%K)*1.0/(this%rhof*this%area**2)
@@ -474,17 +481,24 @@ module Imp_pipe_header
                   Ny=>this%Ny,&
                   vis=>this%visf,&
                   flowrate=>this%Q,&
+                  Ftype=>this%Mtl_coolant,&
+                  Frtype=>this%Frtype,&
                   flowarea=>this%area)
             visa=0.0
             do i=1,Ny,1
                 visa=visa+vis(i)/Ny
             enddo
             Re=flowrate*De/(visa*flowarea)
-            if(Re>=1082) then
-                fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
-            else
-                fric=64./Re
-            endif
+            fric=get_fric_pipe(Ftype,Frtype,De,Re)
+            !
+            this%Re=Re
+            this%fric=fric
+            this%velocity=flowrate/(flowarea*this%rhof(1))
+            ! if(Re>=1082) then
+                ! fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
+            ! else
+                ! fric=64./Re
+            ! endif
         end associate
     end function cal_fric
     

@@ -41,7 +41,8 @@ module Imp_IHX_header
 		!thermal
 		real(KREAL),allocatable::htp(:),hvp(:),hts(:)
 		real(KREAL),allocatable::Tp(:),Ts(:),Tt(:),Tv(:)
-        integer::Nutube,Nubundle,Nubundles
+        integer::Nutube,Nubundle
+        integer::Frtype
 		!initial
 		real(KREAL)::Ti
 		!boundary
@@ -109,7 +110,8 @@ module Imp_IHX_header
 		this%AreaTubeTotal=Ntube*this%AreaTubeSingle
 		this%Nutube=1
 		this%Nubundle=1
-		this%Nubundles=1
+		this%Frtype=1
+		! this%Nubundles=1
        
 		this%Tpin=663.15!K
         this%Tpout=this%Ti
@@ -646,6 +648,8 @@ module Imp_IHX_header
                   Ntube=>this%Ntube,&
                   vis=>this%visp,&
                   flowrate=>this%Qp,&
+                  Ftype=>this%Mtl_coolantp,&
+                  Frtype=>this%Frtype,&
                   flowarea=>this%areap)
             visa=0.0
             do i=1,Ny,1
@@ -653,11 +657,12 @@ module Imp_IHX_header
             enddo
             De=Dep*Ntube
             Re=flowrate*De/(visa*flowarea)
-            if(Re>=1082) then
-                fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
-            else
-                fric=64./Re
-            endif
+            fric=get_fric_IHX(Ftype,Frtype,De,Re)
+            ! if(Re>=1082) then
+                ! fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
+            ! else
+                ! fric=64./Re
+            ! endif
         end associate
     end function cal_fric
   

@@ -95,6 +95,7 @@ module Imp_cal_loop
         PipePR%Tfin=PipeIP%Tfout
         call PipePR%thCalt(last,current) 
         write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
+        write(unit=file_hy,fmt="(F6.1,' ',F8.2,F8.4,2F15.1,F8.2,F8.1)") current,PipeRI%velocity,PipeRI%fric,PipeRI%Re,PipeRI%rhof(1),PipeRI%Q,PipeRI%area
           
 	end subroutine driving_loop_transient
     
@@ -179,6 +180,7 @@ module Imp_cal_loop
         !this%betap=this%betap+0.5*(this%Fricp*this%length(i)/this%Dep+Kiouter)*1/(this%rhop(i)*this%Areap**2)
         !solve
         flowrate=(alpha*flowrate+buoy*dt)/(alpha-beta*flowrate*dt)
+        call set_flowrate(flowrate)
    end subroutine cal_hydraulic_sec
     
 	subroutine cal_beta(beta,formula)

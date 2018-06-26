@@ -425,6 +425,7 @@ module Imp_coremodle_header
         real(KREAL)::Re,visa,De,area
         integer::i,j
         integer::Nzone,Nfluid
+        ! integer::Ftype,Frtype
         associate(Ny=>assm1(1)%mesh%Ny,&
                   Nf=>assm1(1)%mesh%Nf,&
                   Ng=>assm1(1)%mesh%Ng,&          
@@ -434,6 +435,8 @@ module Imp_coremodle_header
                   flowrate=>this%Qtotal,&
                   areap=>assm1(1)%hydrau%aflow,&
                   fric=>assm1(1)%hydrau%fric,&
+                  Ftype=>assm1(1)%property%Mtl_coolant,&
+                  Frtype=>assm1(1)%thermal%Frtype,&
                   Dep=>assm1(1)%hydrau%De)
                   
             Nzone=size(assm1)
@@ -449,12 +452,12 @@ module Imp_coremodle_header
                 enddo
             enddo
             Re=flowrate*De/(visa*area)
-            
-            if(Re>=2050.) then
-                frics=0.1875/Re**2
-            else
-                frics=76.5/Re
-            endif
+            frics=get_fric_pin(Ftype,Frtype,Re)
+            ! if(Re>=2050.) then
+                ! frics=0.1875/Re**2
+            ! else
+                ! frics=76.5/Re
+            ! endif
         end associate
     end function cal_fric
     

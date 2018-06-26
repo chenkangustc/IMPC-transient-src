@@ -4,15 +4,12 @@ module imp_mathkerel
     private
     public::tdma
     public::get_convection
-    !public::get_Nusselt
     public::get_hyconstant
- !   public::get_nusselt_water_tube
- !   public::get_nusselt_IHX_shell
-	!public::get_nusselt_LBE_tube
-    public::get_nusselt_Na_tube
-    public::get_nusselt_Na_bundle
     public::get_nusselt_tube
     public::get_nusselt_bundle
+    public::get_fric_IHX
+    public::get_fric_pin
+    public::get_fric_pipe
     
 contains
     subroutine tdma(N,A,B,u)
@@ -145,7 +142,37 @@ contains
 		Nu=4.8+0.0156*Re**0.85*Pr**0.93
         end select
 	end function get_Nusselt_LBE_tube
-	!========================================================================
+    
+    function get_fric_LBE_IHX(Frtype,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        fric=0.3164/Re**0.25
+        end select
+    end function
+    
+    function get_fric_LBE_pin(Frtype,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        fric=70.399/Re+20.722/Re**0.133+0.01!ÂÀP41
+        end select
+    end function
+    
+    function get_fric_LBE_pipe(Frtype,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        fric=0.3164/Re**0.25
+        end select  
+	end function
+    !========================================================================
 	!       Na
     !========================================================================
     function get_Nusselt_Na_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
@@ -196,7 +223,49 @@ contains
             ! print*,'PD is out of range of Nu'
         ! endif
 	end function get_Nusselt_Na_bundle
-	!========================================================================
+    
+    function get_fric_Na_IHX(Frtype,De,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::De,Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        if(Re>=1082) then
+            fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
+        else
+            fric=64./Re
+        endif
+        end select
+    end function
+    
+    function get_fric_Na_pin(Frtype,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        if(Re>=2050.) then
+            fric=0.1875/Re**2
+        else
+            fric=76.5/Re
+        endif
+        end select
+    end function
+    
+    function get_fric_Na_pipe(Frtype,De,Re) result(fric)
+        integer,intent(in)::Frtype
+        real(KREAL),intent(in)::De,Re
+        real(KREAL)::fric
+        select case(Frtype)
+        case(1)
+        if(Re>=1082) then
+            fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
+        else
+            fric=64./Re
+        endif
+        end select
+	end function
+    !========================================================================
 	!       total
     !========================================================================
     function get_Nusselt_tube(Ftype,Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) result(Nu)
@@ -229,6 +298,42 @@ contains
         Nu=get_Nusselt_LBE_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
         case(102)!Na
         Nu=get_Nusselt_Na_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
+        end select
+    end function
+    
+    function get_fric_IHX(Ftype,Frtype,De,Re) result(fric)
+        integer,intent(in)::Ftype,Frtype
+        real(KREAL),intent(in)::De,Re
+        real(KREAL)::fric
+        select case(Ftype)
+        case(101)
+        fric=get_fric_LBE_IHX(Frtype,Re)
+        case(102)!Na
+        fric=get_fric_Na_IHX(Frtype,De,Re)
+        end select
+    end function
+    
+    function get_fric_pin(Ftype,Frtype,Re) result(fric)
+        integer,intent(in)::Ftype,Frtype
+        real(KREAL),intent(in)::Re
+        real(KREAL)::fric
+        select case(Ftype)
+        case(101)
+        fric=get_fric_LBE_pin(Frtype,Re)
+        case(102)!Na
+        fric=get_fric_Na_pin(Frtype,Re)
+        end select
+    end function
+    
+    function get_fric_pipe(Ftype,Frtype,De,Re) result(fric)
+        integer,intent(in)::Ftype,Frtype
+        real(KREAL),intent(in)::De,Re
+        real(KREAL)::fric
+        select case(Ftype)
+        case(101)!LBE
+        fric=get_fric_LBE_pipe(Frtype,Re)
+        case(102)!Na
+        fric=get_fric_Na_pipe(Frtype,De,Re)
         end select
     end function
     !

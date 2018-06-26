@@ -5,14 +5,15 @@ module Imp_inputcard
     use,intrinsic::ISO_FORTRAN_ENV
     use constants
 	implicit none
-	integer::file_i,file_o,file_t,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=27
+	integer::file_i,file_o,file_t,file_hy,file_maxT,file_aveT,file_disT
+	integer,parameter,private::N_keyword=28
     integer,parameter,private::MAX_REAL_PARAMETER=700
 	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
     character(len=MAX_WORD_LEN),parameter::FILE_IN='./src/loopinput.case'
     character(len=MAX_WORD_LEN),parameter::FILE_OUT='loopoutput.txt'
 	character(len=MAX_WORD_LEN),parameter::FILE_LTIME='looptimelist.txt'
+	character(len=MAX_WORD_LEN),parameter::FILE_HYDRAU='hydraulic.txt'
 	character(len=MAX_WORD_LEN),parameter::FILE_MAXTIME='maxT.timelist'
 	character(len=MAX_WORD_LEN),parameter::FILE_AVETIME='aveT.timelist'
 	character(len=MAX_WORD_LEN),parameter::FILE_DIS='Tdis.txt'
@@ -48,6 +49,7 @@ module Imp_inputcard
                                 & 'IMPCpost',  &
                                 & 'ReMtl',  &
                                 & 'Nusselt',  &
+                                & 'fric',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -64,6 +66,7 @@ module Imp_inputcard
 		call set_section_keyword()
         open(newunit=file_o,file=FILE_OUT,status='replace',action='write',iostat=io_error)
 		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error) 
+		open(newunit=file_hy,file=FILE_HYDRAU,status='replace',action='write',iostat=io_error) 
 		!write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
 		write(unit=file_t,fmt="('   time','    pow','    flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout',' IHXQs','  IHXTsin',' IHXTsout')")
 		open(newunit=file_maxT,file=FILE_MAXTIME,status='replace',action='write',iostat=io_error)
@@ -261,6 +264,13 @@ module Imp_inputcard
                     ! IHX1%Nubundles=dummy_int(3)
                     reInputdata%Nubundle=dummy_int(2)
                     
+                    case('fric')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:3)
+                    reInputdata%Frtype=dummy_int(1)
+                    IHX1%Frtype=dummy_int(2)
+                    pipeIP%Frtype=dummy_int(3)
+                    pipeRI%Frtype=dummy_int(3)
+                    pipePR%Frtype=dummy_int(3)
 				end select
 			end if
 		end do

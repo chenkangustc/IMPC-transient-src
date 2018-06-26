@@ -97,6 +97,7 @@ module imp_assm_header
 		real(KREAL),allocatable::Tsc(:)
 		real(KREAL)::Tfave,Tcave
         integer::Nubundle
+        integer::Frtype
       contains
        procedure,public::init=>init_thermal
       end type thermal
@@ -324,6 +325,7 @@ module imp_assm_header
 		!local
 		integer i,N
         this%Nubundle=1
+        this%Frtype=1
         ! write(*,*)'init the thermal value'
         this%Temperature=Temperature
         !this%Pressure=Pressure

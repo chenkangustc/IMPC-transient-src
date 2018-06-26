@@ -2,6 +2,7 @@ module testNK2TH
 	use global_state
     use imp_assm_global
 	use TH2NK_interface_imp,        only : Perform_TH_imp
+    use Imp_loop_global
 	implicit none
     contains
     subroutine driving_testNK2TH()
@@ -48,23 +49,27 @@ module testNK2TH
        		  tTotal=1.0
 			  nTime=10
 			  dtime=tTotal/nTime
+              write(*,fmt="('------------------------------------------------------------------------------')")
+              write(*,fmt="(' ','time','   ','maxTfuel','  ','maxTcoolant',' ','coreTin',' ','coreTout','   ','IHXTpin','   ','IHXTpout')")
+              write(*,fmt="('------------------------------------------------------------------------------')")
+
 			  do i=1,nTime,1
 				  current=current+dtime
 				  call Perform_TH_imp(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  
-				  print*,'time=',current,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
+                  write(*,fmt="(F5.1,'|',6F10.2)")  current,max_Tfuel,max_Tcoolant,core%Tfin,core%Tfout,IHX1%Tpin,IHX1%Tpout
 				  last=current
 			  enddo
 	   endif
 	      
        i_zone=19
 	   Nradial=assm1(i_zone)%mesh%Nf+assm1(i_zone)%mesh%Ng+assm1(i_zone)%mesh%Ns+1
-	   print*,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
-	   print*,'Tcoolant=',Tfuel(i_zone,:)
-	   print*,'zone=',i_zone,'Tinlet=',assm1(i_zone)%th_boundary%T%inlet
-	   print*,'zone=',i_zone,'Temperature=',assm1(i_zone)%thermal%temperature(:,Nradial)
-       print*,'zone=',i_zone,'uinlet=',assm1(i_zone)%th_boundary%u%inlet
-	   print*,'zone=',i_zone,'velocity=',assm1(i_zone)%thermal%velocity
-	   print*,'zone=',i_zone,'pressure=',assm1(i_zone)%thermal%pressure
-       read(*,*)
+	   !print*,'maxTfuel=',max_Tfuel,'maxTcoolant=',max_Tcoolant
+	   !print*,'Tcoolant=',Tfuel(i_zone,:)
+	   !print*,'zone=',i_zone,'Tinlet=',assm1(i_zone)%th_boundary%T%inlet
+	   !print*,'zone=',i_zone,'Temperature=',assm1(i_zone)%thermal%temperature(:,Nradial)
+    !   print*,'zone=',i_zone,'uinlet=',assm1(i_zone)%th_boundary%u%inlet
+	   !print*,'zone=',i_zone,'velocity=',assm1(i_zone)%thermal%velocity
+	   !print*,'zone=',i_zone,'pressure=',assm1(i_zone)%thermal%pressure
+    !   read(*,*)
     endsubroutine driving_testNK2TH
 endmodule testNK2TH

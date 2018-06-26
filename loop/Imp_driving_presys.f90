@@ -41,8 +41,8 @@ module Imp_driving_presys
         if(pump1%is_table==.TRUE.) call pump1%alloc()
         if(is_THonly) then
             allocate(tpower1%pow(2,tpower1%Ntime))
-            allocate(core%SAtable(core%Nzone))
         endif
+        allocate(core%SAtable(core%Nzone))
         !用来临时代替core
         allocate(reInputdata%height(reInputdata%ny))
         allocate(reInputdata%sa(reInputdata%Ntype))

@@ -180,6 +180,7 @@ contains
       assm%property%Mtl_gas=reInputdata%Mtl_gas
       assm%property%Mtl_fuel=reInputdata%Mtl_fuel
       assm%thermal%Nubundle=reInputdata%Nubundle
+      assm%thermal%Frtype=reInputdata%Frtype
      end subroutine set_assembly
      
      subroutine cal_grid(assm)
