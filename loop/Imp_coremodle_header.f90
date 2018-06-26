@@ -12,9 +12,11 @@ module Imp_coremodle_header
         integer::Nflow
         integer::Nflowsemi!缩略模型半组件
         integer::Nsplit!计算时堆芯分成的份数
+        integer::Nbranch!支路数
         real(KREAL)::Qtotal
         real(KREAL)::sigmaPass
         real(KREAL)::vqtotal!稳态冷却剂带走功率的计算值
+        real(KREAL)::fric!
         integer,allocatable::fzone(:)!zones which should be allocated flow
         integer,allocatable::SAtable(:)
         integer::Mtl_fuel,Mtl_shell,Mtl_coolant,Mtl_gas
@@ -31,7 +33,6 @@ module Imp_coremodle_header
 		!hydraulic
 		real(KREAL)::De
 		real(KREAL)::wet
-        real(KREAL)::fric
         real(KREAL)::K
 		real(KREAL)::Q
 		real(KREAL)::beta
@@ -404,6 +405,7 @@ module Imp_coremodle_header
                   Ng=>assm1(1)%mesh%Ng,&  
                   Ns=>assm1(1)%mesh%Ns,&  
                   Nzone=>this%Nzone,&  
+                  Nbranch=>this%Nbranch,&  
                   rho=>assm1(1)%property%rho,&
                   length=>assm1(1)%geom%height)
             Nfluid=Nf+Ng+Ns+1
@@ -415,6 +417,7 @@ module Imp_coremodle_header
                 dbuoy=-GRAVG*sin(90.0/180.0*PI)*rhoa*length(i)
                 buoy=buoy+dbuoy
             enddo
+            buoy=buoy/Nbranch
     end associate
     end function cal_buoy
     
@@ -453,6 +456,8 @@ module Imp_coremodle_header
             enddo
             Re=flowrate*De/(visa*area)
             frics=get_fric_pin(Ftype,Frtype,Re)
+            this%fric=frics
+            ! assm1(:)%hydrau%fric=frics
             ! if(Re>=2050.) then
                 ! frics=0.1875/Re**2
             ! else
@@ -480,6 +485,7 @@ module Imp_coremodle_header
                   areap=>assm1(1)%hydrau%aflow,&
                   fric=>assm1(1)%hydrau%fric,&
                   Dep=>assm1(1)%hydrau%De,&
+                  Nbranch=>this%Nbranch,&
                   K=>assm1(1)%hydrau%K)
             Nzone=size(assm1)
             Nfluid=Nf+Ng+Ns+1
@@ -493,7 +499,7 @@ module Imp_coremodle_header
                 enddo
             enddo
             fric=this%cfric()
-            beta=-fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
+            beta=-Nbranch*fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
     end associate
     end function cal_beta
     

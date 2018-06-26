@@ -28,8 +28,10 @@ module Imp_IHX_header
 		!mesh
 		integer::N
 		!hydraulic
-		real(KREAL)::Dep,Fricp,Kricp,Wetp,betap,Wets,Des!beta is used to calculate the flowrate
+		real(KREAL)::Dep,Fricp,Kricp,Wetp,betap,Frics,Wets,Des!beta is used to calculate the flowrate
 		real(KREAL)::Qp,Qs
+        real(KREAL)::velocityp,velocitys
+        real(KREAL)::Rep,Res
 		!material
 		real(KREAL),allocatable::rhop(:),rhos(:)
 		real(KREAL),allocatable::shcp(:),shcs(:)
@@ -123,6 +125,7 @@ module Imp_IHX_header
 	    this%Dep=4*this%Areap/(this%Wetp*this%Ntube)	
 		this%betap=0.0	
 		! this%Wets=2*PI*(this%Rtube+this%thickt)
+        this%Frics=0.0
 		this%Wets=2*PI*this%Rtube
 		this%Des=4*this%AreaTubeSingle/this%Wets
         !property
@@ -650,6 +653,9 @@ module Imp_IHX_header
                   flowrate=>this%Qp,&
                   Ftype=>this%Mtl_coolantp,&
                   Frtype=>this%Frtype,&
+                  rhop=>this%rhop,&
+                  rhos=>this%rhos,&
+                  ! areas=>this%area,&
                   flowarea=>this%areap)
             visa=0.0
             do i=1,Ny,1
@@ -658,11 +664,11 @@ module Imp_IHX_header
             De=Dep*Ntube
             Re=flowrate*De/(visa*flowarea)
             fric=get_fric_IHX(Ftype,Frtype,De,Re)
-            ! if(Re>=1082) then
-                ! fric=0.0055*(1.+(20000*1e-5/De+1e6/Re)**(1./3.))
-            ! else
-                ! fric=64./Re
-            ! endif
+            !
+            this%Rep=Re
+            this%velocityp=flowrate/(flowarea*rhop(1))
+            this%Res=this%Qs*this%Des/(this%viss(1)*this%areatubesingle*this%Ntube)
+            this%velocitys=this%Qs/(this%areatubetotal*rhos(1))
         end associate
     end function cal_fric
   

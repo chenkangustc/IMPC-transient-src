@@ -61,11 +61,14 @@ module imp_assm_header
     end type th_boundary
     
     type,public::hydraulic
+        real(KREAL):: Qzone!单个组件的流量
         real(KREAL):: Qf!单个pin的流量
+        real(KREAL):: velocity!组件流速
         real(KREAL):: fric
-        real(KREAL):: aflow
+        real(KREAL):: aflow!单个pin的流通面积
         real(KREAL):: wet
         real(KREAL):: de
+        real(KREAL):: Re
         real(KREAL):: K
     contains
         procedure,public::set=>set_hydraulic

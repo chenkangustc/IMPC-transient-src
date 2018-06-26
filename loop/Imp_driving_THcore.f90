@@ -104,12 +104,19 @@
             integer zone
             integer i
             zone=core%Nzone
+            associate(Nf=>assm(1)%mesh%Nf,&
+                      Ng=>assm(1)%mesh%Ng,&
+                      Ns=>assm(1)%mesh%Ns)
             !以zone为统计，而非SA
             !Qave=Qin*(1-core%sigmaPass)/(core%Nflow+core%Nflowsemi/2)!average
             do i=1,zone,1
                 assm1(i)%saflag=core%SAtable(i)
                 assm(i)%hydrau%Qf=Qin*reInputdata%sa(assm1(i)%saflag)%flowdis/assm(i)%geom%N_pin
+                assm(i)%hydrau%Qzone=assm(i)%hydrau%Qf*assm(i)%geom%N_pin
+                assm(i)%hydrau%velocity=assm(i)%hydrau%Qf/(assm(i)%hydrau%aflow*assm(i)%property%rho(1,Nf+Ng+Ns+1))
+                assm(i)%hydrau%Re=assm(i)%hydrau%Qf*assm(i)%hydrau%De/(assm(i)%hydrau%aflow*assm(i)%property%dvs(1,Nf+Ng+Ns+1))
             enddo
+            end associate
             ! do i=1,zone,1
                 ! izone=core%fzone(i)
                 ! if (i<=core%Nflow) then

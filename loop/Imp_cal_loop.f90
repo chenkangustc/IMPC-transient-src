@@ -4,6 +4,7 @@ module Imp_cal_loop
 	use Imp_driving_THcore
 	use Imp_inputcard
 	use Imp_driving_syspost
+    use imp_assm_global
 	implicit none
 	contains
 	subroutine driving_loop_steady(assembly)
@@ -56,7 +57,7 @@ module Imp_cal_loop
             write(*,fmt="(I4,'|',F10.7,6F10.2)")num,sigma,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Tsin,IHX1%Tsout
         enddo
 		!call driving_output_steady()
-		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2,2F15.1)") current,powinput,Pump1%Qe,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout,core%vqtotal,IHX1%vqtotal
+		write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2,2F15.1)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout,core%vqtotal,IHX1%vqtotal
 	end subroutine driving_loop_steady
 	
 	subroutine driving_loop_transient(assembly,last,current)
@@ -66,7 +67,7 @@ module Imp_cal_loop
         !local
 		real(KREAL)::coreTin,coreTout,coreQin
 		real(KREAL)::powinput
-		integer::i,j,nr,na
+		integer::i,j,nr,na,izone
 		logical::transient_flag,is_table
 		
 		transient_flag=.TRUE.
@@ -95,11 +96,15 @@ module Imp_cal_loop
         PipePR%Tfin=PipeIP%Tfout
         call PipePR%thCalt(last,current) 
         write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
-        write(unit=file_hy,fmt="(F6.1,' ',F8.2,F8.4,2F15.1,F8.2,F10.6)") current,PipeRI%velocity,PipeRI%fric,PipeRI%Re,PipeRI%rhof(1),PipeRI%Q,PipeRI%area
-          
-	end subroutine driving_loop_transient
-    
-	subroutine cal_loop_hydraulic(is_table,is_natural,last,current,flowrate)
+        ! write(unit=file_hy,fmt="(F6.1,' ',F8.2,F8.4,2F15.1,F8.2,F10.6)") current,PipeRI%velocity,PipeRI%fric,PipeRI%Re,PipeRI%rhof(1),PipeRI%Q,PipeRI%area
+        izone=12
+        write(unit=file_hy,fmt="(F6.1,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6)") current,assm1(izone)%hydrau%Qzone,assm1(izone)%hydrau%velocity,assm1(izone)%hydrau%Re,core%fric,assm1(izone)%property%rho(1,assm1(izone)%mesh%Nf+assm1(izone)%mesh%Ng+assm1(izone)%mesh%Ns+1),assm1(izone)%hydrau%aflow*assm1(izone)%geom%N_fuelpin,&
+                                                                                                                                                  IHX1%Qp,IHX1%velocityp,IHX1%Rep,IHX1%Fricp,IHX1%rhop(1),IHX1%areap,&
+                                                                                                                                                  IHX1%Qs,IHX1%velocitys,IHX1%Res,IHX1%Frics,IHX1%rhos(1),IHX1%areatubetotal,&
+                                                                                                                                                  PipeRI%Q,PipeRI%velocity,PipeRI%Re,PipeRI%fric,PipeRI%rhof(1),PipeRI%area
+    end subroutine driving_loop_transient 
+	
+    subroutine cal_loop_hydraulic(is_table,is_natural,last,current,flowrate)
         logical,intent(in)::is_table
         logical,intent(in out)::is_natural
 		real(KREAL),INTENT(in)::last!time

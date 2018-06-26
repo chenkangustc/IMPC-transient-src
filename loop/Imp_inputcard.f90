@@ -67,6 +67,7 @@ module Imp_inputcard
         open(newunit=file_o,file=FILE_OUT,status='replace',action='write',iostat=io_error)
 		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error) 
 		open(newunit=file_hy,file=FILE_HYDRAU,status='replace',action='write',iostat=io_error) 
+        write(unit=file_hy,fmt="('  time','  reFlow','   rev','        reRe','     refric','     rerho','    rearea','  IHXpFlow','  IHXpv','   IHXpIHXp','   IHXpfric','   IHXprho','  IHXparea',' IHXsFlow',' IHXsv','    IHXsIHXs','   IHXsfric','   IHXsrho','  IHXsarea','  RIFlow','   RIv','      RIRI','       RIfric','     RIrho','   RIarea')")
 		!write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
 		write(unit=file_t,fmt="('   time','    pow','    flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout',' IHXQs','  IHXTsin',' IHXTsout')")
 		open(newunit=file_maxT,file=FILE_MAXTIME,status='replace',action='write',iostat=io_error)
@@ -103,12 +104,14 @@ module Imp_inputcard
                         pump1%omegae=dummy_real(4)
                         pump1%yita=dummy_real(5)
                         pump1%Nbranch=dummy_int(1)
+                        core%Nbranch=dummy_int(1)
                         pump1%Mtl_coolant=dummy_int(2)
                     else
                         read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1),dummy_int(1:3)
                         pump1%Qe=dummy_real(1)
                         pump1%Ntime=dummy_int(1)
                         pump1%Nbranch=dummy_int(2)
+                        core%Nbranch=dummy_int(2)
                         pump1%Mtl_coolant=dummy_int(3)
                     endif
 					
