@@ -67,8 +67,9 @@ module Imp_inputcard
         open(newunit=file_o,file=FILE_OUT,status='replace',action='write',iostat=io_error)
 		open(newunit=file_t,file=FILE_LTIME,status='replace',action='write',iostat=io_error) 
 		open(newunit=file_hy,file=FILE_HYDRAU,status='replace',action='write',iostat=io_error) 
-        write(unit=file_hy,fmt="('  time','  reFlow','   rev','        reRe','     refric','     rerho','    rearea','  IHXpFlow','  IHXpv','   IHXpIHXp','   IHXpfric','   IHXprho','  IHXparea',' IHXsFlow',' IHXsv','    IHXsIHXs','   IHXsfric','   IHXsrho','  IHXsarea','  RIFlow','   RIv','      RIRI','       RIfric','     RIrho','   RIarea')")
-		!write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
+       !write(unit=file_hy,fmt="('  time','  reFlow','   rev','        reRe','     refric','     rerho','    rearea','  IHXpFlow','  IHXpv','   IHXpIHXp','   IHXpfric','   IHXprho','  IHXparea',' IHXsFlow',' IHXsv','    IHXsIHXs','   IHXsfric','   IHXsrho','  IHXsarea','  RIFlow','   RIv','      RIRI','       RIfric','     RIrho','   RIarea')")
+		write(unit=file_hy,fmt="('  time','  reFlow','   rev','        reRe','     refric','     rerho','    rearea','  IHXpFlow','  IHXpv','   IHXpIHXp','   IHXpfric','   IHXprho','  IHXparea',' IHXsFlow',' IHXsv','    IHXsIHXs','   IHXsfric','   IHXsrho','  IHXsarea','  RIFlow','   RIv','      RIRI','       RIfric','     RIrho','   RIarea','      grapre','     locfripre')")
+        !write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout		
 		write(unit=file_t,fmt="('   time','    pow','    flowrate',' coreTin',' coreTout',' IHXTin',' IHXTout',' IHXQs','  IHXTsin',' IHXTsout')")
 		open(newunit=file_maxT,file=FILE_MAXTIME,status='replace',action='write',iostat=io_error)
         write(unit=file_maxT,fmt="('  time','  maxFuel','  maxCool',' maxTinner',' maxTouter')")

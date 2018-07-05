@@ -98,10 +98,11 @@ module Imp_cal_loop
         write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
         ! write(unit=file_hy,fmt="(F6.1,' ',F8.2,F8.4,2F15.1,F8.2,F10.6)") current,PipeRI%velocity,PipeRI%fric,PipeRI%Re,PipeRI%rhof(1),PipeRI%Q,PipeRI%area
         izone=12                                                                                                                                                                                                                                !assm1(izone)%hydrau%Re
-        write(unit=file_hy,fmt="(F6.1,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6)") current,assm1(izone)%hydrau%Qzone,assm1(izone)%hydrau%velocity,core%Re,core%fric,assm1(izone)%property%rho(1,assm1(izone)%mesh%Nf+assm1(izone)%mesh%Ng+assm1(izone)%mesh%Ns+1),assm1(izone)%hydrau%aflow*assm1(izone)%geom%N_fuelpin,&
+        write(unit=file_hy,fmt="(F6.1,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,2F12.1)") current,assm1(izone)%hydrau%Qzone,assm1(izone)%hydrau%velocity,core%Re,core%fric,assm1(izone)%property%rho(1,assm1(izone)%mesh%Nf+assm1(izone)%mesh%Ng+assm1(izone)%mesh%Ns+1),assm1(izone)%hydrau%aflow*assm1(izone)%geom%N_fuelpin,&
                                                                                                                                                   IHX1%Qp,IHX1%velocityp,IHX1%Rep,IHX1%Fricp,IHX1%rhop(1),IHX1%areap,&
                                                                                                                                                   IHX1%Qs,IHX1%velocitys,IHX1%Res,IHX1%Frics,IHX1%rhos(1),IHX1%areatubetotal,&
-                                                                                                                                                  PipeRI%Q,PipeRI%velocity,PipeRI%Re,PipeRI%fric,PipeRI%rhof(1),PipeRI%area
+                                                                                                                                                  PipeRI%Q,PipeRI%velocity,PipeRI%Re,PipeRI%fric,PipeRI%rhof(1),PipeRI%area,&
+                                                                                                                                                  grapre,locfripre
     end subroutine driving_loop_transient 
 	
     subroutine cal_loop_hydraulic(is_table,is_natural,last,current,flowrate)
@@ -186,6 +187,8 @@ module Imp_cal_loop
         !solve
         flowrate=(alpha*flowrate+buoy*dt)/(alpha-beta*flowrate*dt)
         call set_flowrate(flowrate)
+        grapre=buoy
+        locfripre=beta*flowrate*flowrate
    end subroutine cal_hydraulic_sec
     
 	subroutine cal_beta(beta,formula)

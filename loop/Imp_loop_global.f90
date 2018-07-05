@@ -17,6 +17,8 @@ module Imp_loop_global
 		type(pipe)::PipeIP
 		type(pipe)::PipePR
 		type(pump)::pump1
+        !hydraulic
+        real(KREAL)::grapre,locfripre
         !is_THonly
         type(tpower)::tpower1
         !post
