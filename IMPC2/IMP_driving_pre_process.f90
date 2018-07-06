@@ -50,6 +50,8 @@ contains
 		!call timer1%alloc()
 		!≥ı ºªØ
 		call init_assembly(assm1(i))
+        
+        !call select_maxflowzone()        
 	 enddo
 	 ! print*,assm1(1)%geom%rod,assm1(1)%geom%pellet,assm1(1)%geom%bond,assm1(1)%geom%cladth,assm1(1)%geom%pitch,assm1(1)%geom%n_pin,assm1(1)%geom%n_fuelpin
 
@@ -237,5 +239,7 @@ contains
             enddo
         enddo  
      end subroutine cal_grid   
+     
+
 
 end module imp_driving_pre_process

@@ -95,7 +95,7 @@ module Imp_cal_loop
         call PipeIP%thCalt(last,current)
         PipePR%Tfin=PipeIP%Tfout
         call PipePR%thCalt(last,current) 
-        write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,Qloop,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
+        write(unit=file_t,fmt="(F6.1,' ',F10.1,8F8.2)") current,powinput,coreQin,coreTin,coreTout,IHX1%Tpin,IHX1%Tpout,IHX1%Qs,IHX1%Tsin,IHX1%Tsout
         ! write(unit=file_hy,fmt="(F6.1,' ',F8.2,F8.4,2F15.1,F8.2,F10.6)") current,PipeRI%velocity,PipeRI%fric,PipeRI%Re,PipeRI%rhof(1),PipeRI%Q,PipeRI%area
         izone=12                                                                                                                                                                                                                                !assm1(izone)%hydrau%Re
         write(unit=file_hy,fmt="(F6.1,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,F8.2,F8.4,F12.1,F10.6,F10.1,F10.6,2F12.1)") current,assm1(izone)%hydrau%Qzone,assm1(izone)%hydrau%velocity,core%Re,core%fric,assm1(izone)%property%rho(1,assm1(izone)%mesh%Nf+assm1(izone)%mesh%Ng+assm1(izone)%mesh%Ns+1),assm1(izone)%hydrau%aflow*assm1(izone)%geom%N_fuelpin,&
@@ -113,6 +113,7 @@ module Imp_cal_loop
 		real(KREAL),INTENT(out)::flowrate
         !local
         real(KREAL)::flowf,flows
+        call select_maxflowzone()
         flowf=flowrate
         flows=flowrate
         if(is_natural==.FALSE.) then
@@ -187,8 +188,8 @@ module Imp_cal_loop
         !solve
         flowrate=(alpha*flowrate+buoy*dt)/(alpha-beta*flowrate*dt)
         call set_flowrate(flowrate)
-        grapre=buoy
-        locfripre=beta*flowrate*flowrate
+        grapre=buoy*core%Nbranch
+        locfripre=beta*flowrate*flowrate*core%Nbranch
    end subroutine cal_hydraulic_sec
     
 	subroutine cal_beta(beta,formula)
@@ -316,4 +317,18 @@ module Imp_cal_loop
         enddo
         end associate
     end subroutine cal_Bq
+    
+    subroutine select_maxflowzone()
+        integer::i,Nzone
+        real(KREAL)::maxflowrate
+        maxflowrate=0.0
+        Nzone=size(assm1)
+        do i=1,Nzone,1
+            if(maxflowrate<assm1(i)%hydrau%Qf) then
+                maxflowrate=assm1(i)%hydrau%Qf
+                core%Nzonefmax=i
+            endif
+        enddo
+    end subroutine select_maxflowzone
+    
 end module Imp_cal_loop

@@ -38,7 +38,10 @@
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
 		real(KREAL)  :: max_T_inner,max_T_outer
+        real(KREAL)  :: powst,powas
 		real(KREAL),allocatable::aveT(:)
+		real(KREAL),allocatable::powSteady(:,:)
+		real(KREAL),allocatable::powinput(:,:)
 		integer  :: nf,ng,ns,nRadial,ny
         integer  :: nr, na,M,N,Nave
 		integer  :: i,j,k
@@ -52,11 +55,28 @@
 		Nave=2*nr
         Nzone=core%Nzone
 		allocate(aveT(Nave))
+        allocate(powSteady(nr,na))
+        allocate(powinput(nr,na))
+        !衰变热：额定功率4%
+        if(current<0.0001)  powSteady=assembly
+        powst=0.0
+        powas=0.0
+        do i=1,nr,1
+            do j=1,na,1
+                powst=powst+powSteady(i,j)
+                powas=powas+assembly(i,j)
+            enddo
+        enddo
+        if(powas<decayheat*powst) then
+            powinput=decayheat*powSteady
+        else    
+            powinput=assembly
+        endif
 		!热工水力计算
 		if (transient_flag)  then
-           call driving_loop_transient(assembly,last_, current_)
+           call driving_loop_transient(powinput,last_, current_)
 		else
-           call driving_loop_steady(assembly)		   
+           call driving_loop_steady(powinput)		   
 		end if
 		!outpu		if(.NOT.transient_flag) call loop_output_steady()
 		call loop_output_transient(current)

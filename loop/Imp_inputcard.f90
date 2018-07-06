@@ -6,7 +6,7 @@ module Imp_inputcard
     use constants
 	implicit none
 	integer::file_i,file_o,file_t,file_hy,file_maxT,file_aveT,file_disT
-	integer,parameter,private::N_keyword=28
+	integer,parameter,private::N_keyword=29
     integer,parameter,private::MAX_REAL_PARAMETER=700
 	integer,parameter,private::MAX_INT_PARAMETER=700
 	integer,parameter,private::MAX_LOGICAL_PARAMETER=10
@@ -50,6 +50,7 @@ module Imp_inputcard
                                 & 'ReMtl',  &
                                 & 'Nusselt',  &
                                 & 'fric',  &
+                                & 'decayheat',  &
 								& 'time   '     ]
     end subroutine Set_section_keyword
     
@@ -345,6 +346,9 @@ module Imp_inputcard
                     case('Bq_PR')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:PipePR%Ny)
                     PipePR%Bq(:)=dummy_real(1:PipePR%Ny)
+                    case('decayheat')
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1)
+                    decayheat=dummy_real(1)
                 end select
             endif
         end do

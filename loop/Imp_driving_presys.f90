@@ -2,6 +2,7 @@ module Imp_driving_presys
 	use Imp_loop_global
 	use Imp_inputcard
     use imp_re_input_global
+    ! use imp_assm_global
 	contains
 	subroutine driving_presys()
 		implicit none
@@ -13,6 +14,8 @@ module Imp_driving_presys
 		call driving_init_loop()
 		!read after alloc       
         call driving_input_read_after()
+        !select the mas flowrate zone
+        ! call select_maxflowzone()
 	end subroutine driving_presys
 	
 	! subroutine driving_plain_scan()
@@ -27,7 +30,8 @@ module Imp_driving_presys
 		call PipeRI%init()
 		call PipeIP%init()
 		call PipePR%init()
-		call pump1%init()		
+		call pump1%init()
+        decayheat=0.04
     end subroutine driving_init_loop
 	
 	subroutine driving_alloc_loop()
@@ -57,4 +61,6 @@ module Imp_driving_presys
         endif
         if(allocated(reInputdata%sa)) deallocate(reInputdata%sa)
 	end subroutine driving_free_loop
+    
+
 end module Imp_driving_presys

@@ -162,6 +162,8 @@ contains
         fric=70.399/Re+20.722/Re**0.133+0.01!ÂÀP41
         case(2)
         fric=0.3164/Re**0.25!chen zhao
+        case(3)
+        fric=0.55/Re**0.25
         end select
     end function
     

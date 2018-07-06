@@ -21,6 +21,8 @@ module Imp_loop_global
         real(KREAL)::grapre,locfripre
         !is_THonly
         type(tpower)::tpower1
+        !decay
+        real(KREAL)::decayheat
         !post
         integer::izoneTdis
         integer::izoneTdis2

@@ -5,6 +5,7 @@ module Imp_coremodle_header
     use lapack_interface
     use Imp_coremodle_pow
     use imp_assm_global
+    use imp_re_input_global
   
     type coremodle
         !useful
@@ -21,6 +22,7 @@ module Imp_coremodle_header
         integer,allocatable::SAtable(:)
         integer::Mtl_fuel,Mtl_shell,Mtl_coolant,Mtl_gas
         integer::Nubundle
+        integer::Nzonefmax
 	    !geom 
         real(KREAL)::Ltotal
 		real(KREAL),allocatable::Length(:)
@@ -104,6 +106,7 @@ module Imp_coremodle_header
 	  this%wet=2*PI*rcoremodle
       this%de=4.0*Aflow/this%wet
 	  call this%calhtc()
+      this%Nzonefmax=1
 	  !beta
 	  !this%beta=0.5*(this%fric*this%ltotal/this%de+this%K)*1.0/(this%rhof*this%area**2)
     end subroutine init_coremodle
@@ -425,36 +428,44 @@ module Imp_coremodle_header
 		class(coremodle),intent(in out)::this
         real(KREAL)::frics
         real(KREAL)::ltotal
-        real(KREAL)::Re,visa,De,area
+        real(KREAL)::Re,visa,De,area,density
         integer::i,j
+        integer::Nzonefmax
+        !local
         integer::Nzone,Nfluid
         ! integer::Ftype,Frtype
-        associate(Ny=>assm1(1)%mesh%Ny,&
-                  Nf=>assm1(1)%mesh%Nf,&
-                  Ng=>assm1(1)%mesh%Ng,&          
-                  Ns=>assm1(1)%mesh%Ns,&          
-                  Npin=>assm1(1)%geom%N_pin,&  
-                  height=>assm1(1)%geom%height,&  
+        Nzonefmax=this%Nzonefmax
+        associate(Ny=>assm1(Nzonefmax)%mesh%Ny,&
+                  Nf=>assm1(Nzonefmax)%mesh%Nf,&
+                  Ng=>assm1(Nzonefmax)%mesh%Ng,&          
+                  Ns=>assm1(Nzonefmax)%mesh%Ns,&          
+                  Npin=>assm1(Nzonefmax)%geom%N_pin,&  
+                  height=>assm1(Nzonefmax)%geom%height,&  
+                  velocity=>assm1(Nzonefmax)%hydrau%velocity,&  
                   flowrate=>this%Qtotal,&
-                  areap=>assm1(1)%hydrau%aflow,&
-                  fric=>assm1(1)%hydrau%fric,&
-                  Ftype=>assm1(1)%property%Mtl_coolant,&
-                  Frtype=>assm1(1)%thermal%Frtype,&
-                  Dep=>assm1(1)%hydrau%De)
-                  
+                  areap=>assm1(Nzonefmax)%hydrau%aflow,&
+                  fric=>assm1(Nzonefmax)%hydrau%fric,&
+                  Ftype=>assm1(Nzonefmax)%property%Mtl_coolant,&
+                  Frtype=>assm1(Nzonefmax)%thermal%Frtype,&
+                  Dep=>assm1(Nzonefmax)%hydrau%De)
+             
+             
             Nzone=size(assm1)
             Nfluid=Nf+Ng+Ns+1
             ltotal=sum(height)
-            De=Dep*Npin*Nzone
-            area=areap*Npin*Nzone
+            De=Dep*Npin
+            area=areap*Npin
+            
+            !select the max flow zone
           
             visa=0.0
-            do i=1,Nzone,1
-                do j=1,Ny,1
-                    visa=visa+assm1(i)%property%dvs(j,Nfluid)*height(j)/(ltotal*Nzone)
-                enddo
+            density=0.0
+            do j=1,Ny,1
+                visa=visa+assm1(Nzonefmax)%property%dvs(j,Nfluid)*height(j)/ltotal
+                density=density+assm1(Nzonefmax)%property%rho(j,Nfluid)*height(j)/ltotal
             enddo
-            Re=flowrate*De/(visa*area)
+            
+            Re=density*velocity*De/visa
             frics=get_fric_pin(Ftype,Frtype,Re)
             this%fric=frics
             this%Re=Re
@@ -470,37 +481,44 @@ module Imp_coremodle_header
     function cal_beta(this) result (beta)
         implicit none
 		class(coremodle),intent(in out)::this
-        real(KREAL)::beta,rhoa,De
-        real(KREAL)::ltotal,area
+        real(KREAL)::beta,rhoa,De,rhob
+        real(KREAL)::ltotal,area,flowdis
         integer::i,j
-        integer::Nzone,Nfluid
+        integer::Nzone,Nfluid,Nzonefmax
         beta=0.0
         rhoa=0.0
-        associate(Ny=>assm1(1)%mesh%Ny,&
-                  Nf=>assm1(1)%mesh%Nf,&
-                  Ng=>assm1(1)%mesh%Ng,&          
-                  Ns=>assm1(1)%mesh%Ns,&          
-                  Npin=>assm1(1)%geom%N_pin,&          
-                  ! rho=>assm1(1)%property%rho,&
-                  height=>assm1(1)%geom%height,&
-                  areap=>assm1(1)%hydrau%aflow,&
-                  fric=>assm1(1)%hydrau%fric,&
-                  Dep=>assm1(1)%hydrau%De,&
+        Nzonefmax=this%Nzonefmax
+        associate(Ny=>assm1(Nzonefmax)%mesh%Ny,&
+                  Nf=>assm1(Nzonefmax)%mesh%Nf,&
+                  Ng=>assm1(Nzonefmax)%mesh%Ng,&          
+                  Ns=>assm1(Nzonefmax)%mesh%Ns,&          
+                  Npin=>assm1(Nzonefmax)%geom%N_pin,&          
+                  ! rho=>assm1(Nzonefmax)%property%rho,&
+                  height=>assm1(Nzonefmax)%geom%height,&
+                  areap=>assm1(Nzonefmax)%hydrau%aflow,&
+                  fric=>assm1(Nzonefmax)%hydrau%fric,&
+                  Dep=>assm1(Nzonefmax)%hydrau%De,&
                   Nbranch=>this%Nbranch,&
-                  K=>assm1(1)%hydrau%K)
+                  K=>assm1(Nzonefmax)%hydrau%K)
             Nzone=size(assm1)
             Nfluid=Nf+Ng+Ns+1
-            De=Dep*Npin*Nzone
+            De=Dep*Npin
             area=areap*Npin*Nzone
             ltotal=sum(height)
-            rhoa=0.0
+            flowdis=reInputdata%sa(assm1(Nzonefmax)%saflag)%flowdis
+            rhoa=0.0!core
+            rhob=0.0!Nzonefmax
             do i=1,Nzone,1
                 do j=1,Ny,1
                     rhoa=rhoa+assm1(i)%property%rho(j,Nfluid)*height(j)/(ltotal*Nzone)
                 enddo
             enddo
+            do j=1,Ny,1
+                rhob=rhob+assm1(Nzonefmax)%property%rho(j,Nfluid)*height(j)/ltotal
+            enddo
             fric=this%cfric()
-            beta=-Nbranch*fric*ltotal/(2*De*rhoa*area**2)-K/(2*rhoa*area**2)
+            ! beta=-flowdis**2*fric*ltotal/(2*De*rhob*(areap*Npin)**2)-K/(2*rhoa*area**2)
+            beta=-flowdis**2*fric*ltotal/(2*De*rhob*(areap*Npin)**2)*Nbranch-K/(2*rhoa*area**2)*Nbranch
     end associate
     end function cal_beta
     
@@ -512,6 +530,7 @@ module Imp_coremodle_header
         integer::Nzone,Npin
         associate(height=>assm1(1)%geom%height,&
                   Npin=>assm1(1)%geom%N_pin,&
+                  Nbranch=>this%Nbranch,&
                   areap=>assm1(1)%hydrau%aflow)
             Nzone=size(assm1)
             ltotal=sum(height)
