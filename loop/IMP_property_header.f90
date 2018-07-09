@@ -157,6 +157,52 @@ module imp_property
         endif
 	end function get_vis_Na
     !================================================================
+    !UO2 webset
+    !================================================================
+    function get_density_UO2(Tin) result(rho)
+	    real(KREAL),intent(in)::Tin
+		real(KREAL)::rho
+        rho=10980.0
+    end function
+    
+    function get_shc_UO2(Tin) result(shc)
+        real(KREAL),intent(in)::Tin
+		real(KREAL)::shc
+        if(Tin>298.15.and.Tin<1499.15)then
+            shc=304.38+0.0251*(Tin-273.15)-6E-6*(Tin-273.15)**2
+        elseif(Tin>=1499.15.and.Tin<3073.15)then
+            shc=-712.25+2.789*(Tin-273.15)-0.00271*(Tin-273.15)**2+1.12E-6*(Tin-273.15)**3-1.59E-10*(Tin-273.15)**4
+        else
+            print*,'UO2 shc is out of range'
+        endif
+    end function
+    
+    function get_conductivity_UO2(Tin) result(conductivity)
+        real(KREAL),intent(in)::Tin
+		real(KREAL)::conductivity
+        conductivity=3824/(Tin+129.4)+4.788E-11*Tin**3
+    end function    
+    !================================================================
+    !He webset
+    !================================================================
+    function get_density_He(Tin) result(rho)
+	    real(KREAL),intent(in)::Tin
+		real(KREAL)::rho
+        rho=0.1785
+    end function
+    
+    function get_shc_He(Tin) result(shc)
+        real(KREAL),intent(in)::Tin
+		real(KREAL)::shc
+        shc=5194
+    end function
+    
+    function get_conductivity_He(Tin) result(conductivity)
+        real(KREAL),intent(in)::Tin
+		real(KREAL)::conductivity
+        conductivity=0.144
+    end function   
+    !================================================================
     !U5Fs
     !================================================================
     function get_density_U5Fs(Tin) result(rho)
@@ -235,8 +281,12 @@ module imp_property
             rho=get_density_water(Tin)
             case(103)
             rho=get_density_Na(Tin)
+            case(104)
+            rho=get_density_He(Tin)
             case(301)
             rho=get_density_U5Fs(Tin)
+            case(302)
+            rho=get_density_UO2(Tin)
             case(202)
             rho=get_density_316L(Tin)
             case(203)
@@ -255,8 +305,12 @@ module imp_property
             shc=get_shc_water(Tin)
             case(103)
             shc=get_shc_Na(Tin)
+            case(104)
+            shc=get_shc_He(Tin)
             case(301)
             shc=get_shc_U5Fs(Tin)
+            case(302)
+            shc=get_shc_UO2(Tin)
             case(202)
             shc=get_shc_316L(Tin)
         end select
@@ -273,8 +327,12 @@ module imp_property
             conductivity=get_conductivity_water(Tin)
             case(103)
             conductivity=get_conductivity_Na(Tin)
+            case(104)
+            conductivity=get_conductivity_He(Tin)
             case(301)
             conductivity=get_conductivity_U5Fs(Tin)
+            case(302)
+            conductivity=get_conductivity_UO2(Tin)
             case(202)
             conductivity=get_conductivity_316L(Tin)
             case(203)

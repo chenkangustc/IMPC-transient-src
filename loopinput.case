@@ -18,7 +18,7 @@
 !reinput:device  nf ng ns ny ny_bottom ny_top
          pinmesh 5   3  3  38  0         0
 !ReMtl          fuel  shell coolant  gap
-         ReMtl  301    202   101     101
+         ReMtl  302    202   101     104
 !height:device bottom->top(cm)
          height 10*9.9 10.0 3*10.0 7.5 8.5 6.5 2*10.0 2*11 2*9 2*10 15.0 5.0 9.5 10*10
 !reactor:keyword	Nzone Nflow	Nflowsemi	Nsplit	sigmaPass	   flowzone																

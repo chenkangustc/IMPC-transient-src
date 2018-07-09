@@ -6,6 +6,7 @@ module Imp_cal_loop
 	use Imp_driving_syspost
     use imp_assm_global
 	implicit none
+    ! public::driving_loop_steady()
 	contains
 	subroutine driving_loop_steady(assembly)
 		implicit none
