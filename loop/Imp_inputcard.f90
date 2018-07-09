@@ -216,7 +216,7 @@ module Imp_inputcard
                     reInputdata%Ti=dummy_real(8)
                     
                     case('pinmesh')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:6)
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:8)
                     ! this%acf,this%height,this%nf,this%ng,this%ns,this%f,this%Tin,this%pout,
                     ! this%uin,this%pin,this%Ti,this%ui,this%pi,this%alpha,this%sigma
                     reInputdata%nf=dummy_int(1)
@@ -225,6 +225,10 @@ module Imp_inputcard
                     reInputdata%ny=dummy_int(4)
                     reInputdata%ny_bottom=dummy_int(5)
                     reInputdata%ny_top=dummy_int(6)
+                    reInputdata%as_bottom=dummy_int(7)
+                    reInputdata%as_top=dummy_int(8)
+
+                    
                     
 					case('power')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1)

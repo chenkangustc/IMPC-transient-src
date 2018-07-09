@@ -24,6 +24,8 @@ module imp_re_input_header
        integer::Mtl_coolant,Mtl_fuel,Mtl_gas,Mtl_shell
        !fric
        integer::Frtype
+       !
+       integer::as_top,as_bottom
     contains
      procedure,public::set=>set_inputdata
      procedure,public::publish=>print_inputdata

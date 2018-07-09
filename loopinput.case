@@ -3,30 +3,28 @@
 !pump:device     Qe	   Ntime	Nbranch coolant
       pump	   248.3  26        2       101
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	       Ti   fric   kric poolmodify is_Tb Ny    coolant  shell
-        pipePR	    4.50 	0.065	 0.005	 180.	    248.3	   493	 0.3    5.00    1.0       F   100    101      202
+        pipePR	    4.50 	0.065	 0.005	 180.	    248.3	   493	 0.3    40.00    1.0       F   100    101      202
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti  fric  kric poolmodify is_Tb   Ny  coolant  shell
-        pipeRI	    4.61  	0.065	 0.005	 12.53	    248.3	 493 0.3    5.00    1.0     F  	  100   101      202
+        pipeRI	    4.50  	0.065	 0.005	 0.	    248.3	 493 0.3    5.00    1.32     F  	  100   101      202
 !IHX:device 	Lsingle 	Rtube   thickt  Plength AreaP	thickv    QP 	    Qs  Tsin    Ti  fric Kric  Ntube	Ny    coolantp coolants  tube  shell
      	IHX	    0.76	    0.00625	0.0025	0.038	0.1	    0.0025	248.3	  53.6	488.  493	 0.3  15.00  90	    100    101       102      202   202
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta   Q	     T    fric  kric poolmodify is_Tb   Ny   coolant  shell
-        pipeIP	     4.95	  1.915  0.005	     -90.0	248.3	 493  0.3   1.00    0.52      F     100    101      202
+        pipeIP	     4.544	  1.915  0.005	     -90.0	248.3	 493  0.3   1.00    0.52      F     100    101      202
 !             ttotal    Nt  
-        time  1500.0  1500
+        ! time  1500.0  1500
 !=====================================================================================
 !assembly:device pellet(mm) gap(mm) cladth(mm) p2d  fric  K   Tin  Ti    npin nfuelpin
          pingeom  5.2       0.1      0.5       1.36 0.3  15.00  493  493    61    61
-!reinput:device  nf ng ns ny ny_bottom ny_top
-         pinmesh 5   3  3  38  0         0
+!reinput:device  nf ng ns ny ny_bottom ny_top as_bottom as_top
+         pinmesh 5   3 3  22  0         0      7         28
 !ReMtl          fuel  shell coolant  gap
          ReMtl  302    202   101     104
 !height:device bottom->top(cm)
-         height 10*9.9 10.0 3*10.0 7.5 8.5 6.5 2*10.0 2*11 2*9 2*10 15.0 5.0 9.5 10*10
+         height 4*9.9 10.0 3*10.0 7.5 8.5 6.5 2*10.0 2*11 2*9 2*10 15.0 5.0 9.5
 !reactor:keyword	Nzone Nflow	Nflowsemi	Nsplit	sigmaPass	   flowzone																
           assembly	 64     1	   1           6       0.0	        2*1
          !assembly	 30   30	   0        1        0.4	        1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 
          !assembly	 12   10	   0        1        0.0	        1 2 3 4 5 6 7 8 9 10 
-!
-         decayheat 0.05
 !keword  table
 SAradiau 1 2 3	4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
 !      num  flowdis                                                                                                                      powdis 

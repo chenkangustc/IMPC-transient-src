@@ -16,6 +16,8 @@
      use imp_loop_global
 	 use imp_inputcard
 	 use imp_driving_syspost
+     use imp_re_input_global
+     use imp_property
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
@@ -37,19 +39,32 @@
         REAL(KREAL)  :: last_, current_
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
-		real(KREAL)  :: max_T_inner,max_T_outer
+		real(KREAL)  :: max_T_inner,max_T_outer,Tinit
         real(KREAL)  :: powst,powas
 		real(KREAL),allocatable::aveT(:)
 		real(KREAL),allocatable::powSteady(:,:)
 		real(KREAL),allocatable::powinput(:,:)
+		real(KREAL),allocatable::ascouple(:,:)
 		integer  :: nf,ng,ns,nRadial,ny
-        integer  :: nr, na,M,N,Nave
+        integer  :: nr, na,M,N,Nave,naa
 		integer  :: i,j,k
         integer  :: Nzone,izone
+        integer  :: as_top,as_bottom
+        
+        as_top=reInputdata%as_top
+        as_bottom=reInputdata%as_bottom
+        
         last_ = last
         current_ = current
         nr = SIZE(assembly, dim=1)                                              ! 径向的组件数目zone
-        na = SIZE(assembly, dim=2) 
+        naa = SIZE(assembly, dim=2) 
+        na=as_top-as_bottom+1
+        allocate(ascouple(nr,na))
+        do i=1,nr,1
+            do j=1,na,1
+                ascouple(i,j)=assembly(i,j+as_bottom-1)
+            enddo
+        enddo
         M=SIZE(assm1(1)%thermal%temperature,dim=1)
         N=SIZE(assm1(1)%thermal%temperature,dim=2)! 轴向的节块数目layer  
 		Nave=2*nr
@@ -58,19 +73,19 @@
         allocate(powSteady(nr,na))
         allocate(powinput(nr,na))
         !衰变热：额定功率4%
-        if(current<0.0001)  powSteady=assembly
+        if(current<0.0001)  powSteady=ascouple
         powst=0.0
         powas=0.0
         do i=1,nr,1
             do j=1,na,1
                 powst=powst+powSteady(i,j)
-                powas=powas+assembly(i,j)
+                powas=powas+ascouple(i,j)
             enddo
         enddo
         if(powas<decayheat*powst) then
             powinput=decayheat*powSteady
         else    
-            powinput=assembly
+            powinput=ascouple
         endif
 		!热工水力计算
 		if (transient_flag)  then
@@ -81,8 +96,10 @@
 		!outpu		if(.NOT.transient_flag) call loop_output_steady()
 		call loop_output_transient(current)
         !Tfuel,Tcoolant init
-        Tfuel=525.0!K
-        Tcoolant=525.0!K
+        Tinit=525.0!K
+        Tfuel=Tinit!K
+        Tcoolant=Tinit!K
+        Rhocoolant=get_density(assm1(1)%property%Mtl_coolant,Tinit)
 		!热工feedback:Tfuel,Tcoolant,Rhocoolant,max_Tfuel,max_Tcoolant,min_Rhocoolant
         do izone=1,Nzone,1!反射层之类不计算的温度不去改变
             dr=assm1(izone)%geom%pellet/assm1(izone)%mesh%Nf
@@ -98,9 +115,9 @@
                         volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(izone)%geom%height(j)
                     endif
                 enddo!radiau
-                Tfuel(izone,j+assm1(izone)%mesh%layer_bottom)=TVtotal/volumn
-                Tcoolant(izone,j+assm1(izone)%mesh%layer_bottom)=assm1(izone)%thermal%temperature(j,N)
-                Rhocoolant(izone,j+assm1(izone)%mesh%layer_bottom)=assm1(izone)%property%rho(j,N)
+                Tfuel(izone,j+as_bottom-1)=TVtotal/volumn
+                Tcoolant(izone,j+as_bottom-1)=assm1(izone)%thermal%temperature(j,N)
+                Rhocoolant(izone,j+as_bottom-1)=assm1(izone)%property%rho(j,N)
             enddo!layer
 		enddo!zone
         ! max_Tfuel,max_Tcoolant,min_Rhocoolant
