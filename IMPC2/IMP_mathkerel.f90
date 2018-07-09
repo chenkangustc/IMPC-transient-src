@@ -282,9 +282,9 @@ contains
         select case(Ftype)
         case(101)
         Nu=get_Nusselt_LBE_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) 
-        case(102)!Na
+        case(103)!Na
         Nu=get_Nusselt_Na_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity) 
-        case(103)
+        case(102)
         Nu=get_Nusselt_water_tube(Nutype,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
         end select
     end function
@@ -300,7 +300,7 @@ contains
         select case(Ftype)
         case(101)
         Nu=get_Nusselt_LBE_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
-        case(102)!Na
+        case(103)!Na
         Nu=get_Nusselt_Na_bundle(Nutype,pd,flowarea,wet,De,rho,flowrate,vis,shc,conductivity)
         end select
     end function
@@ -312,7 +312,7 @@ contains
         select case(Ftype)
         case(101)
         fric=get_fric_LBE_IHX(Frtype,Re)
-        case(102)!Na
+        case(103)!Na
         fric=get_fric_Na_IHX(Frtype,De,Re)
         end select
     end function
@@ -324,7 +324,7 @@ contains
         select case(Ftype)
         case(101)
         fric=get_fric_LBE_pin(Frtype,Re)
-        case(102)!Na
+        case(103)!Na
         fric=get_fric_Na_pin(Frtype,Re)
         end select
     end function
@@ -336,7 +336,7 @@ contains
         select case(Ftype)
         case(101)!LBE
         fric=get_fric_LBE_pipe(Frtype,Re)
-        case(102)!Na
+        case(103)!Na
         fric=get_fric_Na_pipe(Frtype,De,Re)
         end select
     end function

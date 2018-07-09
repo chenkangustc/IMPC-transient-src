@@ -5,13 +5,13 @@
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	       Ti   fric   kric poolmodify is_Tb Ny    coolant  shell
         pipePR	    4.50 	0.065	 0.005	 180.	    248.3	   493	 0.3    40.00    1.0       F   100    101      202
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti  fric  kric poolmodify is_Tb   Ny  coolant  shell
-        pipeRI	    4.50  	0.065	 0.005	 0.	    248.3	 493 0.3    5.00    1.32     F  	  100   101      202
+        pipeRI	    4.61  	0.065	 0.005	 12.53	    248.3	 493 0.3    5.00    1.32     F  	  100   101      202
 !IHX:device 	Lsingle 	Rtube   thickt  Plength AreaP	thickv    QP 	    Qs  Tsin    Ti  fric Kric  Ntube	Ny    coolantp coolants  tube  shell
      	IHX	    0.76	    0.00625	0.0025	0.038	0.1	    0.0025	248.3	  53.6	488.  493	 0.3  15.00  90	    100    101       102      202   202
 !pipeIP:device    	Length 	  Rtube  thicks  	 theta   Q	     T    fric  kric poolmodify is_Tb   Ny   coolant  shell
-        pipeIP	     4.544	  1.915  0.005	     -90.0	248.3	 493  0.3   1.00    0.52      F     100    101      202
+        pipeIP	     2.95	  1.915  0.005	     -90.0	248.3	 493  0.3   1.00    0.6      F     100    101      202
 !             ttotal    Nt  
-        ! time  1500.0  1500
+         time  1500.0  1500
 !=====================================================================================
 !assembly:device pellet(mm) gap(mm) cladth(mm) p2d  fric  K   Tin  Ti    npin nfuelpin
          pingeom  5.2       0.1      0.5       1.36 0.3  15.00  493  493    61    61
