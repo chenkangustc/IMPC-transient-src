@@ -36,6 +36,7 @@ module testNK2loop
        read(1,100) power
 	   100 Format(F15.5)
 	   close(1)
+       !power=1.27*power
 
 	   if(transient_flag==.FALSE.) then
             if (ns%feedback%is_loop)  then
@@ -44,7 +45,7 @@ module testNK2loop
 	   else       
 			  transient_flag=.FALSE.
 			  call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  	   
-			  !power=0.8*power
+			  !power=1.27*power
 			  powerSteady=power
 			  transient_flag=.TRUE.
        		  tTotal=timer1%ttotal

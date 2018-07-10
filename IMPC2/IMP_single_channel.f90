@@ -39,7 +39,7 @@ subroutine driving_imp_steady(assm,power,fq_core)
     real(KREAL):: flag,dt
     real(KREAL):: btotal,drho!判断因子
     real(KREAL),allocatable::pmodify(:)
-    real(KREAL),allocatable::ui(:),Ti(:,:)
+    real(KREAL),allocatable::ui(:),Ti(:,:),hotTi(:,:)
     real(KREAL),allocatable::rhoi(:,:),rhofi(:)
     real(KREAL),allocatable::ap(:)
     !write(*,*)'start steady calculation:'
@@ -48,11 +48,12 @@ subroutine driving_imp_steady(assm,power,fq_core)
     Ny=assm%mesh%Ny
     M=Ny+1
     N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
-    allocate(pmodify(Ny),ui(Ny-1),Ti(M-1,N),rhoi(0:M,0:N),rhofi(0:M),ap(Ny-1))
+    allocate(pmodify(Ny),ui(Ny-1),Ti(M-1,N),hotTi(M-1,N),rhoi(0:M,0:N),rhofi(0:M),ap(Ny-1))
  
     pmodify=0.0
     ui=assm%thermal%velocity
     Ti=assm%thermal%temperature
+    hotTi=assm%hotthermal%temperature
     rhoi=assm%property%rho
     rhofi=assm%property%rho(:,N)
     ap=0.0
@@ -73,7 +74,7 @@ subroutine driving_imp_steady(assm,power,fq_core)
       !print*,'pressure=',assm%th_boundary%p%inlet,assm%thermal%pressure,assm%th_boundary%p%outlet
 
       j=j+1
-      call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+      call solve_temperature_rhoi(assm,flag,Ti,hotTi,rhoi,dt)
       call update_property(assm,drho)!物性更新
       !print*,'property step=',j,' drho=',drho
     end do
@@ -138,7 +139,7 @@ subroutine driving_imp_THsteady(assm,power,fq_core)
     real(KREAL):: flag,dt
     real(KREAL):: btotal,drho!判断因子
     real(KREAL),allocatable::pmodify(:)
-    real(KREAL),allocatable::ui(:),Ti(:,:)
+    real(KREAL),allocatable::ui(:),Ti(:,:),hotTi(:,:)
     real(KREAL),allocatable::rhoi(:,:),rhofi(:)
     real(KREAL),allocatable::ap(:)
     !write(*,*)'start steady calculation:'
@@ -147,18 +148,19 @@ subroutine driving_imp_THsteady(assm,power,fq_core)
     Ny=assm%mesh%Ny
     M=Ny+1
     N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
-    allocate(pmodify(Ny),ui(Ny-1),Ti(M-1,N),rhoi(0:M,0:N),rhofi(0:M),ap(Ny-1))
+    allocate(pmodify(Ny),ui(Ny-1),Ti(M-1,N),hotTi(M-1,N),rhoi(0:M,0:N),rhofi(0:M),ap(Ny-1))
  
     pmodify=0.0
     ui=assm%thermal%velocity
     Ti=assm%thermal%temperature
+    hotTi=assm%hotthermal%temperature
     rhoi=assm%property%rho
     rhofi=assm%property%rho(:,N)
     ap=0.0
     j=0
     drho=1.0
     call assm%pow%set(power,fq_core)
-    call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+    call solve_temperature_rhoi(assm,flag,Ti,hotTi,rhoi,dt)
     call update_property_rhoi(assm)
 	!cal Tfave & Tcave
 	call cal_Tave(assm)
@@ -176,7 +178,7 @@ subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     real(KREAL):: flag
     real(KREAL):: btotal,drho!判断因子
     real(KREAL),allocatable::pmodify(:)
-    real(KREAL),allocatable::ui(:),Ti(:,:)
+    real(KREAL),allocatable::ui(:),Ti(:,:),hotTi(:,:)
     real(KREAL),allocatable::rhoi(:,:),rhofi(:)
     real(KREAL),allocatable::ap(:)
     !write(*,*)'start transient calculation:'
@@ -185,10 +187,11 @@ subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     Ny=assm%mesh%Ny
     M=Ny+1
     N=assm%mesh%Nf+assm%mesh%Ng+assm%mesh%Ns+1
-    allocate(pmodify(Ny),ui(Ny-1),Ti(M-1,N),rhoi(0:M,0:N),rhofi(0:M),ap(Ny-1))
+    allocate(pmodify(Ny),ui(Ny-1),Ti(M-1,N),hotTi(M-1,N),rhoi(0:M,0:N),rhofi(0:M),ap(Ny-1))
     
     pmodify=0.0
     Ti=assm%thermal%temperature
+    hotTi=assm%hotthermal%temperature
     ui=assm%thermal%velocity
     rhoi=assm%property%rho
     rhofi=assm%property%rho(:,N)
@@ -197,7 +200,7 @@ subroutine driving_imp_THtransient(assm,power,fq_core,ltime,ctime)
     call assm%pow%set(power,fq_core)
     j=0
     drho=1.0   
-    call solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+    call solve_temperature_rhoi(assm,flag,Ti,hotTi,rhoi,dt)
 	call cal_Tave(assm)
     call update_property_rhoi(assm)
 end subroutine driving_imp_THtransient

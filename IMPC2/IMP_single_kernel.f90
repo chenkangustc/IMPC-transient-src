@@ -897,17 +897,17 @@ subroutine cal_th_hotchannel_rhoi(assm,flag,Ti,rhoi,dt)
      enddo
 end subroutine cal_th_hotchannel_RHOi
 
-subroutine solve_temperature_rhoi(assm,flag,Ti,rhoi,dt)
+subroutine solve_temperature_rhoi(assm,flag,Ti,hotTi,rhoi,dt)
     implicit none
     type(sys_assembly),intent(in out)::assm
     real(KREAL),intent(in)::flag
-    real(KREAL),intent(in)::Ti(:,:)
+    real(KREAL),intent(in)::Ti(:,:),hotTi(:,:)
     real(KREAL),intent(in)::rhoi(:,:)
     real(KREAL):: dt
     !local
     call cal_th_convection_rhoi(assm)
     call cal_th_temperature_rhoi(assm,flag,Ti,rhoi,dt)
-    call cal_th_hotchannel_rhoi(assm,flag,Ti,rhoi,dt)
+    call cal_th_hotchannel_rhoi(assm,flag,hotTi,rhoi,dt)
 end subroutine solve_temperature_rhoi
 
 subroutine solve_temperature(assm,flag,Ti,rhoi,dt)
