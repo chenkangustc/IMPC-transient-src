@@ -203,7 +203,7 @@ module Imp_inputcard
 					pipeIP%Mtl_shell=dummy_int(3)
 
                     case('pingeom')
-                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:8),dummy_int(1:2)
+                    read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1:9),dummy_int(1:2)
                     reInputdata%npin = dummy_int(1)
                     reInputdata%nFuelPin = dummy_int(2)
                     reInputdata%xf = dummy_real(1)*0.001D0
@@ -214,6 +214,7 @@ module Imp_inputcard
                     reInputdata%K=dummy_real(6)
                     reInputdata%Tin=dummy_real(7)
                     reInputdata%Ti=dummy_real(8)
+                    reInputdata%hotsigma=dummy_real(9)
                     
                     case('pinmesh')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_int(1:8)

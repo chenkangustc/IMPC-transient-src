@@ -26,6 +26,8 @@ module imp_re_input_header
        integer::Frtype
        !
        integer::as_top,as_bottom
+       !
+       real(KREAL)::hotsigma
     contains
      procedure,public::set=>set_inputdata
      procedure,public::publish=>print_inputdata

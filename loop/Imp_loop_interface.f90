@@ -39,13 +39,14 @@
         real(KREAL), intent(in out)  :: toutlet                                 ! in K, 冷却剂出口平均温度 
         !local
         REAL(KREAL)  :: last_, current_
-		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
+		real(KREAL)  :: volumn,TVtotal,hTVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
 		real(KREAL)  :: max_T_inner,max_T_outer,Tinit,Tijk
 		real(KREAL),allocatable::aveT(:)
 		real(KREAL),allocatable::powSteady(:,:)
 		real(KREAL),allocatable::powinput(:,:)
 		real(KREAL),allocatable::ascouple(:,:)
+		real(KREAL),allocatable::hotTcoolant(:,:),hotTfuel(:,:)
 		integer  :: nf,ng,ns,nRadial,ny
         integer  :: nr, na,M,N,Nave,naa
 		integer  :: i,j,k
@@ -73,6 +74,8 @@
 		allocate(aveT(Nave))
         allocate(powSteady(nr,na))
         allocate(powinput(nr,na))
+        allocate(hotTcoolant(nr,naa))
+        allocate(hotTfuel(nr,naa))
         !衰变热：额定功率
         if(current<0.0001)  powSteady=ascouple
         call get_powinput(current_,powsteady,ascouple,powinput)
@@ -88,6 +91,8 @@
         Tinit=525.0!K
         Tfuel=Tinit!K
         Tcoolant=Tinit!K
+        hotTfuel=Tinit
+        hotTcoolant=Tinit
         Rhocoolant=get_density(assm1(1)%property%Mtl_coolant,Tinit)
 		!热工feedback:Tfuel,Tcoolant,Rhocoolant,max_Tfuel,max_Tcoolant,min_Rhocoolant
         do izone=1,Nzone,1!反射层之类不计算的温度不去改变
@@ -95,17 +100,22 @@
             do j=1,assm1(izone)%mesh%Ny,1
                 volumn=0.0
                 TVtotal=0.0
+                hTVtotal=0.0
                 do k=1,assm1(izone)%mesh%Nf,1 !rod average		
                     if (k==1) then
                         TVtotal=TVtotal+assm1(izone)%thermal%temperature(j,k)*3.14*(k*dr)**2*assm1(izone)%geom%height(j)
+                        hTVtotal=hTVtotal+assm1(izone)%hotthermal%temperature(j,k)*3.14*(k*dr)**2*assm1(izone)%geom%height(j)
                         volumn=volumn+3.14*(k*dr)**2*assm1(izone)%geom%height(j)
                     else
                         TVtotal=TVtotal+assm1(izone)%thermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(izone)%geom%height(j)
+                        hTVtotal=hTVtotal+assm1(izone)%hotthermal%temperature(j,k)*3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(izone)%geom%height(j)
                         volumn=volumn+3.14*((k*dr)**2-((k-1)*dr)**2)*assm1(izone)%geom%height(j)
                     endif
                 enddo!radiau
                 Tfuel(izone,j+as_bottom-1)=TVtotal/volumn
+                hotTfuel(izone,j+as_bottom-1)=hTVtotal/volumn
                 Tcoolant(izone,j+as_bottom-1)=assm1(izone)%thermal%temperature(j,N)
+                hotTcoolant(izone,j+as_bottom-1)=assm1(izone)%hotthermal%temperature(j,N)
                 Rhocoolant(izone,j+as_bottom-1)=assm1(izone)%property%rho(j,N)
             enddo!layer
 		enddo!zone
@@ -122,10 +132,10 @@
             Nf=assm1(izone)%mesh%Nf
 			do j=1,assm1(izone)%mesh%Ny,1
                 do k=1,Nf,1
-                    Tijk=assm1(izone)%thermal%temperature(j,k)
+                    Tijk=assm1(izone)%hotthermal%temperature(j,k)
                     if(Tijk>max_Tfuel) 		max_Tfuel=Tijk
                 enddo
-				if(Tcoolant(izone,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(izone,j)
+				if(hotTcoolant(izone,j)>max_Tcoolant)	max_Tcoolant=hotTcoolant(izone,j)
 			enddo
 		enddo
 		!calculate the surface temperature
@@ -139,21 +149,28 @@
 			xg=assm1(izone)%geom%bond
 			xs=assm1(izone)%geom%cladth		
 			do j=1,assm1(izone)%mesh%Ny,1
-				assm1(izone)%thermal%Tcoolant(j)=Tcoolant(izone,j)
-				assm1(izone)%thermal%Tfuel(j)=Tfuel(izone,j)
+                !hot
+				assm1(izone)%hotthermal%Tcoolant(j)=hotTcoolant(izone,j)
+				assm1(izone)%hotthermal%Tfuel(j)=hotTfuel(izone,j)
+				assm1(izone)%hotthermal%Tfuel_center(j)=assm1(izone)%hotthermal%temperature(j,1)
+				assm1(izone)%hotthermal%Tfg(j)=(assm1(izone)%property%ctc(j,Nf)*(Xg/Ng)*assm1(izone)%hotthermal%temperature(j,Nf)+assm1(izone)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(izone)%hotthermal%temperature(j,Nf+1))/(assm1(izone)%property%ctc(j,Nf)*(Xg/Ng)+assm1(izone)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
+				assm1(izone)%hotthermal%Tgs(j)=(assm1(izone)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(izone)%hotthermal%temperature(j,Nf+Ng)+assm1(izone)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(izone)%hotthermal%temperature(j,Nf+Ng+1))/(assm1(izone)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(izone)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
+				assm1(izone)%hotthermal%Tsc(j)=(assm1(izone)%property%htc(j)*assm1(izone)%hotthermal%temperature(j,Nradial)+2*assm1(izone)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(izone)%hotthermal%temperature(j,Nradial-1))/(assm1(izone)%property%htc(j)+2*assm1(izone)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
+                !ave
 				assm1(izone)%thermal%Tfuel_center(j)=assm1(izone)%thermal%temperature(j,1)
 				assm1(izone)%thermal%Tfg(j)=(assm1(izone)%property%ctc(j,Nf)*(Xg/Ng)*assm1(izone)%thermal%temperature(j,Nf)+assm1(izone)%property%ctc(j,Nf+1)*(Xf/Nf)*assm1(izone)%thermal%temperature(j,Nf+1))/(assm1(izone)%property%ctc(j,Nf)*(Xg/Ng)+assm1(izone)%property%ctc(j,Nf+1)*(Xf/Nf))!芯块外边界
 				assm1(izone)%thermal%Tgs(j)=(assm1(izone)%property%ctc(j,Nf+Ng)*(Xs/Ns)*assm1(izone)%thermal%temperature(j,Nf+Ng)+assm1(izone)%property%ctc(j,Nf+Ng+1)*(Xg/Ng)*assm1(izone)%thermal%temperature(j,Nf+Ng+1))/(assm1(izone)%property%ctc(j,Nf+Ng)*(Xs/Ns)+assm1(izone)%property%ctc(j,Nf+Ng+1)*(Xg/Ng))!包壳内边界
 				assm1(izone)%thermal%Tsc(j)=(assm1(izone)%property%htc(j)*assm1(izone)%thermal%temperature(j,Nradial)+2*assm1(izone)%property%ctc(j,Nradial-1)/(Xs/Ns)*assm1(izone)%thermal%temperature(j,Nradial-1))/(assm1(izone)%property%htc(j)+2*assm1(izone)%property%ctc(j,Nradial-1)/(Xs/Ns))!包壳外边界
-			enddo
+
+                enddo
 		enddo!surface zone end
 		!write current_,max_Tcoolant,toutlet,max_Tfuel,max_T_inner,max_T_outer
 		max_T_inner=0.0
 		max_T_outer=0.0
 		do izone=1,Nzone,1
 			do j=1,assm1(izone)%mesh%Ny,1
-				if(max_T_inner<assm1(izone)%thermal%Tgs(j)) max_T_inner=assm1(izone)%thermal%Tgs(j)
-				if(max_T_outer<assm1(izone)%thermal%Tsc(j)) max_T_outer=assm1(izone)%thermal%Tsc(j)
+				if(max_T_inner<assm1(izone)%hotthermal%Tgs(j)) max_T_inner=assm1(izone)%hotthermal%Tgs(j)
+				if(max_T_outer<assm1(izone)%hotthermal%Tsc(j)) max_T_outer=assm1(izone)%hotthermal%Tsc(j)
 			enddo
         enddo
 	write(unit=file_maxT,fmt="(F6.1,'',4F9.2)")current,max_Tfuel,max_Tcoolant,max_T_inner,max_T_outer	

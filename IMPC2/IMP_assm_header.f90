@@ -364,7 +364,7 @@ module imp_assm_header
 		
      end subroutine init_thermal
      
-      subroutine init_hchannel(this,Temperature)
+    subroutine init_hchannel(this,Temperature)
         implicit none
         class(hotchannel),intent(in out)::this
         real(KREAL),intent(in)::Temperature
