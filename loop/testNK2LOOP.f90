@@ -98,6 +98,7 @@ module testNK2loop
         else
             pow=pows*0.05
         endif
+        pow=powS
 		!pow=0.0
         do i=1,nr,1
             do j=1,na,1

@@ -72,7 +72,8 @@ module Imp_cal_loop
 		logical::transient_flag,is_table
 		
 		transient_flag=.TRUE.
-        is_table=.TRUE.
+        ! is_table=.TRUE.
+        is_table=pump1%is_table
 
 		call cal_total_inputpow(assembly,powinput)
         call cal_loop_hydraulic(is_table,is_natural,last,current,Qloop)		
@@ -130,6 +131,7 @@ module Imp_cal_loop
             call cal_hydraulic_sec(last,current,flows)
             flowrate=flows
         endif
+        call set_flowrate(flowrate)
     end subroutine cal_loop_hydraulic
     
 	subroutine cal_hydraulic_fir(is_table,current,flowrate)
@@ -170,7 +172,7 @@ module Imp_cal_loop
             !endif
             end associate
         endif
-        call set_flowrate(flowrate)
+        !call set_flowrate(flowrate)
 	end subroutine cal_hydraulic_fir
     
 	subroutine cal_hydraulic_sec(last,current,flowrate)
@@ -188,7 +190,7 @@ module Imp_cal_loop
         !this%betap=this%betap+0.5*(this%Fricp*this%length(i)/this%Dep+Kiouter)*1/(this%rhop(i)*this%Areap**2)
         !solve
         flowrate=(alpha*flowrate+buoy*dt)/(alpha-beta*flowrate*dt)
-        call set_flowrate(flowrate)
+        !call set_flowrate(flowrate)
         grapre=buoy*core%Nbranch
         locfripre=beta*flowrate*flowrate*core%Nbranch
    end subroutine cal_hydraulic_sec

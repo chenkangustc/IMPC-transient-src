@@ -1,7 +1,9 @@
 !keyword:control is_THonly is_tNK2TH is_table is_flowtable is_Tintable is_Bq
-         control    F         T          T      F             F          F
+         control    F         T          F      F             F          F
 !pump:device     Qe	   Ntime	Nbranch coolant
-      pump	   248.3  26        2       101
+      ! pump	   248.3  26        2       101
+!pump:device  I  He Qe Omegae yita  Nbranch Mtl_coolant
+        pump  1. 1. 248.3  1. 1.    2           101
 !pipePR:device    	Length 	Rtube   thicks 	 theta 	     Q	       Ti   fric   kric poolmodify is_Tb Ny    coolant  shell
         pipePR	    4.50 	0.065	 0.005	 180.	    248.3	   493	 0.3    40.00    1.0       F   100    101      202
 !pipeRI:device    	Length 	Rtube   thicks 	 theta 	     Q	     Ti  fric  kric poolmodify is_Tb   Ny  coolant  shell
@@ -14,7 +16,7 @@
          time  1500.0  1500
 !=====================================================================================
 !assembly:device pellet(mm) gap(mm) cladth(mm) p2d  fric  K   Tin  Ti      hotsigma npin nfuelpin
-         pingeom  5.2       0.1      0.5       1.36 0.3  15.00  493  493    1.27     61    61
+         pingeom  5.2       0.1      0.5       1.36 0.3  15.00  493  493    1.00     61    61
 !reinput:device  nf ng ns ny ny_bottom ny_top as_bottom as_top
          pinmesh 5   3 3  22  0         0      7         28
 !ReMtl          fuel  shell coolant  gap
