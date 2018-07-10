@@ -41,7 +41,7 @@
         REAL(KREAL)  :: last_, current_
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
-		real(KREAL)  :: max_T_inner,max_T_outer,Tinit
+		real(KREAL)  :: max_T_inner,max_T_outer,Tinit,Tijk
 		real(KREAL),allocatable::aveT(:)
 		real(KREAL),allocatable::powSteady(:,:)
 		real(KREAL),allocatable::powinput(:,:)
@@ -117,9 +117,14 @@
         ! Nzone=core%Nflow+core%Nflowsemi
 		Nzone=core%Nzone!better change it to fuel 
         !calculate max_Tcoolant max_Tfuel
+        Tijk=0.0
 		do izone=1,Nzone,1
+            Nf=assm1(izone)%mesh%Nf
 			do j=1,assm1(izone)%mesh%Ny,1
-				if(Tfuel(izone,j)>max_Tfuel) 		max_Tfuel=Tfuel(izone,j)
+                do k=1,Nf,1
+                    Tijk=assm1(izone)%thermal%temperature(j,k)
+                    if(Tijk>max_Tfuel) 		max_Tfuel=Tijk
+                enddo
 				if(Tcoolant(izone,j)>max_Tcoolant)	max_Tcoolant=Tcoolant(izone,j)
 			enddo
 		enddo
