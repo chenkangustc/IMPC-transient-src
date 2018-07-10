@@ -1,6 +1,13 @@
 module imp_property
     use constants
     contains
+    
+    function get_Glasston_heatdecay(t,t0) result(heatdecay)
+        real(KREAL),intent(in)::t
+        real(KREAL),intent(in)::t0
+        heatdecay=0.1*((t+10.)**-0.2-(t+t0+10)**-0.2+0.87*(t+t0+2.E7)**-0.2-0.87*(t+2E7)**-0.2)
+    end function get_Glasston_heatdecay
+    
      function get_fric_LBE_pin(Frtype,Re) result(fric)
         integer,intent(in)::Frtype
         real(KREAL),intent(in)::Re

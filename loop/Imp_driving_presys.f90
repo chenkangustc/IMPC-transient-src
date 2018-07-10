@@ -2,6 +2,7 @@ module Imp_driving_presys
 	use Imp_loop_global
 	use Imp_inputcard
     use imp_re_input_global
+    use loop_vtk_global
     ! use imp_assm_global
 	contains
 	subroutine driving_presys()
@@ -60,6 +61,7 @@ module Imp_driving_presys
             if(allocated(tpower1%pow)) deallocate(tpower1%pow)
         endif
         if(allocated(reInputdata%sa)) deallocate(reInputdata%sa)
+        call loopave%free()
 	end subroutine driving_free_loop
     
 

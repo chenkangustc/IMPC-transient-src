@@ -18,6 +18,7 @@
 	 use imp_driving_syspost
      use imp_re_input_global
      use imp_property
+     use loop_vtk_global
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
@@ -82,6 +83,7 @@
                 powas=powas+ascouple(i,j)
             enddo
         enddo
+        
         if(powas<decayheat*powst) then
             powinput=decayheat*powSteady
         else    
@@ -163,6 +165,29 @@
 			enddo
         enddo
 	write(unit=file_maxT,fmt="(F6.1,'',4F9.2)")current,max_Tfuel,max_Tcoolant,max_T_inner,max_T_outer	
-	end subroutine Perform_TH_loop
+	!vtk
+    do i=1,nr,1
+        do j=1,na,1
+            loopave%tcoolant(j+as_bottom-1,i)=Tcoolant(i,j+as_bottom-1)
+            loopave%rhocoolant(j+as_bottom-1,i)=rhocoolant(i,j+as_bottom-1)
+            loopave%tfuel_center(j+as_bottom-1,i)=assm1(i)%thermal%tfuel_center(j)
+            loopave%tclad_outer(j+as_bottom-1,i)=assm1(i)%thermal%Tsc(j)
+            loopave%tclad_inner(j+as_bottom-1,i)=assm1(i)%thermal%Tgs(j)
+        enddo
+    enddo
+    end subroutine Perform_TH_loop
+    
+    function get_Glasston_heatdecay(t,t0) result(heatdecay)
+        real(KREAL),intent(in)::t
+        real(KREAL),intent(in)::t0
+        heatdecay=0.1*((t+10.)**-0.2-(t+t0+10)**-0.2+0.87*(t+t0+2.E7)**-0.2-0.87*(t+2E7)**-0.2)
+    end function get_Glasston_heatdecay
+    
+    subroutine get_powinput(current,powsteady,ascouple,powinput)
+        real(KREAL),intent(in)::current
+        real(KREAL),intent(in)::powsteady(:,:),ascouple(:,:),powinput(:,:)
+        
+        
+    end subroutine get_powinput
 end module TH2NK_interface_loop
 

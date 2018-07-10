@@ -5,6 +5,7 @@ module imp_driving_pre_process
 	use imp_assm_global
     use imp_loop_global
     use imp_re_input_global
+    use loop_vtk_global
 
     implicit none
     private
@@ -16,15 +17,17 @@ module imp_driving_pre_process
     public::cal_grid
 contains
     subroutine Sys_pre_process()
-     implicit none
-	 integer i,layer_core
-     !real(KREAL)::ttotal
-     !real(KREAL)::ltime
-     !real(KREAL)::ctime
-     !integer::Nt
-     ! write(*,*)'start the reactor pre process:'
-     !alloc
-	  layer_core=ns%state%layer-ns%state%layer_bottom-ns%state%layer_top
+        implicit none
+        integer i,layer_core
+        !real(KREAL)::ttotal
+        !real(KREAL)::ltime
+        !real(KREAL)::ctime
+        !integer::Nt
+        ! write(*,*)'start the reactor pre process:'
+        !alloc
+        layer_core=ns%state%layer-ns%state%layer_bottom-ns%state%layer_top
+        call loopave%alloc(ns%state%layer,ns%state%zone)
+        call loopave%init()
 		if(ns%feedback%is_feedback .and. (ns%feedback%is_inner.OR.ns%feedback%is_imp.OR.ns%feedback%is_loop)) then
 			allocate(assm1(core%Nzone))
 			allocate(imp_pow(ns%state%zone,ns%state%layer))

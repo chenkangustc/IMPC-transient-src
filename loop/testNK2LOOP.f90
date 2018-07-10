@@ -4,6 +4,7 @@ module testNK2loop
     use TH2NK_interface_loop
     use imp_loop_global
     use imp_timer_global
+    use output_visit,               only : Print_vtk_files
 	implicit none
     contains
     subroutine driving_testNK2loop()
@@ -58,7 +59,9 @@ module testNK2loop
 				  call Perform_TH_loop(transient_flag, power, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)  
                   write(*,fmt="(F5.1,'|',6F10.2)")  current,max_Tfuel,max_Tcoolant,core%Tfin,core%Tfout,IHX1%Tpin,IHX1%Tpout
 				  last=current
-			  enddo
+                  ! call Print_vtk_files (is_adjoint=.FALSE., is_transient=.TRUE., tidx=id_Total, ctime=ctime)
+                  call Print_vtk_files (.FALSE., .TRUE., i, current)
+              enddo
 	   endif
 	      
     !   i_zone=19

@@ -20,6 +20,7 @@ module output_visit
     use th_global
 	
 	use imp_assm_global 
+    use loop_vtk_global
     
     implicit none 
     private
@@ -917,6 +918,121 @@ contains
             write(unit=unit_, fmt=*)  '    '
             write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
             write(unit=unit_, fmt=*)  '    '
+        end if
+        
+        ! ----------------------------------------------------------------------
+        ! loop thermal information
+        if (ns%feedback%is_feedback .and. ns%feedback%is_loop)  then
+            ! average channel
+            true_title = TRIM(vtk_title)//'_avg_'//'rhocoolant'
+            write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            do ia = 1, ns%state%layer
+                do ir = 1, ns%state%nodal
+                    iz = mesh%zone(ir)
+                    write(unit=unit_, fmt=*) loopave%rhocoolant(ia,iz)
+                end do
+            end do
+            write(unit=unit_, fmt=*)  '    '
+            write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            write(unit=unit_, fmt=*)  '    '
+            
+            true_title = TRIM(vtk_title)//'_avg_'//'tcoolant'
+            write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            do ia = 1, ns%state%layer
+                do ir = 1, ns%state%nodal
+                    iz = mesh%zone(ir)
+                    !write(unit=unit_, fmt=*) avg_channel%tcoolant(ia, iz)
+					write(unit=unit_, fmt=*) loopave%tcoolant(ia,iz)
+                end do
+            end do
+            write(unit=unit_, fmt=*)  '    '
+            write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            write(unit=unit_, fmt=*)  '    '
+            
+            true_title = TRIM(vtk_title)//'_avg_'//'tclad_surf'
+            write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            do ia = 1, ns%state%layer
+                do ir = 1, ns%state%nodal
+                    iz = mesh%zone(ir)
+                    !write(unit=unit_, fmt=*) avg_channel%tclad_surf(ia, iz)
+					write(unit=unit_, fmt=*) loopave%tclad_outer(ia,iz)
+				end do
+            end do
+            write(unit=unit_, fmt=*)  '    '
+            write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            write(unit=unit_, fmt=*)  '    '
+            
+            true_title = TRIM(vtk_title)//'_avg_'//'tclad_inner'
+            write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            do ia = 1, ns%state%layer
+                do ir = 1, ns%state%nodal
+                    iz = mesh%zone(ir)
+                    !write(unit=unit_, fmt=*) avg_channel%tclad_inner(ia, iz)
+					write(unit=unit_, fmt=*) loopave%tclad_inner(ia,iz)
+				end do
+            end do
+            write(unit=unit_, fmt=*)  '    '
+            write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            write(unit=unit_, fmt=*)  '    '
+            
+            ! true_title = TRIM(vtk_title)//'_avg_'//'tfuel_surf'
+            ! write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            ! write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            ! write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            ! do ia = 1, ns%state%layer
+                ! do ir = 1, ns%state%nodal
+                    ! iz = mesh%zone(ir)
+                    ! write(unit=unit_, fmt=*) avg_channel%tfuel_surf(ia, iz)
+                ! end do
+            ! end do
+            ! write(unit=unit_, fmt=*)  '    '
+            ! write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            ! write(unit=unit_, fmt=*)  '    '
+            
+            true_title = TRIM(vtk_title)//'_avg_'//'tfuel_center'
+            write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            do ia = 1, ns%state%layer
+                do ir = 1, ns%state%nodal
+                    iz = mesh%zone(ir)
+                    !write(unit=unit_, fmt=*) avg_channel%tfuel_center(ia, iz)
+					write(unit=unit_, fmt=*) loopave%tfuel_center(ia,iz)
+                end do
+            end do
+            write(unit=unit_, fmt=*)  '    '
+            write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            write(unit=unit_, fmt=*)  '    '
+            
+            ! true_title = TRIM(vtk_title)//'_avg_'//'tfuel_avg'
+            ! write(unit=unit_, fmt="(A, 3x, I10)")    'CELL_DATA', ns%state%nodal * ns%state%layer
+            ! write(unit=unit_, fmt="(A, 3x, A, 3x, A)") 'SCALARS', TRIM(true_title), 'float'
+            ! write(unit=unit_, fmt="(A, 3x, A)") 'LOOKUP_TABLE', TRIM(true_title)//'_table'
+            
+            ! do ia = 1, ns%state%layer
+                ! do ir = 1, ns%state%nodal
+                    ! iz = mesh%zone(ir)
+                    ! !write(unit=unit_, fmt=*) avg_channel%tfuel_avg(ia, iz)
+					! write(unit=unit_, fmt=*) assm1(iz)%thermal%Tfuel(ia)
+                ! end do
+            ! end do
+            ! write(unit=unit_, fmt=*)  '    '
+            ! write(unit=unit_, fmt="(A)")  'POINT_DATA 1'
+            ! write(unit=unit_, fmt=*)  '    '
         end if
         
     end subroutine Print_vtk_distribution_nodal_layer
