@@ -105,6 +105,20 @@ module imp_assm_header
        procedure,public::init=>init_thermal
       end type thermal
       
+    type,public::hotchannel!                
+        real(KREAL),allocatable::Temperature(:,:) !pvt
+        real(KREAL),allocatable::Tcoolant(:)
+        real(KREAL),allocatable::Tfuel(:)
+        real(KREAL),allocatable::Tfuel_center(:)
+        real(KREAL),allocatable::Tfg(:)
+        real(KREAL),allocatable::Tgs(:)
+        real(KREAL),allocatable::Tsc(:)
+        real(KREAL)::Tfave,Tcave
+        real(KREAL)::hotsigma
+        contains
+        procedure,public::init=>init_hchannel
+    end type hotchannel
+      
     type,public::AssmInit
       real(KREAL):: Ti!初始温度
       real(KREAL):: Pi!初始压力
@@ -157,6 +171,7 @@ module imp_assm_header
      private::update_th_boundary
      private::init_material
      private::init_thermal
+     private::init_hchannel
      private::cal_hydraulic
      
      !private::cal_grid
@@ -348,6 +363,22 @@ module imp_assm_header
 		this%Tcave=0.0
 		
      end subroutine init_thermal
+     
+      subroutine init_hchannel(this,Temperature)
+        implicit none
+        class(hotchannel),intent(in out)::this
+        real(KREAL),intent(in)::Temperature
+		!local
+        this%Temperature=Temperature
+		this%Tfuel_center=0.0
+		this%Tcoolant=0.0
+		this%Tfuel=0.0
+		this%Tfg=0.0
+		this%Tgs=0.0
+		this%Tsc=0.0
+		this%Tfave=0.0
+		this%Tcave=0.0
+     end subroutine init_hchannel
      
      subroutine set_AssmInit(this,Ti,Pi,Ui,Tin,Pout,Uin)
         implicit none

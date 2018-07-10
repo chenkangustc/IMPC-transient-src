@@ -16,6 +16,7 @@ module imp_assembly_header
       !real,allocatable::power(:,:) !Assm_power(zone,layer)
       !real,allocatable::fq_core(:,:)
       type(thermal)::Thermal  !pvt
+      type(hotchannel)::hotthermal
     end type sys_assembly
 
 end module imp_assembly_header

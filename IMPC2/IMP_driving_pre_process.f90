@@ -72,6 +72,7 @@ contains
       call assm%property%init(assm%mesh%Nf,assm%mesh%Ng,assm%mesh%Ns,assm%mesh%Ny)
       !热工参数初始化
       call assm%Thermal%init(assm%initdata%Ti,assm%initdata%Pi,assm%initdata%ui)
+      call assm%hotthermal%init(assm%initdata%Ti)
       !边界条件初始化
       call assm%th_boundary%init(assm%initdata%Tin,assm%initdata%uin,assm%initdata%pout)
       assm%th_boundary%p%inlet=assm%thermal%pressure(1)+2500.0
@@ -115,6 +116,14 @@ contains
 	  allocate(assm%thermal%Tgs(Ny))
 	  allocate(assm%thermal%Tsc(Ny))
       
+      allocate(assm%hotthermal%Temperature(M-1,N))
+	  allocate(assm%hotthermal%Tcoolant(Ny))
+	  allocate(assm%hotthermal%Tfuel(Ny))
+	  allocate(assm%hotthermal%Tfuel_center(Ny))
+	  allocate(assm%hotthermal%Tfg(Ny))
+	  allocate(assm%hotthermal%Tgs(Ny))
+	  allocate(assm%hotthermal%Tsc(Ny))
+      
       allocate(assm%mesh%r(0:M,0:N))
       allocate(assm%mesh%z(0:M,0:N))
       
@@ -142,6 +151,14 @@ contains
 	  if(allocated(assm%thermal%Tfg))  deallocate(assm%thermal%Tfg)
 	  if(allocated(assm%thermal%Tgs))  deallocate(assm%thermal%Tgs)
 	  if(allocated(assm%thermal%Tsc))  deallocate(assm%thermal%Tsc)
+      
+      if(allocated(assm%hotthermal%temperature))  deallocate(assm%hotthermal%temperature)
+	  if(allocated(assm%hotthermal%Tcoolant))  deallocate(assm%hotthermal%Tcoolant)
+	  if(allocated(assm%hotthermal%Tfuel))  deallocate(assm%hotthermal%Tfuel)
+	  if(allocated(assm%hotthermal%Tfuel_center))  deallocate(assm%hotthermal%Tfuel_center)
+	  if(allocated(assm%hotthermal%Tfg))  deallocate(assm%hotthermal%Tfg)
+	  if(allocated(assm%hotthermal%Tgs))  deallocate(assm%hotthermal%Tgs)
+	  if(allocated(assm%hotthermal%Tsc))  deallocate(assm%hotthermal%Tsc)
       
       if(allocated(assm%mesh%r))  deallocate(assm%mesh%r)
       if(allocated(assm%mesh%z))  deallocate(assm%mesh%z)
