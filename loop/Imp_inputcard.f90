@@ -352,7 +352,7 @@ module Imp_inputcard
                     PipePR%Bq(:)=dummy_real(1:PipePR%Ny)
                     case('decayheat')
                     read(unit=aline,fmt=*,iostat=io_error) keyword,dummy_real(1)
-                    decayheat=dummy_real(1)
+                    core%tsteady0=dummy_real(1)
                 end select
             endif
         end do

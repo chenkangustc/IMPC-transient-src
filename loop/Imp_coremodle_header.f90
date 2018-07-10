@@ -23,6 +23,9 @@ module Imp_coremodle_header
         integer::Mtl_fuel,Mtl_shell,Mtl_coolant,Mtl_gas
         integer::Nubundle
         integer::Nzonefmax
+        integer::ishut
+        logical::is_shut
+        real(KREAL)::tshut,tsteady0!shut
 	    !geom 
         real(KREAL)::Ltotal
 		real(KREAL),allocatable::Length(:)
@@ -91,6 +94,10 @@ module Imp_coremodle_header
 	  rcoremodle=this%Rtube
 	  this%Tfin=600.0!K
 	  this%Tfout=this%Ti
+      this%ishut=0
+      this%is_shut=.FALSE.
+      this%tshut=0.0
+      this%tsteady0=604800.!7days
       do i=1,Ny,1
           this%length(i)=this%ltotal/Ny
 		  this%Tf(i)=this%Ti

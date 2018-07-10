@@ -22,7 +22,8 @@
     implicit none
     !real(KREAL),allocatable::power(:,:),fq_core(:,:)
     !integer M,N,i,j
-    contains
+    private::get_powinput
+    contains    
     subroutine Perform_TH_loop(transient_flag, assembly, Tfuel, Tcoolant, Rhocoolant, max_Tfuel, max_Tcoolant, min_Rhocoolant, last, current, toutlet)
 		implicit none
         logical, intent(in)      :: transient_flag                              ! .TRUE. --transient
@@ -41,7 +42,6 @@
 		real(KREAL)  :: volumn,TVtotal,dr!used to calculate the average temperature of fuel
 		real(KREAL)	 :: xs,xg,xf !used to calculate the Tsurface
 		real(KREAL)  :: max_T_inner,max_T_outer,Tinit
-        real(KREAL)  :: powst,powas
 		real(KREAL),allocatable::aveT(:)
 		real(KREAL),allocatable::powSteady(:,:)
 		real(KREAL),allocatable::powinput(:,:)
@@ -73,22 +73,9 @@
 		allocate(aveT(Nave))
         allocate(powSteady(nr,na))
         allocate(powinput(nr,na))
-        !衰变热：额定功率4%
+        !衰变热：额定功率
         if(current<0.0001)  powSteady=ascouple
-        powst=0.0
-        powas=0.0
-        do i=1,nr,1
-            do j=1,na,1
-                powst=powst+powSteady(i,j)
-                powas=powas+ascouple(i,j)
-            enddo
-        enddo
-        
-        if(powas<decayheat*powst) then
-            powinput=decayheat*powSteady
-        else    
-            powinput=ascouple
-        endif
+        call get_powinput(current_,powsteady,ascouple,powinput)
 		!热工水力计算
 		if (transient_flag)  then
            call driving_loop_transient(powinput,last_, current_)
@@ -177,17 +164,55 @@
     enddo
     end subroutine Perform_TH_loop
     
-    function get_Glasston_heatdecay(t,t0) result(heatdecay)
+    function cal_Glasston_heatdecay (t,t0) result(ht)
         real(KREAL),intent(in)::t
         real(KREAL),intent(in)::t0
-        heatdecay=0.1*((t+10.)**-0.2-(t+t0+10)**-0.2+0.87*(t+t0+2.E7)**-0.2-0.87*(t+2E7)**-0.2)
-    end function get_Glasston_heatdecay
+        real(KREAL)::ht
+        ht=0.1*((t+10.)**-0.2-(t+t0+10)**-0.2+0.87*(t+t0+2.E7)**-0.2-0.87*(t+2E7)**-0.2)
+    end function cal_Glasston_heatdecay    
+
     
     subroutine get_powinput(current,powsteady,ascouple,powinput)
         real(KREAL),intent(in)::current
-        real(KREAL),intent(in)::powsteady(:,:),ascouple(:,:),powinput(:,:)
-        
-        
+        real(KREAL),intent(in)::powsteady(:,:),ascouple(:,:)
+        real(KREAL),intent(in out)::powinput(:,:)
+        !local
+        real(KREAL)::powst,powas
+        real(KREAL)::hdecay0,hdecay,time0
+        real(KREAL)::tcurrent
+        integer::nr,na,i,j
+        nr=size(ascouple,dim=1)
+        na=size(ascouple,dim=2)
+        time0=0.0
+        powst=0.0
+        powas=0.0
+        do i=1,nr,1
+            do j=1,na,1
+                powst=powst+powSteady(i,j)
+                powas=powas+ascouple(i,j)
+            enddo
+        enddo
+        associate(is_shut=>core%is_shut,ishut=>core%ishut,tshut=>core%tshut,tsteady0=>core%tsteady0)
+            hdecay0=cal_Glasston_heatdecay (time0,tsteady0)
+            if(powas<hdecay0*powst) then
+                is_shut=.TRUE.
+                if(ishut==0) then
+                    tshut=current
+                    ishut=ishut+1
+                endif
+            else
+                is_shut=.FALSE.
+            endif
+            
+            if(is_shut) then
+                tcurrent=current-tshut
+                hdecay=cal_Glasston_heatdecay (tcurrent,tsteady0+tshut)
+                powinput=hdecay*powSteady
+            else    
+                powinput=ascouple
+                ishut=0
+            endif        
+        end associate
     end subroutine get_powinput
 end module TH2NK_interface_loop
 
