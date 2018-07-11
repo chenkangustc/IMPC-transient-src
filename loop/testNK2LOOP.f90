@@ -90,16 +90,18 @@ module testNK2loop
         na=size(pow,dim=2)
 		!if(current<=400.0) pow=-powS*(current-400.0)/400.0
 		! pow=powS
-        if(current>=1.and.current<2.) then
-            pow=pows*(1.0-current*0.1)
-        elseif(current>=2..and.current<4.) then
-            pow=pows*(0.8-(current-2.0)*0.35)
-        elseif(current>=4..and.current<=14.) then
-            pow=pows*(0.1-(current-4.0)*0.005)
-        else
-            pow=pows*0.05
-        endif
-        pow=powS
+        if (current>1) pow=0.0
+        !if(current>=1.and.current<2.) then
+        !    pow=pows*(1.0-current*0.1)
+        !elseif(current>=2..and.current<4.) then
+        !    pow=pows*(0.8-(current-2.0)*0.35)
+        !elseif(current>=4..and.current<=14.) then
+        !    pow=pows*(0.1-(current-4.0)*0.005)
+        !else
+        !    pow=pows*0.05
+        !endif
+        
+       ! pow=powS
 		!pow=0.0
         do i=1,nr,1
             do j=1,na,1
